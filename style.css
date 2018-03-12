@@ -7,6 +7,7 @@
     --light-secondary-color: rgb(110, 58, 158);
     --tertiary-color: #55a;
     --snappy-animation-time: 0.2s;
+    --animation-time: 2s;
     --long-animation-time: 15s;
 }
 html, body {
@@ -40,6 +41,25 @@ section {
     padding: 2rem 4rem;
     box-sizing: border-box;
     text-align: center;
+}
+.note-circle {
+    position: absolute;
+    border-radius: 50%;
+    width: 0;
+    height: 0;
+    margin: 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    transition: width var(--animation-time) ease,
+                height var(--animation-time) ease,
+                margin var(--animation-time) ease,
+                background-color var(--animation-time) ease;
+}
+.note-circle.active {
+    width: 6rem;
+    height: 6rem;
+    margin-left: -3rem;
+    margin-top: -3rem;
+    background-color: rgba(255, 255, 255, 0.0);
 }
 /* Information in controls hidden by default */
 #ControlList {

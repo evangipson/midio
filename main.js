@@ -1,5 +1,6 @@
 var _audioContext;
 var oscTypes = ["sine", "sawtooth", "triangle"];
+var circles = [];
 
 function getAudioContext() {
     // one context per document
@@ -20,8 +21,9 @@ function getRange(min, max) {
  * @param {Number} frequency 
  * @param {Number} time
  * @param {Number} volume from 0 to 1
+ * @param {Number} echoDelay
  */
-function playMIDINote(type, frequency, time, volume) {
+function playMIDINote(type, frequency, time, volume, echoDelay, circleX, circleY) {
     var gainNode; // if we need "custom" volume, we'll need a gain
 
     if(!type) {
@@ -34,18 +36,15 @@ function playMIDINote(type, frequency, time, volume) {
         volume = 1.0;
     }
     else if(volume < 0 || volume > 1) {
-        console.log("Weird value recieved for volume. It's: %s. Setting volume to 100% for this note.", volume);
-        volume = 1.0; // disallow odd values
+        console.log("Weird value recieved for volume. It's: %s. Exiting.", volume);
+        return;
     }
     else {
         console.log("Custom value for volume recieved. Playing note at %s volume", volume);
         gainNode = _audioContext.createGain(); // to control volume
     }
     if(!time) {
-        time = _audioContext.currentTime + 1;
-    }
-    else {
-        time = _audioContext.currentTime + time; // in seconds
+        time = 1; // in seconds
     }
     var osc = _audioContext.createOscillator(); // instantiate an oscillator
     osc.type = type;
@@ -62,30 +61,40 @@ function playMIDINote(type, frequency, time, volume) {
         gainNode.gain.setValueAtTime(volume, 1);
     }
     osc.start(); // sound the note
-    osc.stop(time); // turn off the note
+    osc.stop(_audioContext.currentTime + time); // turn off the note
+    if(circleX && circleY) {
+        if(echoDelay) {
+            drawNoteCircle(circleX, circleY, volume);
+        }
+        else {
+            drawNoteCircle(circleX, circleY);
+        }
+    }
+    // handle recursive echo notes
+    if(echoDelay && volume >= 0.2) {
+        volume = volume - 0.2;
+        window.setTimeout(function() {
+            playMIDINote(type, frequency, time, volume, echoDelay, circleX, circleY);
+        }, echoDelay);
+    }
 }
 
-function playRandomEchoNote() {
+function playRandomEchoNote(event) {
     var type = getRandomArrayItem(oscTypes);
     var freq = getRange(100, 800);
     var time = Math.random() * 0.4 + 0.08;
-    var delay = getRange(200, 1000);
-    var echoLength = getRange(2, 3) / 10;
-    var note = setInterval(function() {
-        if(!this.vol) { this.vol = 1.0 }
-        else { this.vol = this.vol - echoLength }
-        if(this.vol > 0 && this.vol <= 1) {
-            playMIDINote(type, freq, time, this.vol);
-        } 
-        else {
-            // stop the echo after it's done (or has weird volume)
-            this.vol = null;
-            clearInterval(note);
-        }
-    }, delay); // let the note go with varying echo
-    /*window.setTimeout(function() {
-        clearInterval(note);
-    }, delay * ((1 / echoLength) + 1));*/
+    var echoDelay = getRange(500, 2000); // in ms
+    /* as long as we provide an echoDelay, we'll
+     * hear an echo. */
+    playMIDINote(type, freq, time, 1, echoDelay, event.clientX, event.clientY);
+}
+
+function playRandomQuietNote() {
+    var type = getRandomArrayItem(oscTypes);
+    var freq = getRange(100, 800);
+    var time = Math.random() * 0.4 + 0.08;
+    // Passing volume is easy!
+    playMIDINote(type, freq, time, 0.1);
 }
 
 function playRandomNote() {
@@ -111,11 +120,31 @@ function enableControlMenu() {
     });
 }
 
+function drawNoteCircle(x, y, opacity) {
+    var mouseX = x;
+    var mouseY = y;
+    var newCircle = document.createElement("span");
+    newCircle.classList.add("note-circle");
+    newCircle.style.left = mouseX + "px";
+    newCircle.style.top = mouseY + "px";
+    newCircle.style.opacity = opacity ? opacity : 1;
+    document.getElementById("Visualizer").appendChild(newCircle);
+    circles.push(newCircle);
+    window.setTimeout(function() {
+        newCircle.classList.add("active"); // "turn on" the animation in a sec
+    }, 100);
+    window.setTimeout(function() {
+        // remove the first circle
+        var removedCircle = circles.shift();
+        document.getElementById("Visualizer").removeChild(removedCircle);
+    }, 2000); // keep the delay consistent with the CSS
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     getAudioContext();
     enableControlMenu();
     var visualizer = document.getElementById("Visualizer");
-    visualizer.addEventListener("click", function() {
-        playRandomEchoNote();
+    visualizer.addEventListener("click", function(event) {
+        playRandomEchoNote(event);
     });
 });
