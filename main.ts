@@ -2,8 +2,10 @@
 'use strict';
 
 // Variables
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();// used to chain audio
-let circles = []; // used to keep track of circles which represent notes
+// Immutable global variable, used to chain audio
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// used to keep track of circles which represent notes
+let circles = [];
 const waveTypes = [
     "sine",
     "sawtooth",
@@ -27,7 +29,7 @@ const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)
 const getRange = (min, max) => Math.floor(Math.random() * max) + min;
 
 const getGainNode = volume => {
-    if(volume > 1.0) {
+    if(volume > 1.0 && audioContext) {
         return audioContext.createGain().
                 gain.setValueAtTime(volume, 1);
     }
@@ -51,15 +53,16 @@ const setOscProperties = (osc, type, frequency) => {
  * Connects an oscillator to a destination of
 * the node passed in.
 */
-const connectOscNode = (audioContext, gainNode) => {
+const connectOscNode = (gainNode) => {
+    const osc = audioContext.createOscillator();
     if(gainNode) {
-        audioContext.connect(gainNode);
+        osc.connect(gainNode);
         gainNode.connect(audioContext.destination);
         return gainNode;
     }
     else {
-        audioContext.connect(audioContext.destination);
-        return audioContext;
+        osc.connect(audioContext.destination);
+        return osc;
     }
 }
 
@@ -75,7 +78,7 @@ const connectOscNode = (audioContext, gainNode) => {
 * @param {HTMLEvent} event to give us x and y
 */
 function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, echoDelay = false, event = false) {
-    const osc = connectOscNode(audioContext, getGainNode(volume));
+    const osc = connectOscNode(getGainNode(volume));
     setOscProperties(osc, type, frequency);
     osc.start();
     osc.stop(audioContext.currentTime + time);
