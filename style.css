@@ -1,0 +1,97 @@
+/* Variables */
+:root {
+    --dark-main-color: #222;
+    --main-color: #444;
+    --font-color: rgb(183, 209, 223);
+    --secondary-color: #71c;
+    --light-secondary-color: rgb(110, 58, 158);
+    --tertiary-color: #55a;
+    --snappy-animation-time: 0.2s;
+    --long-animation-time: 15s;
+}
+html, body {
+    padding: 0;
+    margin: 0;
+}
+html, body, button, a {
+    font-family: monospace;
+    color: var(--font-color);
+    font-weight: bold;
+    letter-spacing: 0.2px;
+}
+button {
+    cursor: pointer;
+}
+
+/* Layout */
+section {
+    width: 100%;
+}
+.visualizer {
+    height: 100vh;
+    overflow: hidden;
+    z-index: 0;
+}
+.controls {
+    z-index: 1;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 2rem 4rem;
+    box-sizing: border-box;
+    text-align: center;
+}
+/* Information in controls hidden by default */
+#ControlList {
+    max-height: 0;
+    transition: max-height var(--snappy-animation-time) ease-out;
+    overflow: hidden;
+    margin: 1rem 0 0;
+}
+.footer-copy p, .footer-copy button {
+    display: inline-block;
+}
+.footer-copy button {
+    margin-left: 2rem;
+}
+#ShowControls {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    width: auto;
+}
+#ShowControls:after {
+    content: "Show Controls";
+}
+#ShowControls.active:after {
+    content: "Hide Controls";
+}
+#ControlList input {
+    margin: 2rem auto;
+}
+.light-font {
+    font-weight: 300;
+    font-size: 0.9rem;
+    letter-spacing: 2.5px;
+}
+
+/* Colors */
+.controls {
+    background: var(--main-color);
+}
+.visualizer {
+    background: linear-gradient(var(--secondary-color), var(--tertiary-color));
+}
+#ShowControls {
+    background-color: var(--secondary-color);
+    transition: background-color var(--snappy-animation-time) ease;
+}
+#ShowControls:active, #ShowControls:hover {
+    background-color: var(--light-secondary-color);
+}
+/* Overriding colors set in ./range.css */
+.controls input[type=range]::-webkit-slider-runnable-track {
+    background: var(--secondary-color);
+}
