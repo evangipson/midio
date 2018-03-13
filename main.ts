@@ -84,8 +84,8 @@ const getGainNode = volume => {
  */
 const getNotePosition = event => {
     return {
-        x: event ? event.screenX : null,
-        y: event ? event.screenY : null
+        x: event ? event.clientX : null,
+        y: event ? event.clientY : null
     };
 };
 
@@ -219,8 +219,8 @@ function fakeMouseClick(screenGutter = 50) {
         'view': window,
         'bubbles': true,
         'cancelable': true,
-        'screenX': bestGuessX,
-        'screenY': bestGuessY
+        'clientX': bestGuessX,
+        'clientY': bestGuessY
     });
 }
 
