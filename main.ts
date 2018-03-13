@@ -12,8 +12,49 @@ const waveTypes = [
     "triangle",
     "square"
 ];
+// in half steps
+const baseTone = 150;
+const majorScale = [
+    0,
+    2,
+    4,
+    5,
+    7,
+    9,
+    11
+];
+const minorScale = [
+    0,
+    2,
+    3,
+    5,
+    7,
+    9,
+    11
+];
+const jazzScale = [
+    0,
+    1,
+    2,
+    3,
+    5,
+    8,
+    9
+];
+const twelfthRootOfTwo = 1.05946309;
 
 // Pure Functions
+/**
+ * Will run the provided function... maybe.
+ * @param {Function} func
+ */
+const maybe = func => {
+    if(Math.random() > 0.50) {
+        return func;
+    }
+    return null;
+}
+
 /**
  * Gives back a random array item, provided
 * the array.
@@ -27,7 +68,7 @@ const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)
 * @param {Number} max 
 */
 const getRange = (min, max) => Math.floor(Math.random() * max) + min;
-    
+
 const getGainNode = volume => {
     if(volume > 1.0 && audioContext) {
         return audioContext.createGain().
@@ -36,10 +77,15 @@ const getGainNode = volume => {
     return null;
 };
 
+/**
+ * Will get a note position given an event.
+ * Will default to give a position somewhere inside of the visualizer.
+ * @param event 
+ */
 const getNotePosition = event => {
     return {
-        x: event ? event.x : null,
-        y: event ? event.y : null
+        x: event ? event.clientX : null,
+        y: event ? event.clientY : null
     };
 };
 
@@ -83,7 +129,7 @@ const startOscillator = (osc, time) => {
 * @param {Number} echoDelay in milliseconds. default is false.
 * @param {HTMLEvent} event to give us x and y
 */
-function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, echoDelay = false, event = false) {
+function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, echoDelay = false, event) {
     // handle creating an oscillator and starting & stopping it
     const osc = startOscillator(
                 setOscProperties(
@@ -107,12 +153,34 @@ function getRandomNoteDuration() {
     return Math.random() * 0.4 + 0.08;
 }
 
+/**
+ * Will generate a frequency based on a scale.
+ * Relies on baseTone and twelfthRootOfTwo
+ * @param scale an array of intervals.
+ */
+const getHarmonicNoteFrequency = scale => {
+    let harmonicInterval = getRandomArrayItem(scale);
+    // in a 2 octave range, 1 up 1 down
+    harmonicInterval = Math.random() > 0.50 ? -(harmonicInterval) : harmonicInterval;
+    // perform our calculation to give back our frequency
+    return baseTone * (twelfthRootOfTwo ^ harmonicInterval);
+};
+
+function assemblePadNote() {
+    return {
+        type: Math.random() > 0.50 ? "triangle" : "sine",
+        frequency: getHarmonicNoteFrequency(minorScale),
+        time: getRandomNoteDuration() * getRange(2, 5),
+        echoDelay: null
+    }
+}
+
 function assembleNormalNote() {
     return {
         type: getRandomArrayItem(waveTypes),
-        frequency: getRange(100, 800),
+        frequency: getHarmonicNoteFrequency(minorScale),
         time: getRandomNoteDuration(),
-        echoDelay: getRange(500, 2000), // in ms
+        echoDelay: maybe(getRange(200, 2000)), // in ms
     }
 }
 
@@ -126,7 +194,7 @@ function drawNote(echoDelay, event, volume) {
     }
 }
 
-function playRandomEchoNote(event) {
+function playNoteOnClick(event) {
     /* as long as we provide an echoDelay, we'll
     * hear an echo. */
     const note = assembleNormalNote();
@@ -139,15 +207,48 @@ function playRandomEchoNote(event) {
         event
     );
 }
-/* function playQuietNote() {
-    // Passing volume is easy!
-    const note = assembleNormalNote();
-    playMIDINote(this.type, this.frequency, this.time, 0.1);
+
+/**
+ * "Starts" the radio and keeps it going by calling itself.
+ */
+function generateNote() {
+    const note = Math.random() > 0.50 ? assemblePadNote() : assembleNormalNote();
+    // fake a mouse click to trigger the pretty circle and remember it's x, y
+    const fakeMouseEvent = new MouseEvent("click", {
+        clientX: getRange(50, document.getElementById("Visualizer").offsetWidth - 50),
+        clientY: getRange(50, document.getElementById("Visualizer").offsetHeight - 50)
+    });
+    const event = fakeMouseEvent.initMouseEvent("click",
+        false,
+        false,
+        window,
+        0,
+        0,
+        0,
+        getRange(50, document.getElementById("Visualizer").offsetWidth - 50),
+        getRange(50, document.getElementById("Visualizer").offsetHeight - 50),
+        false,
+        false,
+        false,
+        false,
+        0,
+        document.getElementById("Visualizer")
+    );
+    playMIDINote(
+        note.type,
+        note.frequency,
+        note.time,
+        1,
+        note.echoDelay,
+        event
+    );
+    // now in a random amount of time, call itself again.
+    const msUntilNextNote = getRange(0.25, 8) * 1000; // in ms
+    window.setTimeout(function() {
+        generateNote()
+    }, msUntilNextNote);
 }
-function playNote() {
-    const note = assembleNormalNote();
-    playMIDINote(this.type, this.frequency, this.time);
-} */
+
 
 function enableControlMenu() {
     let showControlsButton = document.getElementById("ShowControls");
@@ -186,6 +287,7 @@ function drawNoteCircle(x, y, opacity = "1.0") {
 document.addEventListener("DOMContentLoaded", function() {
     enableControlMenu();
     document.getElementById("Visualizer").addEventListener("click", function(event) {
-        playRandomEchoNote(event);
+        playNoteOnClick(event);
     });
+    generateNote();
 });

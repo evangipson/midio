@@ -103,6 +103,7 @@ section {
 }
 .visualizer {
     background: linear-gradient(var(--secondary-color), var(--tertiary-color));
+    overflow: hidden;
 }
 #ShowControls {
     background-color: var(--secondary-color);
