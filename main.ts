@@ -13,35 +13,65 @@ const waveTypes = [
     "square"
 ];
 // in half steps
-const baseTone = 150;
-const majorScale = [
-    0,
-    2,
-    4,
-    5,
-    7,
-    9,
-    11
-];
-const minorScale = [
-    0,
-    2,
-    3,
-    5,
-    7,
-    9,
-    11
-];
-const jazzScale = [
-    0,
-    1,
-    2,
-    3,
-    5,
-    8,
-    9
-];
+const baseTone = 120;
+// root not included, top octave note note included.
+const scales = {
+    major: [
+        0,
+        2,
+        4,
+        5,
+        7,
+        9,
+        11
+    ],
+    naturalMinor: [
+        0,
+        2,
+        3,
+        5,
+        7,
+        8,
+        10
+    ],
+    harmonicMinor: [
+        0,
+        2,
+        3,
+        5,
+        7,
+        8,
+        11
+    ],
+    melodicMinor: [
+        0,
+        2,
+        3,
+        5,
+        7,
+        9,
+        11
+    ],
+    pentatonic: [
+        0,
+        3,
+        4,
+        7,
+        11
+    ],
+    jazz: [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        8,
+        10
+    ]
+};
 const twelfthRootOfTwo = 1.05946309;
+let currentScale = scales.naturalMinor; // will need this later for UI
 
 // Pure Functions
 /**
@@ -68,6 +98,19 @@ const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)
 * @param {Number} max 
 */
 const getRange = (min, max) => Math.floor(Math.random() * max) + min;
+
+/**
+ * Gets a unique note in the chord, not the one provided.
+ */
+const getUniqueChordNote = (note, scale) => {
+    let returnNote = getHarmonicNoteFrequency(getRandomArrayItem(scale));
+    // this makes sure there is enough space between the next note by
+    // making sure at least one half step is between the two notes.
+    while(note === returnNote || returnNote - note < twelfthRootOfTwo || note - returnNote < twelfthRootOfTwo) {
+        returnNote = getHarmonicNoteFrequency(getRandomArrayItem(scale));
+    }
+    return returnNote;
+};
 
 const getGainNode = volume => {
     if(volume > 1.0 && audioContext) {
@@ -169,17 +212,19 @@ const getHarmonicNoteFrequency = scale => {
 function assemblePadNote() {
     return {
         type: Math.random() > 0.50 ? "triangle" : "sine",
-        frequency: getHarmonicNoteFrequency(minorScale),
-        time: getRandomNoteDuration() * getRange(2, 5),
-        echoDelay: null
+        frequency: getHarmonicNoteFrequency(currentScale),
+        time: getRandomNoteDuration() * getRange(3, 10),
+        echoDelay: null,
+        volume: getRange(0.4, 0.7)
     }
 }
 
 function assembleNormalNote() {
     return {
         type: getRandomArrayItem(waveTypes),
-        frequency: getHarmonicNoteFrequency(minorScale),
+        frequency: getHarmonicNoteFrequency(currentScale),
         time: getRandomNoteDuration(),
+        volume: 1.0,
         echoDelay: maybe(getRange(200, 2000)), // in ms
     }
 }
@@ -212,7 +257,7 @@ function playNoteOnClick(event) {
  * Clicks somewhere randomly on the visualizer, within a window.
  * @param {Number} screenGutter how much edge of the screen to give, in px.
  */
-function fakeMouseClick(screenGutter = 50) {
+function fakeMouseClick(screenGutter = 100) {
     const bestGuessX = getRange(screenGutter, document.getElementById("Visualizer").offsetWidth - screenGutter);
     const bestGuessY = getRange(screenGutter, document.getElementById("Visualizer").offsetHeight - screenGutter);
     return new MouseEvent('click', {
@@ -225,26 +270,54 @@ function fakeMouseClick(screenGutter = 50) {
 }
 
 /**
- * "Starts" the radio and keeps it going by calling itself.
+ * Will generate a chord, returned as a set filled with
+ * unique values. Relies on currentScale.
+ * @param baseNote the root note of the chord
+ * @param tones how many notes you want in the chord
  */
-function generateNote() {
+const getChord = (baseNote, tones) => {
+    let chordTones = [];
+    for(var i = 0; i < tones; i++) {
+        chordTones.push(getUniqueChordNote(baseNote, currentScale));
+    }
+    // since sets can only store unique values, let's make
+    // a set with the chord tones, since i want them unique.
+    return new Set(chordTones);
+}
+
+/**
+ * "Starts" the radio and keeps it going by calling itself.
+ * Note: Can generate either a tone, echo tone, or chord.
+ */
+function generateSound() {
     const note = Math.random() > 0.50 ? assemblePadNote() : assembleNormalNote();
+    const additionalChordTones = Math.random() < 0.10 ? getRange(1, 4) : false; // small chance for chords
     playMIDINote(
         note.type,
         note.frequency,
         note.time,
-        1,
+        note.volume,
         note.echoDelay,
         fakeMouseClick()
     );
+    // take care of chords if there is one.
+    getChord(note, additionalChordTones).forEach((chordTone) => {
+        playMIDINote(
+            chordTone.type,
+            chordTone.frequency,
+            chordTone.time,
+            chordTone.volume,
+            false, // no echo for chords
+            fakeMouseClick()
+        );
+    });
 
     // now in a random amount of time, call itself again.
     const msUntilNextNote = getRange(0.25, 5) * 1000; // in ms
     window.setTimeout(function() {
-        generateNote()
+        generateSound()
     }, msUntilNextNote);
 }
-
 
 function enableControlMenu() {
     let showControlsButton = document.getElementById("ShowControls");
@@ -285,5 +358,5 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("Visualizer").addEventListener("click", function(event) {
         playNoteOnClick(event);
     });
-    generateNote();
+    generateSound();
 });
