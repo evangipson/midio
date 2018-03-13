@@ -17,6 +17,7 @@ midio will work really hard to generate you endlessly interesting midi on the fl
     * https://stackoverflow.com/questions/6343450/generating-sound-on-the-fly-with-javascript-html5
     * https://wiki.mozilla.org/Audio_Data_API#Complete_Example%3a_Creating_a_Web_Based_Tone_Generator
     * http://tobyho.com/2015/11/09/functional-programming-by-example/
+    * https://medium.com/@cscalfani/so-you-want-to-be-a-functional-programmer-part-1-1f15e387e536
 
 # TODO
 If you'd like to see what I have planned for midio, you can get an idea from the [issues page](https://github.com/evangipson/midio/issues). Feel free to help me by contributing pull requests which I will approve and merge.

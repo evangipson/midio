@@ -10,7 +10,7 @@ const waveTypes = [
     "sine",
     "sawtooth",
     "triangle",
-    "pusle"
+    "square"
 ];
 
 // Pure Functions
@@ -27,7 +27,7 @@ const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)
 * @param {Number} max 
 */
 const getRange = (min, max) => Math.floor(Math.random() * max) + min;
-
+    
 const getGainNode = volume => {
     if(volume > 1.0 && audioContext) {
         return audioContext.createGain().
@@ -66,6 +66,12 @@ const connectOscNode = (gainNode) => {
     }
 }
 
+const startOscillator = (osc, time) => {
+    osc.start();
+    osc.stop(audioContext.currentTime + time);
+    return osc;
+}
+
 // Non-Pure Functions
 /**
  * Will play a MIDI note. Plays a sine wave
@@ -78,14 +84,17 @@ const connectOscNode = (gainNode) => {
 * @param {HTMLEvent} event to give us x and y
 */
 function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, echoDelay = false, event = false) {
-    const osc = connectOscNode(getGainNode(volume));
-    setOscProperties(osc, type, frequency);
-    osc.start();
-    osc.stop(audioContext.currentTime + time);
-
-    drawNote(echoDelay, event, volume);
-    // handle recursive echo notes
-    if(echoDelay && volume >= 0.2) {
+    // handle creating an oscillator and starting & stopping it
+    const osc = startOscillator(
+                setOscProperties(
+                    connectOscNode(getGainNode(volume)),type,frequency
+                ), time);
+    // draw those pretty circles on the canvas
+    if(event) {
+        drawNote(echoDelay, event, volume);
+    }
+    // handle repeating notes
+    if(echoDelay && volume > 0.2) {
         volume = volume - 0.2;
         window.setTimeout(function() {
             playMIDINote(type, frequency, time, volume, echoDelay, event);
@@ -121,7 +130,14 @@ function playRandomEchoNote(event) {
     /* as long as we provide an echoDelay, we'll
     * hear an echo. */
     const note = assembleNormalNote();
-    playMIDINote(note.type, note.frequency, note.time, 1, note.echoDelay, event);
+    playMIDINote(
+        note.type,
+        note.frequency,
+        note.time,
+        1,
+        note.echoDelay,
+        event
+    );
 }
 /* function playQuietNote() {
     // Passing volume is easy!
