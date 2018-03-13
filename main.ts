@@ -34,20 +34,20 @@ const getGainNode = volume => {
                 gain.setValueAtTime(volume, 1);
     }
     return null;
-}
+};
 
 const getNotePosition = event => {
     return {
         x: event ? event.x : null,
         y: event ? event.y : null
     };
-}
+};
 
 const setOscProperties = (osc, type, frequency) => {
     osc.type = type;
     osc.frequency.setValueAtTime(frequency, 0);
     return osc;
-}
+};
 
 /**
  * Connects an oscillator to a destination of
@@ -64,13 +64,13 @@ const connectOscNode = (gainNode) => {
         osc.connect(audioContext.destination);
         return osc;
     }
-}
+};
 
 const startOscillator = (osc, time) => {
     osc.start();
     osc.stop(audioContext.currentTime + time);
     return osc;
-}
+};
 
 // Non-Pure Functions
 /**
