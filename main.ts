@@ -84,8 +84,8 @@ const getGainNode = volume => {
  */
 const getNotePosition = event => {
     return {
-        x: event ? event.clientX : null,
-        y: event ? event.clientY : null
+        x: event ? event.screenX : null,
+        y: event ? event.screenY : null
     };
 };
 
@@ -209,41 +209,37 @@ function playNoteOnClick(event) {
 }
 
 /**
+ * Clicks somewhere randomly on the visualizer, within a window.
+ * @param {Number} screenGutter how much edge of the screen to give, in px.
+ */
+function fakeMouseClick(screenGutter = 50) {
+    const bestGuessX = getRange(screenGutter, document.getElementById("Visualizer").offsetWidth - screenGutter);
+    const bestGuessY = getRange(screenGutter, document.getElementById("Visualizer").offsetHeight - screenGutter);
+    return new MouseEvent('click', {
+        'view': window,
+        'bubbles': true,
+        'cancelable': true,
+        'screenX': bestGuessX,
+        'screenY': bestGuessY
+    });
+}
+
+/**
  * "Starts" the radio and keeps it going by calling itself.
  */
 function generateNote() {
     const note = Math.random() > 0.50 ? assemblePadNote() : assembleNormalNote();
-    // fake a mouse click to trigger the pretty circle and remember it's x, y
-    const fakeMouseEvent = new MouseEvent("click", {
-        clientX: getRange(50, document.getElementById("Visualizer").offsetWidth - 50),
-        clientY: getRange(50, document.getElementById("Visualizer").offsetHeight - 50)
-    });
-    const event = fakeMouseEvent.initMouseEvent("click",
-        false,
-        false,
-        window,
-        0,
-        0,
-        0,
-        getRange(50, document.getElementById("Visualizer").offsetWidth - 50),
-        getRange(50, document.getElementById("Visualizer").offsetHeight - 50),
-        false,
-        false,
-        false,
-        false,
-        0,
-        document.getElementById("Visualizer")
-    );
     playMIDINote(
         note.type,
         note.frequency,
         note.time,
         1,
         note.echoDelay,
-        event
+        fakeMouseClick()
     );
+
     // now in a random amount of time, call itself again.
-    const msUntilNextNote = getRange(0.25, 8) * 1000; // in ms
+    const msUntilNextNote = getRange(0.25, 5) * 1000; // in ms
     window.setTimeout(function() {
         generateNote()
     }, msUntilNextNote);
