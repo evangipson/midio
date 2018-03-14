@@ -1,5 +1,5 @@
 # midio
-midio will work really hard to generate you endlessly interesting midi on the fly.
+midio started as a randomly generated sequence of MIDI notes based on a scale, then it was moved forward by my curiosity toward [functional programming](https://en.wikipedia.org/wiki/Functional_programming) and the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API). midio will work really hard to generate you endlessly interesting audio on the fly.
 
 | midio Readme |
 |---|
