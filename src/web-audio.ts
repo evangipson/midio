@@ -104,19 +104,6 @@ const setADSR = (gainNode, volume, attackValue = 0.1, releaseValue = 0.1) => {
 };
 
 /**
- * Will generate a frequency based on a scale.
- * Relies on baseTone and twelfthRootOfTwo
- * @param {Array} scale interval array
- */
-const getHarmonicNoteFrequency = scale => {
-    let harmonicInterval = getRandomArrayItem(scale);
-    // in a 2 octave range, 1 up 1 down
-    harmonicInterval = maybe(-(harmonicInterval), harmonicInterval);
-    // perform our calculation to give back our frequency
-    return baseTone * Math.pow(twelfthRootOfTwo, harmonicInterval);
-};
-
-/**
  * Will generate a chord, returned as a set filled with
  * unique values. Relies on currentScale.
  * @param {Number} baseNote the root note of the chord, interval
@@ -133,6 +120,19 @@ const getChord = (baseNote, tones) => {
 };
 
 // Non-Pure Functions
+/**
+ * Will generate a frequency based on a scale.
+ * Relies on baseTone and twelfthRootOfTwo
+ * @param {Array} scale interval array
+ */
+const getHarmonicNoteFrequency = scale => {
+    let harmonicInterval = getRandomArrayItem(scale);
+    // in a 2 octave range, 1 up 1 down
+    harmonicInterval = maybe(-(harmonicInterval), harmonicInterval);
+    // perform our calculation to give back our frequency
+    return baseTone * Math.pow(twelfthRootOfTwo, harmonicInterval);
+};
+
 /**
  * Will play a MIDI note. Plays a sine wave
 * at 440hz for 1 second by default.

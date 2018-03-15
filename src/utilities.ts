@@ -1,19 +1,5 @@
 // Pure Functions
 /**
- * Gives back a random array item, provided
- * the array.
- * @param {Array} array
- */
-const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)];
-
-/**
- * Gives back a number in the range provided.
- * @param {Number} min
- * @param {Number} max
- */
-const getRange = (min, max) => Math.floor(Math.random() * max) + min;
-
-/**
  * Creates a click event somewhere randomly on the visualizer,
  * within a window of the gutter provided, and returns the event.
  * @param {Number} screenGutter how much edge of the screen to give, in px.
@@ -54,3 +40,17 @@ const maybe = (condition, defaultCondition = null, weight = 50) => {
     }
     return null;
 };
+
+/**
+ * Gives back a random array item, provided
+ * the array.
+ * @param {Array} array
+ */
+const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)];
+
+/**
+ * Gives back a number in the range provided.
+ * @param {Number} min
+ * @param {Number} max
+ */
+const getRange = (min, max) => Math.floor(Math.random() * max) + min;
