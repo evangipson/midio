@@ -12,7 +12,7 @@ const waveTypes = [
     "triangle",
     "square"
 ];
-const baseTone = 120; // in Hz
+const baseTone = 280; // in Hz
 // root tone included as 0, top octave note not included.
 const scales = {
     major: [
@@ -67,10 +67,23 @@ const scales = {
         6,
         8,
         10
+    ],
+    ambient: [
+        0,
+        2,
+        5,
+        10,
+    ],
+    test: [
+        22/7,
+        Math.pow(Math.log(10), 22/7),
+        0.0001,
+        0.9999,
+        0.5555
     ]
 };
 const twelfthRootOfTwo = 1.05946309; // need this to calculate Hz based on interval & scale
-let currentScale = scales.naturalMinor; // will need this later for UI
+let currentScale = scales.ambient; // will need this later for UI
 
 // Pure Functions
 /**
@@ -123,7 +136,6 @@ const getUniqueChordNote = (note, scale) => {
 const getGainNode = volume => {
     if(volume > 0 && volume < 1.0) {
         const gainNode = audioContext.createGain();
-        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
         return gainNode;
     }
     return null;
@@ -187,6 +199,23 @@ const startOscillator = (osc, time) => {
 };
 
 /**
+ * Will set an "attack" on a gain, then
+ * return that gainNode.
+ * @param {GainNode} gainNode
+ * @param {Number} volume from 0 to 1
+ * @param {Number} attackValue in seconds
+ * @param {Number} releaseValue in seconds
+ */
+const setADSR = (gainNode, volume, attackValue = 0.1, releaseValue = 0.1) => {
+    if(gainNode) {
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + attackValue);
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + attackValue + releaseValue);
+    }
+    return gainNode;
+};
+
+/**
  * Will generate a frequency based on a scale.
  * Relies on baseTone and twelfthRootOfTwo
  * @param {Array} scale interval array
@@ -240,15 +269,18 @@ const getFakeMouseClick = (screenGutter = 100) => {
 * @param {Number} frequency in Hz. default is 440.
 * @param {Number} time in seconds. default is .5s.
 * @param {Number} volume from 0 to 1. default is 1.0, so 100%.
+* @param {Number} attack from 0 to 1. default is 0.1.
+* @param {Number} release from 0 to 1. default is 0.1.
 * @param {Number} echoDelay used with notes that have echo, in milliseconds. default is false.
 * @param {HTMLEvent} event to determine where to draw the circles. default is null.
 */
-function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, echoDelay = false, event = null) {
+function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, attack = 0.1, release = 0.1, echoDelay = false, event = null) {
     // handle creating an oscillator and starting & stopping it
     const osc = startOscillator(
-                setOscProperties(
-                    connectOscNode(getGainNode(volume)), type, frequency
-                ), time);
+                    setOscProperties(
+                            connectOscNode(setADSR(getGainNode(volume), volume, attack, release)),
+                    type, frequency),
+                time);
     // draw those pretty circles on the canvas
     if(event) {
         drawNoteWithVolumeBasedOpacity(echoDelay, event, volume);
@@ -257,7 +289,7 @@ function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, 
     if(echoDelay && volume > 0.2) {
         volume = volume - 0.2;
         window.setTimeout(function() {
-            playMIDINote(type, frequency, time, volume, echoDelay, event);
+            playMIDINote(type, frequency, time, volume, attack, release, echoDelay, event);
         }, echoDelay);
     }
 }
@@ -267,7 +299,7 @@ function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, 
  * Note: Isn't pure because it's random, and has no inputs.
  */
 function getRandomNoteDuration() {
-    return Math.random() * 0.4 + 0.08;
+    return Math.random() * 0.2 + 0.08;
 }
 
 /**
@@ -275,12 +307,15 @@ function getRandomNoteDuration() {
  * defining a "pad", or long, usually background note.
  */
 function assemblePadNote() {
+    const attackValue = getRange(10, 100) / 10;
     return {
         type: Math.random() > 0.50 ? "triangle" : "sine",
         frequency: getHarmonicNoteFrequency(currentScale),
-        time: getRandomNoteDuration() * getRange(3, 10),
+        time: getRange(1, 10),
+        volume: getRange(1, 7) / 10,
+        attackValue: attackValue,
+        releaseValue: attackValue,
         echoDelay: null,
-        volume: getRange(0.4, 0.7)
     };
 }
 
@@ -289,12 +324,15 @@ function assemblePadNote() {
  * defining a "normal" note.
  */
 function assembleNormalNote() {
+    const attackValue = getRange(2, 20) / 10;
     return {
         type: getRandomArrayItem(waveTypes),
         frequency: getHarmonicNoteFrequency(currentScale),
         time: getRandomNoteDuration(),
-        volume: 1.0,
-        echoDelay: maybe(getRange(200, 2000)), // in ms
+        volume: getRange(1, 4) / 10,
+        attackValue: attackValue,
+        releaseValue: attackValue,
+        echoDelay: maybe(getRange(100, 1500)), // in ms
     };
 }
 
@@ -329,7 +367,9 @@ function playNoteOnClick(event) {
         note.type,
         note.frequency,
         note.time,
-        1,
+        getRange(1, 7) / 10,
+        note.attackValue,
+        note.releaseValue,
         note.echoDelay,
         event
     );
@@ -348,6 +388,8 @@ function generateSound() {
         note.frequency,
         note.time,
         note.volume,
+        note.attackValue,
+        note.releaseValue,
         note.echoDelay,
         getFakeMouseClick()
     );
@@ -358,6 +400,8 @@ function generateSound() {
             chordTone.frequency,
             chordTone.time,
             chordTone.volume,
+            chordTone.attackValue,
+            chordTone.releaseValue,
             false, // no echo for chords
             getFakeMouseClick()
         );
