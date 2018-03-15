@@ -1,26 +1,5 @@
 // Pure Functions
 /**
- * Will return the first provided input... maybe.
- * Otherwise returns the second input. If no second
- * input is provided and first check fails, this function
- * will return null.
- * @param {Object} condition will return... maybe.
- * @param {Object} defaultCondition will return if
- * the "maybe" check fails, optionally.
- * @param {Number} weight 0 to 100. how likely it is
- * the first condition should happen, in percentage.
- */
-const maybe = (condition, defaultCondition = null, weight = 50) => {
-    if(Math.random() < weight / 100) {
-        return condition;
-    }
-    else if(defaultCondition) {
-        return defaultCondition;
-    }
-    return null;
-};
-
-/**
  * Gives back a random array item, provided
  * the array.
  * @param {Array} array
@@ -49,4 +28,29 @@ const getFakeMouseClick = (screenGutter = 100) => {
         'clientX': bestGuessX,
         'clientY': bestGuessY
     });
+};
+
+// Non-Pure Functions
+/**
+ * Will return the first provided input... maybe.
+ * Otherwise returns the second input. If no second
+ * input is provided and first check fails, this function
+ * will return null.
+ * Note: Isn't a pure function because it doesn't guarantee
+ * the same output given the same inputs, or in other words,
+ * it deals with Math.random().
+ * @param {Object} condition will return... maybe.
+ * @param {Object} defaultCondition will return if
+ * the first condition fails.
+ * @param {Number} weight 0 to 100. how likely it is
+ * the first condition should happen, in percentage.
+ */
+const maybe = (condition, defaultCondition = null, weight = 50) => {
+    if(Math.random() < weight / 100) {
+        return condition;
+    }
+    else if(defaultCondition) {
+        return defaultCondition;
+    }
+    return null;
 };
