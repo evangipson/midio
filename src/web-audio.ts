@@ -111,7 +111,7 @@ const setADSR = (gainNode, volume, attackValue = 0.1, releaseValue = 0.1) => {
 const getHarmonicNoteFrequency = scale => {
     let harmonicInterval = getRandomArrayItem(scale);
     // in a 2 octave range, 1 up 1 down
-    harmonicInterval = Math.random() > 0.50 ? -(harmonicInterval) : harmonicInterval;
+    harmonicInterval = maybe(-(harmonicInterval), harmonicInterval);
     // perform our calculation to give back our frequency
     return baseTone * Math.pow(twelfthRootOfTwo, harmonicInterval);
 };
@@ -180,7 +180,7 @@ function getRandomNoteDuration() {
 function assemblePadNote() {
     const attackValue = getRange(10, 100) / 10;
     return {
-        type: Math.random() > 0.50 ? "triangle" : "sine",
+        type: maybe("triangle", "sine"),
         frequency: getHarmonicNoteFrequency(currentScale),
         time: getRange(1, 10),
         volume: getRange(1, 7) / 10,
@@ -234,8 +234,8 @@ function playNoteOnClick(event) {
  * Note: Can generate either a tone, echo tone, or chord.
  */
 function generateSound() {
-    const note = Math.random() > 0.50 ? assemblePadNote() : assembleNormalNote();
-    const additionalChordTones = Math.random() < 0.10 ? getRange(1, 4) : false; // small chance for chords
+    const note = maybe(assemblePadNote(), assembleNormalNote());
+    const additionalChordTones = maybe(getRange(1, 4), false, 10); // small chance for chords
     playMIDINote(
         note.type,
         note.frequency,

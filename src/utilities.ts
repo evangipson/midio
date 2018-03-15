@@ -1,11 +1,21 @@
 // Pure Functions
 /**
- * Will run the provided function... maybe.
- * @param {Function} func
+ * Will return the first provided input... maybe.
+ * Otherwise returns the second input. If no second
+ * input is provided and first check fails, this function
+ * will return null.
+ * @param {Object} condition will return... maybe.
+ * @param {Object} defaultCondition will return if
+ * the "maybe" check fails, optionally.
+ * @param {Number} weight 0 to 100. how likely it is
+ * the first condition should happen, in percentage.
  */
-const maybe = func => {
-    if(Math.random() > 0.50) {
-        return func;
+const maybe = (condition, defaultCondition = null, weight = 50) => {
+    if(Math.random() < weight / 100) {
+        return condition;
+    }
+    else if(defaultCondition) {
+        return defaultCondition;
     }
     return null;
 };
