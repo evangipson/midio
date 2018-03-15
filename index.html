@@ -5,11 +5,11 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title>midio: generative MIDI radio</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="./range.css">
-	<link rel="stylesheet" href="./gradients.css">
+	<link rel="stylesheet" href="./css/range.css">
+	<link rel="stylesheet" href="./css/gradients.css">
 	<!-- style.css placed after to override other stylesheets
 		 with equal specificity. -->
-	<link rel="stylesheet" href="./style.css">
+	<link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
@@ -26,7 +26,13 @@
 			<label for="hostility">Hostility<input name="hostility" type="range"></label>
 		</div>
 	</section>
-	<script type="text/javascript" src="./main.ts"></script>
+	<!-- Need definitions first because that tells the browser we want ECMAScript 6
+		 and it declares all the variables -->
+	<script type="text/javascript" src="./src/definitions.ts"></script>
+	<script type="text/javascript" src="./src/utilities.ts"></script>
+	<script type="text/javascript" src="./src/draw-notes.ts"></script>
+	<script type="text/javascript" src="./src/web-audio.ts"></script>
+	<script type="text/javascript" src="./src/main.ts"></script>
 </body>
 
 </html>

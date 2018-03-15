@@ -1,116 +1,4 @@
-// using ECMAScript 6
-'use strict';
-
-// Variables
-// Immutable global variable, used to chain audio
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-// used to keep track of circles which represent notes
-let circles = [];
-const waveTypes = [
-    "sine",
-    "sawtooth",
-    "triangle",
-    "square"
-];
-const baseTone = 280; // in Hz
-// root tone included as 0, top octave note not included.
-const scales = {
-    major: [
-        0,
-        2,
-        4,
-        5,
-        7,
-        9,
-        11
-    ],
-    naturalMinor: [
-        0,
-        2,
-        3,
-        5,
-        7,
-        8,
-        10
-    ],
-    harmonicMinor: [
-        0,
-        2,
-        3,
-        5,
-        7,
-        8,
-        11
-    ],
-    melodicMinor: [
-        0,
-        2,
-        3,
-        5,
-        7,
-        9,
-        11
-    ],
-    pentatonic: [
-        0,
-        3,
-        4,
-        7,
-        11
-    ],
-    jazz: [
-        0,
-        1,
-        2,
-        4,
-        5,
-        6,
-        8,
-        10
-    ],
-    ambient: [
-        0,
-        2,
-        5,
-        10,
-    ],
-    test: [
-        22/7,
-        Math.pow(Math.log(10), 22/7),
-        0.0001,
-        0.9999,
-        0.5555
-    ]
-};
-const twelfthRootOfTwo = 1.05946309; // need this to calculate Hz based on interval & scale
-let currentScale = scales.ambient; // will need this later for UI
-
 // Pure Functions
-/**
- * Will run the provided function... maybe.
- * @param {Function} func
- */
-const maybe = func => {
-    if(Math.random() > 0.50) {
-        return func;
-    }
-    return null;
-};
-
-/**
- * Gives back a random array item, provided
- * the array.
- * @param {Array} array
- */
-const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)];
-
-/**
- * Gives back a number in the range provided.
- * @param {Number} min
- * @param {Number} max
- */
-const getRange = (min, max) => Math.floor(Math.random() * max) + min;
-
 /**
  * Gets a unique note in the chord, not the one provided.
  * Relies on twelfthRootOfTwo.
@@ -244,23 +132,6 @@ const getChord = (baseNote, tones) => {
     return new Set(chordTones);
 };
 
-/**
- * Creates a click event somewhere randomly on the visualizer,
- * within a window of the gutter provided, and returns the event.
- * @param {Number} screenGutter how much edge of the screen to give, in px.
- */
-const getFakeMouseClick = (screenGutter = 100) => {
-    const bestGuessX = getRange(screenGutter, document.getElementById("Visualizer").offsetWidth - screenGutter);
-    const bestGuessY = getRange(screenGutter, document.getElementById("Visualizer").offsetHeight - screenGutter);
-    return new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true,
-        'clientX': bestGuessX,
-        'clientY': bestGuessY
-    });
-};
-
 // Non-Pure Functions
 /**
  * Will play a MIDI note. Plays a sine wave
@@ -337,24 +208,6 @@ function assembleNormalNote() {
 }
 
 /**
- * Will draw the expanding circle factoring in volume
- * as opacity (out of 1.0). Also handles getting the note
- * position from the event.
- * @param {Number} echoDelay
- * @param {HTMLEvent} event
- * @param {Number} volume
- */
-function drawNoteWithVolumeBasedOpacity(echoDelay, event, volume) {
-    let coords = getNotePosition(event);
-    if(echoDelay) {
-        drawNoteCircle(coords.x, coords.y, volume);
-    }
-    else {
-        drawNoteCircle(coords.x, coords.y);
-    }
-}
-
-/**
  * The function responsible for playing a MIDI note
  * after you've clicked the mouse.
  * @param {HTMLEvent} event
@@ -413,55 +266,3 @@ function generateSound() {
         generateSound();
     }, msUntilNextNote);
 }
-
-/**
- * Wires up the close/open functionality of the controls menu.
- */
-function enableControlMenu() {
-    let showControlsButton = document.getElementById("ShowControls");
-    let content = document.getElementById("ControlList");
-    showControlsButton.addEventListener("click", function() {
-        // relies on the max height being set on the content
-        if(content.style.maxHeight) {
-            this.classList.remove("active");
-            content.style.maxHeight = null;
-        }
-        else {
-            this.classList.add("active");
-            content.style.maxHeight = content.scrollHeight + "px";
-        }
-    });
-}
-
-/**
- * Takes care of drawing the expanding notes on screen.
- * Intended to be called by playMIDINote() so shouldn't be called directly.
- * @param {Number} x
- * @param {Number} y
- * @param {Number} opacity
- */
-function drawNoteCircle(x, y, opacity = "1.0") {
-    let newCircle = document.createElement("span");
-    newCircle.classList.add("note-circle");
-    newCircle.style.left = x + "px";
-    newCircle.style.top = y + "px";
-    newCircle.style.opacity = opacity;
-    document.getElementById("Visualizer").appendChild(newCircle);
-    circles.push(newCircle);
-    window.setTimeout(function() {
-        newCircle.classList.add("active"); // "turn on" the animation in a sec
-    }, 100);
-    window.setTimeout(function() {
-        // remove the first circle
-        var removedCircle = circles.shift();
-        document.getElementById("Visualizer").removeChild(removedCircle);
-    }, 2000); // keep the delay consistent with the CSS
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    enableControlMenu();
-    document.getElementById("Visualizer").addEventListener("click", function(event) {
-        playNoteOnClick(event);
-    });
-    generateSound();
-});
