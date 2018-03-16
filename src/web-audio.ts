@@ -1,3 +1,16 @@
+/* Define what a note is made up of
+ * Note: Not in definitions because it's
+ * only used in this file. */
+interface Note {
+    type: string;
+    frequency: number; // in Hz
+    time: number; // in seconds
+    volume: number; // from 0 - 1
+    attack: number; // in seconds
+    release: number; // in seconds
+    echoDelay: number; // in ms
+}
+
 // Pure Functions
 /**
  * Gets a unique note in the chord, not the one provided.
@@ -91,14 +104,14 @@ const startOscillator = (osc, time) => {
  * return that gainNode.
  * @param {GainNode} gainNode
  * @param {Number} volume from 0 to 1
- * @param {Number} attackValue in seconds
- * @param {Number} releaseValue in seconds
+ * @param {Number} attack in seconds
+ * @param {Number} release in seconds
  */
-const setADSR = (gainNode, volume, attackValue = 0.1, releaseValue = 0.1) => {
+const setADSR = (gainNode, volume, attack = 0.1, release = 0.1) => {
     if(gainNode) {
         gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + attackValue);
-        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + attackValue + releaseValue);
+        gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + attack);
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + attack + release);
     }
     return gainNode;
 };
@@ -106,13 +119,12 @@ const setADSR = (gainNode, volume, attackValue = 0.1, releaseValue = 0.1) => {
 /**
  * Will generate a chord, returned as a set filled with
  * unique values. Relies on currentScale.
- * @param {Number} baseNote the root note of the chord, interval
  * @param {Number} tones how many notes you want in the chord
  */
-const getChord = (baseNote, tones) => {
+const getChord = (tones = 3) => {
     let chordTones = [];
     for(var i = 0; i < tones; i++) {
-        chordTones.push(getUniqueChordNote(baseNote, currentScale));
+        chordTones.push(getUniqueChordNote(0, currentScale));
     }
     // since sets can only store unique values, let's make
     // a set with the chord tones, since i want them unique.
@@ -123,45 +135,35 @@ const getChord = (baseNote, tones) => {
 /**
  * Will generate a frequency based on a scale.
  * Relies on baseTone and twelfthRootOfTwo
- * @param {Array} scale interval array
+ * @param {Number} interval how far away from baseTone the note is
  */
-const getHarmonicNoteFrequency = scale => {
-    let harmonicInterval = getRandomArrayItem(scale);
-    // in a 2 octave range, 1 up 1 down
-    harmonicInterval = maybe(-(harmonicInterval), harmonicInterval);
-    // perform our calculation to give back our frequency
-    return baseTone * Math.pow(twelfthRootOfTwo, harmonicInterval);
-};
+const getHarmonicNoteFrequency = (interval = getRandomArrayItem(currentScale)) =>
+    baseTone * Math.pow(twelfthRootOfTwo, maybe(-(interval), interval));
 
 /**
- * Will play a MIDI note. Plays a sine wave
-* at 440hz for 1 second by default.
-* @param {String} type of waveform. default is sine.
-* @param {Number} frequency in Hz. default is 440.
-* @param {Number} time in seconds. default is .5s.
-* @param {Number} volume from 0 to 1. default is 1.0, so 100%.
-* @param {Number} attack from 0 to 1. default is 0.1.
-* @param {Number} release from 0 to 1. default is 0.1.
-* @param {Number} echoDelay used with notes that have echo, in milliseconds. default is false.
-* @param {HTMLEvent} event to determine where to draw the circles. default is null.
-*/
-function playMIDINote(type = "sine", frequency = 440, time = 0.5, volume = 1.0, attack = 0.1, release = 0.1, echoDelay = false, event = null) {
+ * Will play the note passed in.
+ * Relies on note.attack, note.release, note.volume,
+ * note.type, note.frequency, note.time, note.echoDelay
+ * @param {Note} note Note interface containing multiple properties
+ * @param {HTMLEvent} event to determine where to draw the circles. default is null.
+ */
+function playMIDINote(note: Note, event = null) {
     // handle creating an oscillator and starting & stopping it
     const osc = startOscillator(
                     setOscProperties(
-                            connectOscNode(setADSR(getGainNode(volume), volume, attack, release)),
-                    type, frequency),
-                time);
+                            connectOscNode(setADSR(getGainNode(note.volume), note.volume, note.attack, note.release)),
+                    note.type, note.frequency),
+                note.time);
     // draw those pretty circles on the canvas
     if(event) {
-        drawNoteWithVolumeBasedOpacity(echoDelay, event, volume);
+        drawNoteWithVolumeBasedOpacity(note.echoDelay, event, note.volume);
     }
     // handle repeating notes
-    if(echoDelay && volume > 0.2) {
-        volume = volume - 0.2;
+    if(note.echoDelay && note.volume > 0.2) {
+        note.volume = note.volume - 0.2;
         window.setTimeout(function() {
-            playMIDINote(type, frequency, time, volume, attack, release, echoDelay, event);
-        }, echoDelay);
+            playMIDINote(note, event);
+        }, note.echoDelay);
     }
 }
 
@@ -177,16 +179,16 @@ function getRandomNoteDuration() {
  * Will return an object containing properties
  * defining a "pad", or long, usually background note.
  */
-function assemblePadNote() {
+function assemblePadNote(): Note {
     const attackValue = getRange(10, 100) / 10;
     return {
         type: maybe("triangle", "sine"),
-        frequency: getHarmonicNoteFrequency(currentScale),
+        frequency: getHarmonicNoteFrequency(),
         time: getRange(1, 10),
         volume: getRange(1, 7) / 10,
-        attackValue: attackValue,
-        releaseValue: attackValue,
-        echoDelay: null,
+        attack: attackValue,
+        release: attackValue,
+        echoDelay: 0,
     };
 }
 
@@ -194,15 +196,15 @@ function assemblePadNote() {
  * Will return an object containing properties
  * defining a "normal" note.
  */
-function assembleNormalNote() {
+function assembleNormalNote(): Note {
     const attackValue = getRange(2, 20) / 10;
     return {
         type: getRandomArrayItem(waveTypes),
-        frequency: getHarmonicNoteFrequency(currentScale),
+        frequency: getHarmonicNoteFrequency(),
         time: getRandomNoteDuration(),
         volume: getRange(1, 4) / 10,
-        attackValue: attackValue,
-        releaseValue: attackValue,
+        attack: attackValue,
+        release: attackValue,
         echoDelay: maybe(getRange(100, 1500)), // in ms
     };
 }
@@ -216,16 +218,7 @@ function playNoteOnClick(event) {
     /* as long as we provide an echoDelay, we'll
     * hear an echo. */
     const note = assembleNormalNote();
-    playMIDINote(
-        note.type,
-        note.frequency,
-        note.time,
-        getRange(1, 7) / 10,
-        note.attackValue,
-        note.releaseValue,
-        note.echoDelay,
-        event
-    );
+    playMIDINote(note, event);
 }
 
 /**
@@ -236,28 +229,14 @@ function playNoteOnClick(event) {
 function generateSound() {
     const note = maybe(assemblePadNote(), assembleNormalNote());
     const additionalChordTones = maybe(getRange(1, 4), false, 10); // small chance for chords
-    playMIDINote(
-        note.type,
-        note.frequency,
-        note.time,
-        note.volume,
-        note.attackValue,
-        note.releaseValue,
-        note.echoDelay,
-        getFakeMouseClick()
-    );
+    playMIDINote(note, getFakeMouseClick());
     // take care of chords if there is one.
-    getChord(note, additionalChordTones).forEach((chordTone) => {
-        playMIDINote(
-            chordTone.type,
-            chordTone.frequency,
-            chordTone.time,
-            chordTone.volume,
-            chordTone.attackValue,
-            chordTone.releaseValue,
-            false, // no echo for chords
-            getFakeMouseClick()
-        );
+    getChord(additionalChordTones).forEach((chordTone) => {
+        // create a new tone, with some modifications
+        let chordNote = note;
+        chordNote.frequency = getHarmonicNoteFrequency(chordTone);
+        chordNote.echoDelay = 0; // no echo for chords
+        playMIDINote(chordNote, getFakeMouseClick());
     });
 
     // now in a random amount of time, call itself again.

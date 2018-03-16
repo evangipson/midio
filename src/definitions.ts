@@ -3,7 +3,7 @@
 'use strict';
 
 // Immutable global variable, used to chain audio
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioContext = new (window["AudioContext"] || window["webkitAudioContext"])();
 
 // used to keep track of circles which represent notes
 let circles = [];

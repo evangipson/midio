@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "outFile": "src/main.js"
+    },
+    "include": [
+        "src/*.ts"
+    ],
+    "compileOnSave": true
+}
