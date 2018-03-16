@@ -15,17 +15,17 @@ interface Note {
 /**
  * Gets a unique note in the chord, not the one provided.
  * Relies on twelfthRootOfTwo.
- * @param {Number} note in Hz
+ * @param {Number} frequency in Hz
  * @param {Array} scale interval array
  */
-const getUniqueChordNote = (note, scale) => {
-    let returnNote = getHarmonicNoteFrequency(getRandomArrayItem(scale));
+const getUniqueChordNote = (frequency, scale) => {
+    let uniqueFrequency = getHarmonicNoteFrequency();
     // this makes sure there is enough space between the next note by
     // making sure at least one half step is between the two notes.
-    while(note === returnNote || returnNote - note < twelfthRootOfTwo || note - returnNote < twelfthRootOfTwo) {
-        returnNote = getHarmonicNoteFrequency(getRandomArrayItem(scale));
+    while(frequency === uniqueFrequency || Math.abs(uniqueFrequency - frequency) < twelfthRootOfTwo) {
+        uniqueFrequency = getHarmonicNoteFrequency();
     }
-    return returnNote;
+    return uniqueFrequency;
 };
 
 /**
@@ -43,7 +43,7 @@ const getGainNode = volume => {
 };
 
 /**
- * Will get a note position given an event.
+ * Will get an x & y position given a click event.
  * Will return null if provided no event.
  * @param {HTMLEvent} event
  */
@@ -124,7 +124,7 @@ const setADSR = (gainNode, volume, attack = 0.1, release = 0.1) => {
 const getChord = (tones = 3) => {
     let chordTones = [];
     for(var i = 0; i < tones; i++) {
-        chordTones.push(getUniqueChordNote(0, currentScale));
+        chordTones.push(getUniqueChordNote(baseTone, currentScale));
     }
     // since sets can only store unique values, let's make
     // a set with the chord tones, since i want them unique.
