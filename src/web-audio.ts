@@ -11,6 +11,74 @@ interface Note {
     echoDelay: number; // in ms
 }
 
+/**
+ * Contains many methods for operating and
+ * dealing with Oscillators.
+ */
+class Oscillator {
+    mainOsc: OscillatorNode;
+    gainNode: GainNode;
+    lfoNode: OscillatorNode;
+    lfoProperty: string; // what the LFO will be applied to
+    constructor() {
+        this.mainOsc = audioContext.createOscillator();
+        this.gainNode = audioContext.createGain();
+        this.lfoNode = audioContext.createOscillator();
+    }
+    /**
+     * Sets the mainOsc's type and frequency.
+     * Relies on audioContext.
+     * @param {String} type
+     * @param {Number} frequency in Hz
+     */
+    setProperties(type, frequency: number) {
+        this.mainOsc.type = type;
+        this.mainOsc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        return this; // allow chaining
+    };
+    /**
+     * Starts the mainOsc, then stops it in the
+     * time provided, in seconds.
+     * Relies on audioContext.
+     * @param {Number} time in seconds
+     */
+    play(time: number) {
+        this.mainOsc.start();
+        this.mainOsc.stop(audioContext.currentTime + time);
+    };
+    /**
+     * Will set a attack and release on the gainNode.
+     * @param {Number} volume from 0 to 1
+     * @param {Number} attack in seconds
+     * @param {Number} release in seconds
+     */
+    setADSR(volume: number, attack: number = 0.1, release: number = 0.1) {
+        this.gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        this.gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + attack);
+        this.gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + attack + release);
+        return this; // allow chaining
+    };
+    /**
+     * Assigns a low frequency oscillator at the given
+     * frequency, 5 by default.
+     */
+    getLFO(frequency: number = 5) {
+        this.lfoNode = audioContext.createOscillator();
+        this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        return this; // allow chaining
+    };
+    /**
+     * Connects the main oscillator and hooks up any filters
+     * if it needs to. Relies on audioContext.
+     */
+    hookUpFilters() {
+        this.mainOsc.connect(this.gainNode);
+        this.lfoNode.connect(this.mainOsc.frequency); // hook up to frequency by default
+        this.gainNode.connect(audioContext.destination);
+        return this; // allow chaining
+    }
+}
+
 // Pure Functions
 /**
  * Gets a unique note in the chord, not the one provided.
@@ -29,20 +97,6 @@ const getUniqueChordNote = (frequency, scale) => {
 };
 
 /**
- * Will return a gain node, given a volume less than 1.
- * If volume is 0, null is returned.
- * Relies on audioContext.
- * @param {Number} volume
- */
-const getGainNode = volume => {
-    if(volume > 0 && volume < 1.0) {
-        const gainNode = audioContext.createGain();
-        return gainNode;
-    }
-    return null;
-};
-
-/**
  * Will get an x & y position given a click event.
  * Will return null if provided no event.
  * @param {HTMLEvent} event
@@ -52,68 +106,6 @@ const getNotePosition = event => {
         x: event ? event.clientX : null,
         y: event ? event.clientY : null
     };
-};
-
-/**
- * Sets the passed in osc's type and frequency,
- * then returns that osc.
- * Relies on audioContext.
- * @param {Oscillator} osc
- * @param {String} type
- * @param {Number} frequency in Hz
- */
-const setOscProperties = (osc, type, frequency) => {
-    osc.type = type;
-    osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    return osc;
-};
-
-/**
- * Connects a new oscillator and hooks up a gain node
- * if it needs to, then returns the connected oscillator.
- * Relies on audioContext.
- * @param {GainNode} gainNode
- */
-const connectOscNode = (gainNode) => {
-    const osc = audioContext.createOscillator();
-    if(gainNode) {
-        osc.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-    }
-    else {
-        osc.connect(audioContext.destination);
-    }
-    return osc;
-};
-
-/**
- * Starts the given osc, then stops it in the
- * time provided, in seconds.
- * Relies on audioContext.
- * @param {Oscillator} osc
- * @param {Number} time in seconds
- */
-const startOscillator = (osc, time) => {
-    osc.start();
-    osc.stop(audioContext.currentTime + time);
-    return osc;
-};
-
-/**
- * Will set an "attack" on a gain, then
- * return that gainNode.
- * @param {GainNode} gainNode
- * @param {Number} volume from 0 to 1
- * @param {Number} attack in seconds
- * @param {Number} release in seconds
- */
-const setADSR = (gainNode, volume, attack = 0.1, release = 0.1) => {
-    if(gainNode) {
-        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + attack);
-        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + attack + release);
-    }
-    return gainNode;
 };
 
 /**
@@ -134,7 +126,8 @@ const getChord = (tones = 3) => {
 // Non-Pure Functions
 /**
  * Will generate a frequency based on a scale.
- * Relies on baseTone and twelfthRootOfTwo
+ * Relies on baseTone and twelfthRootOfTwo.
+ * Note: Impure because of the maybe() call.
  * @param {Number} interval how far away from baseTone the note is
  */
 const getHarmonicNoteFrequency = (interval = getRandomArrayItem(currentScale)) =>
@@ -147,13 +140,15 @@ const getHarmonicNoteFrequency = (interval = getRandomArrayItem(currentScale)) =
  * @param {Note} note Note interface containing multiple properties
  * @param {HTMLEvent} event to determine where to draw the circles. default is null.
  */
-function playMIDINote(note: Note, event = null) {
+function playAndShowNote(note: Note, event = null) {
     // handle creating an oscillator and starting & stopping it
-    const osc = startOscillator(
-                    setOscProperties(
-                            connectOscNode(setADSR(getGainNode(note.volume), note.volume, note.attack, note.release)),
-                    note.type, note.frequency),
-                note.time);
+    const osc = new Oscillator()
+        .setProperties(note.type, note.frequency)
+        .setADSR(note.attack, note.release)
+        .getLFO(5)
+        .hookUpFilters()
+        .play(note.time);
+
     // draw those pretty circles on the canvas
     if(event) {
         drawNoteWithVolumeBasedOpacity(note.echoDelay, event, note.volume);
@@ -162,7 +157,7 @@ function playMIDINote(note: Note, event = null) {
     if(note.echoDelay && note.volume > 0.2) {
         note.volume = note.volume - 0.2;
         window.setTimeout(function() {
-            playMIDINote(note, event);
+            playAndShowNote(note, event);
         }, note.echoDelay);
     }
 }
@@ -218,7 +213,7 @@ function playNoteOnClick(event) {
     /* as long as we provide an echoDelay, we'll
     * hear an echo. */
     const note = assembleNormalNote();
-    playMIDINote(note, event);
+    playAndShowNote(note, event);
 }
 
 /**
@@ -229,14 +224,14 @@ function playNoteOnClick(event) {
 function generateSound() {
     const note = maybe(assemblePadNote(), assembleNormalNote());
     const additionalChordTones = maybe(getRange(1, 4), false, 10); // small chance for chords
-    playMIDINote(note, getFakeMouseClick());
+    playAndShowNote(note, getFakeMouseClick());
     // take care of chords if there is one.
     getChord(additionalChordTones).forEach((chordTone) => {
         // create a new tone, with some modifications
         let chordNote = note;
         chordNote.frequency = getHarmonicNoteFrequency(chordTone);
         chordNote.echoDelay = 0; // no echo for chords
-        playMIDINote(chordNote, getFakeMouseClick());
+        playAndShowNote(chordNote, getFakeMouseClick());
     });
 
     // now in a random amount of time, call itself again.
