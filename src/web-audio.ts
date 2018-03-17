@@ -19,7 +19,7 @@ class Oscillator {
     mainOsc: OscillatorNode;
     gainNode: GainNode;
     lfoNode: OscillatorNode;
-    lfoProperty: string; // what the LFO will be applied to
+    lfoGain: GainNode; // how loud the LFO will be
     constructor() {
         this.mainOsc = audioContext.createOscillator();
         this.gainNode = audioContext.createGain();
@@ -43,7 +43,9 @@ class Oscillator {
      * @param {Number} time in seconds
      */
     play(time: number) {
+        this.lfoNode.start();
         this.mainOsc.start();
+        this.lfoNode.stop(audioContext.currentTime + time);
         this.mainOsc.stop(audioContext.currentTime + time);
     };
     /**
@@ -51,32 +53,42 @@ class Oscillator {
      * @param {Number} volume from 0 to 1
      * @param {Number} attack in seconds
      * @param {Number} release in seconds
+     * @param {Number} time how long the note should sound.
+     * Needed to implement release.
      */
-    setADSR(volume: number, attack: number = 0.1, release: number = 0.1) {
+    setADSR(volume: number, attack: number = 0.1, release: number = 0.1, time: number) {
         this.gainNode.gain.setValueAtTime(0, audioContext.currentTime);
         this.gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + attack);
-        this.gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + attack + release);
+        this.gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + attack + time + release);
         return this; // allow chaining
     };
     /**
-     * Assigns a low frequency oscillator at the given
-     * frequency, 5 by default.
+     * Sets the LFO's frequency, gain, and type.
+     * @param {Number} frequency how fast the LFO modulates
+     * @param {Number} gain out of 100. How strong the LFO
+     * will sound.
+     * @param {String} type wave shape for the LFO
      */
-    getLFO(frequency: number = 5) {
+    getLFO(frequency: number = 5, gain: number = 15, type) {
         this.lfoNode = audioContext.createOscillator();
+        this.lfoGain = audioContext.createGain();
+        this.lfoNode.type = type;
         this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        this.lfoGain.gain.value = gain / 100;
         return this; // allow chaining
     };
     /**
-     * Connects the main oscillator and hooks up any filters
-     * if it needs to. Relies on audioContext.
+     * Connects the LFO and main oscillator to the
+     * gainNode, then connects the gainNode to the
+     * "speaker" (or audioContext.destination).
      */
     hookUpFilters() {
+        this.lfoNode.connect(this.lfoGain);
+        this.lfoGain.connect(this.gainNode);
         this.mainOsc.connect(this.gainNode);
-        this.lfoNode.connect(this.mainOsc.frequency); // hook up to frequency by default
         this.gainNode.connect(audioContext.destination);
         return this; // allow chaining
-    }
+    };
 }
 
 // Pure Functions
@@ -144,8 +156,8 @@ function playAndShowNote(note: Note, event = null) {
     // handle creating an oscillator and starting & stopping it
     const osc = new Oscillator()
         .setProperties(note.type, note.frequency)
-        .setADSR(note.attack, note.release)
-        .getLFO(5)
+        .setADSR(note.volume, note.attack, note.release, note.time)
+        .getLFO(maybe(getRange(5, 25), 0), getRange(15, 70), maybe("sine", "triangle")) // randomize LFO
         .hookUpFilters()
         .play(note.time);
 
