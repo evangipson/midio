@@ -12,7 +12,7 @@ function setControlMinimumsAndMaximums() {
         currentInput.htmlInput.min = currentInput.min;
         currentInput.htmlInput.max = currentInput.max;
         currentInput.htmlInput.value = 0;
-        if(control === "volume") {
+        if(control === "volume" || control === "softness") {
             currentInput.htmlInput.value = Math.floor(currentInput.min + currentInput.max / 2);
         }
         else if(control === "baseNote") {

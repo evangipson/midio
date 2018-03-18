@@ -36,6 +36,11 @@ const controls = {
         htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
         min: baseTone / 3,
         max: baseTone * 3
+    },
+    "softness" : {
+        htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
+        min: 0,
+        max: 3
     }
 };
 const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
@@ -43,6 +48,7 @@ const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
 const getCurrentLFOProbability = () => +controls.lfoProbability.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
+const getCurrentSoftness = () => +controls.softness.htmlInput.value;
 
 // used to keep track of circles which represent notes
 let circles = [];

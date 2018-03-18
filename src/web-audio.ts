@@ -179,14 +179,14 @@ function getRandomNoteDuration() {
  * defining a "pad", or long, usually background note.
  */
 function assemblePadNote(): Note {
-    const attackValue = getRange(1.5, 8); // in seconds
     return {
         type: getRandomArrayItem(waveTypes),
         frequency: getHarmonicNoteFrequency(),
-        time: getRange(1, 10),
+        time: getRange(1, 6), // in seconds
         volume: getCurrentMasterVolume(),
-        attack: attackValue,
-        release: attackValue,
+        // pads have higher attack & release than normal notes
+        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 2),
+        release: getRange(getCurrentSoftness(), getCurrentSoftness() * 2),
         echoDelay: 0,
     };
 }
@@ -196,14 +196,13 @@ function assemblePadNote(): Note {
  * defining a "normal" note.
  */
 function assembleNormalNote(): Note {
-    const attackValue = getRange(0.5, 3); // in seconds
     return {
         type: getRandomArrayItem(waveTypes),
         frequency: getHarmonicNoteFrequency(),
         time: getRandomNoteDuration(),
         volume: getCurrentMasterVolume(),
-        attack: attackValue,
-        release: attackValue,
+        attack: getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.5),
+        release: getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.5),
         echoDelay: maybe(getRange(250, 2000)), // in ms
     };
 }
