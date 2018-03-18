@@ -41,11 +41,22 @@ const getNotePosition = event => {
  * @param {Number} echoDelay
  * @param {HTMLEvent} event
  * @param {Number} volume
+ * @param {Number} delay
  */
-function drawNoteWithVolumeBasedOpacity(echoDelay, event, volume) {
+function drawNoteWithVolumeBasedOpacity(echoDelay, event, volume, delay) {
     let coords = getNotePosition(event);
-    if(echoDelay) {
+    if(echoDelay && delay) {
+        setTimeout(function() {
+            drawNoteCircle(coords.x, coords.y, volume);
+        }, delay * 1000);
+    }
+    else if(echoDelay) {
         drawNoteCircle(coords.x, coords.y, volume);
+    }
+    else if(delay) {
+        setTimeout(function() {
+            drawNoteCircle(coords.x, coords.y);
+        }, delay * 1000);
     }
     else {
         drawNoteCircle(coords.x, coords.y);
