@@ -2,15 +2,15 @@
 const setNoteFrequencyFromClick = (note, event) => {
     const visualizer = document.getElementById("Visualizer");
     // "snap" our targetFrequency to currentScale
-    const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * currentScale.length);
-    note.frequency = getHarmonicNoteFrequency(currentScale[intervalGuess]);
+    const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * getCurrentScale().length);
+    note.frequency = getHarmonicNoteFrequency(getCurrentScale()[intervalGuess]);
     return note;
 };
 
 const setClickPositionFromNoteFrequency = (note, event) => {
     return getRelativeValue(
         note.frequency,
-        getHarmonicNoteFrequency(currentScale[currentScale.length - 1]),
+        getHarmonicNoteFrequency(getCurrentScale()[getCurrentScale().length - 1]),
         0,
         document.getElementById("Visualizer").clientWidth
     );

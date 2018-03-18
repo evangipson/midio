@@ -119,7 +119,7 @@ const getUniqueChordNote = (frequency, scale) => {
 const getChord = (tones = 3) => {
     let chordTones = [];
     for(var i = 0; i < tones; i++) {
-        chordTones.push(getUniqueChordNote(getCurrentBaseNote(), currentScale));
+        chordTones.push(getUniqueChordNote(getCurrentBaseNote(), getCurrentScale()));
     }
     // since sets can only store unique values, let's make
     // a set with the chord tones, since i want them unique.
@@ -131,7 +131,7 @@ const getChord = (tones = 3) => {
  * Relies on baseTone and twelfthRootOfTwo.
  * @param {Number} interval how far away from baseTone the note is
  */
-const getHarmonicNoteFrequency = (interval = getRandomArrayItem(currentScale)) =>
+const getHarmonicNoteFrequency = (interval = getRandomArrayItem(getCurrentScale())) =>
     getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval);
 
 /**
