@@ -219,7 +219,7 @@ function assembleNormalNote(): Note {
 }
 
 /**
- * The function responsible for playing a MIDI note
+ * The function responsible for playing a note
  * after you've clicked the mouse.
  * @param {HTMLEvent} event
  */

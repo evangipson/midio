@@ -53,7 +53,7 @@ function drawNoteWithVolumeBasedOpacity(echoDelay, event, volume) {
 
 /**
  * Takes care of drawing the expanding notes on screen.
- * Intended to be called by playMIDINote() so shouldn't be called directly.
+ * Intended to be called by playAndShowNote(), shouldn't be called directly.
  * @param {Number} x
  * @param {Number} y
  * @param {Number} opacity
