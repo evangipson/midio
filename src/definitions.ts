@@ -6,8 +6,8 @@
 const audioContext = new (window["AudioContext"] || window["webkitAudioContext"])();
 
 const baseTone = 280; // in Hz
-
 const maximumDensity = 100;
+let autoplayEventLoop; // keeping track of autoplay
 
 // used to keep track of circles which represent notes
 let circles = [];
@@ -159,7 +159,23 @@ const controls = {
         htmlInput: (<HTMLInputElement>document.getElementById("Mood")),
         min: 0,
         max: scales.length - 1
-    }
+    },
+    // "Toggles"
+    "autoplay": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Autoplay")),
+        min: 0,
+        max: 1
+    },
+    "chords": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Chords")),
+        min: 0,
+        max: 1
+    },
+    "arpeggios": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Arpeggios")),
+        min: 0,
+        max: 1
+    },
 };
 const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
@@ -169,3 +185,6 @@ const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
 const getCurrentSoftness = () => +controls.softness.htmlInput.value;
 const getCurrentDensity = () => +controls.density.htmlInput.value;
 const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
+const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;
+const isChordal = () => +controls.chords.htmlInput.value === 0 ? false : true;
+const isArpeggiated = () => +controls.arpeggios.htmlInput.value === 0 ? false : true;

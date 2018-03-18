@@ -21,15 +21,23 @@
 			<button id="RandomizeControls">Randomize Inputs</button>
 		</div>
 		<div id="ControlList">
-			<section class="left panel">
-				<h2>LFO</h2>
-				<label for="range">Range<input name="range" id="LFORange" type="range"></label>
-				<label for="depth">Depth<input name="depth" id="LFODepth" type="range"></label>
-				<label for="probability">Probability<input name="probability" id="LFOProbability" type="range"></label>
+			<section class="panel">
+				<section class="panel">
+						<h2>LFO</h2>
+						<label for="range">Range<input name="range" id="LFORange" type="range"></label>
+						<label for="depth">Depth<input name="depth" id="LFODepth" type="range"></label>
+						<label for="probability">Probability<input name="probability" id="LFOProbability" type="range"></label>
+				</section>
+				<section class="panel">
+						<h2>Toggles</h2>
+						<label for="autoplay">Autoplay<input name="autoplay" id="Autoplay" type="range"></label>
+						<label for="chords">Chords<input name="chords" id="Chords" type="range"></label>
+						<label for="arpeggios">Arpeggios<input name="arpeggios" id="Arpeggios" type="range"></label>
+				</section>
 			</section>
 			<section class="panel">
 					<h2>Main</h2>
-					<section class="left panel">
+					<section class="panel">
 							<label for="volume">Volume<input name="volume" id="MasterVolume" type="range"></label>
 							<label for="baseNote">Base Note<input name="baseNote" id="BaseNote" type="range"></label>
 							<label for="softness">Softness<input name="softness" id="Softness" type="range"></label>

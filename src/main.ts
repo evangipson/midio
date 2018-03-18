@@ -3,5 +3,4 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("Visualizer").addEventListener("click", function(event) {
         playNoteOnClick(event);
     });
-    generateSound();
 });

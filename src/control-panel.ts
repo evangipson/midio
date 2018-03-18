@@ -18,6 +18,9 @@ function setControlMinimumsAndMaximums() {
         else if(control === "baseNote") {
             currentInput.htmlInput.value = baseTone;
         }
+        else if(control === "autoplay") { // we do want autoplay
+            currentInput.htmlInput.value = 1;
+        }
     }
 }
 
@@ -38,6 +41,7 @@ function randomizeControlValues() {
 function enableControlMenu() {
     let showControlsButton = document.getElementById("ShowControls");
     let randomizeControlsButton = document.getElementById("RandomizeControls");
+    let autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
     let content = document.getElementById("ControlList");
     setControlMinimumsAndMaximums();
     randomizeControlsButton.addEventListener("click", randomizeControlValues);
@@ -52,4 +56,24 @@ function enableControlMenu() {
             content.style.maxHeight = content.scrollHeight + "px";
         }
     });
+    /* using "change" so this only runs on mouse up.
+     * NOTE: can't just fire over and over again by clicking
+     * max value on the toggle because this is a "change" event,
+     * and only fires when a value changes. */
+    autoplayToggle.addEventListener("change", function() {
+        /* .parentElement is here because label is a direct parent of input,
+         * and i need to hide/show the label as well. */
+        let densityLabelWithInput = document.getElementById("Density").parentElement;
+        // +variable = ParseInt(variable); unary operator
+        if(+this.value === 0) {
+            clearTimeout(autoplayEventLoop);
+            densityLabelWithInput.style.display = "none";
+        }
+        else {
+            generateSound();
+            densityLabelWithInput.style.display = "block";
+        }
+    });
+    // we are autoplay from the get go.
+    generateSound();
 }

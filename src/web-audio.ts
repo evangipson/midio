@@ -256,7 +256,7 @@ function generateSound() {
 
     // now in a random amount of time, call itself again.
     const msUntilNextNote = getSecondsUntilNextNote() * 1000; // in ms
-    window.setTimeout(function() {
+    autoplayEventLoop = window.setTimeout(function() {
         generateSound();
     }, msUntilNextNote);
 }
