@@ -5,7 +5,6 @@ const setNotePropertiesFromClick = (note, event) => {
     const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * currentScale.length);
     note.frequency = getHarmonicNoteFrequency(currentScale[intervalGuess]);
     note.volume = getRelativeValue(visualizer.clientHeight - event.clientY, visualizer.clientHeight, 0.1, 1.0);
-    console.log("In setNotePropertiesFromClick with the values: note.frequency: %s, interval: %s, note.volume: %s", note.frequency, currentScale[intervalGuess], note.volume);
     return note;
 };
 
