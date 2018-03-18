@@ -84,7 +84,7 @@ class Oscillator {
      */
     hookUpFilters() {
         this.lfoNode.connect(this.lfoGain);
-        this.lfoGain.connect(this.gainNode.gain);
+        this.lfoGain.connect(this.mainOsc.frequency); // experiment with hooking up LFO to other stuff
         this.mainOsc.connect(this.gainNode);
         this.gainNode.connect(audioContext.destination);
         return this; // allow chaining
@@ -145,7 +145,7 @@ function playAndShowNote(note: Note, event = null) {
     const osc = new Oscillator()
         .setProperties(note.type, note.frequency)
         .setADSR(note.volume, note.attack, note.release, note.time)
-        .getLFO(maybe(getRange(5, 20), 0), getRange(5, 80), maybe("sine", "square")) // randomize LFO
+        .getLFO(maybe(getRange(1, 10), 0), getRange(5, 30), maybe("sine", "square")) // randomize LFO
         .hookUpFilters()
         .play(note.time);
 
@@ -175,7 +175,7 @@ function getRandomNoteDuration() {
  * defining a "pad", or long, usually background note.
  */
 function assemblePadNote(): Note {
-    const attackValue = getRange(10, 100) / 10;
+    const attackValue = getRange(30, 100) / 10;
     return {
         type: getRandomArrayItem(waveTypes),
         frequency: getHarmonicNoteFrequency(),
@@ -192,7 +192,7 @@ function assemblePadNote(): Note {
  * defining a "normal" note.
  */
 function assembleNormalNote(): Note {
-    const attackValue = getRange(2, 20) / 10;
+    const attackValue = getRange(10, 30) / 10;
     return {
         type: getRandomArrayItem(waveTypes),
         frequency: getHarmonicNoteFrequency(),
@@ -242,7 +242,7 @@ function generateSound() {
     });
 
     // now in a random amount of time, call itself again.
-    const msUntilNextNote = getRange(0.15, 8) * 1000; // in ms
+    const msUntilNextNote = getRange(0.5, 8) * 1000; // in ms
     window.setTimeout(function() {
         generateSound();
     }, msUntilNextNote);
