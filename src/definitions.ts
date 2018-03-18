@@ -7,6 +7,8 @@ const audioContext = new (window["AudioContext"] || window["webkitAudioContext"]
 
 const baseTone = 280; // in Hz
 
+const maximumDensity = 100;
+
 // HTML Control Variables
 /* List of controls used in the control panel.
  * Implemented in control-panel.ts.
@@ -41,6 +43,11 @@ const controls = {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
         min: 0,
         max: 3
+    },
+    "density" : {
+        htmlInput: (<HTMLInputElement>document.getElementById("Density")),
+        min: 0,
+        max: maximumDensity
     }
 };
 const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
@@ -49,6 +56,7 @@ const getCurrentLFOProbability = () => +controls.lfoProbability.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
 const getCurrentSoftness = () => +controls.softness.htmlInput.value;
+const getCurrentDensity = () => +controls.density.htmlInput.value;
 
 // used to keep track of circles which represent notes
 let circles = [];

@@ -18,6 +18,7 @@
 		<div class="footer-copy">
 			<p>midio <span class="light-font">generative MIDI radio</span></p>
 			<button id="ShowControls"></button>
+			<button id="RandomizeControls">Randomize Inputs</button>
 		</div>
 		<div id="ControlList">
 			<section class="left panel">
@@ -27,10 +28,17 @@
 				<label for="probability">Probability<input name="probability" id="LFOProbability" type="range"></label>
 			</section>
 			<section class="panel">
-				<h2>Main</h2>
-				<label for="volume">Volume<input name="volume" id="MasterVolume" type="range"></label>
-				<label for="baseNote">Base Note<input name="baseNote" id="BaseNote" type="range"></label>
-				<label for="softness">Softness<input name="softness" id="Softness" type="range"></label>
+					<h2>Main</h2>
+					<section class="left panel">
+							<label for="volume">Volume<input name="volume" id="MasterVolume" type="range"></label>
+							<label for="baseNote">Base Note<input name="baseNote" id="BaseNote" type="range"></label>
+							<label for="softness">Softness<input name="softness" id="Softness" type="range"></label>
+					</section>
+					<section class="panel">
+							<label for="density">Density<input name="density" id="Density" type="range"></label>
+							<label for="mood">Mood<input name="mood" id="Mood" type="range"></label>
+							<label for="temperature">Temperature<input name="temperature" id="Temperature" type="range"></label>
+					</section>
 			</section>
 		</div>
 	</section>

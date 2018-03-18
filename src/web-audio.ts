@@ -134,6 +134,17 @@ const getChord = (tones = 3) => {
 const getHarmonicNoteFrequency = (interval = getRandomArrayItem(currentScale)) =>
     getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval);
 
+/**
+ * Will return a suitable value for seconds
+ * until the next note. To be called by generateSound().
+ */
+const getSecondsUntilNextNote = () => getRelativeValue(
+    maximumDensity - getCurrentDensity(), // a higher density means LESS time between notes
+    maximumDensity,
+    0.2,
+    12
+);
+
 // Non-Pure Functions
 
 /**
@@ -244,7 +255,7 @@ function generateSound() {
     });
 
     // now in a random amount of time, call itself again.
-    const msUntilNextNote = getRange(0.5, 8) * 1000; // in ms
+    const msUntilNextNote = getSecondsUntilNextNote() * 1000; // in ms
     window.setTimeout(function() {
         generateSound();
     }, msUntilNextNote);

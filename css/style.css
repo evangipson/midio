@@ -39,7 +39,7 @@ section {
     position: fixed;
     bottom: 0;
     left: 0;
-    padding: 2rem 4rem;
+    padding: 0.5rem 2rem;
     box-sizing: border-box;
     text-align: center;
 }
@@ -67,7 +67,6 @@ section {
     max-height: 0;
     transition: max-height var(--snappy-animation-time) ease-out;
     overflow: hidden;
-    margin: 1rem 0 0;
 }
 .footer-copy p, .footer-copy button {
     display: inline-block;
@@ -75,7 +74,7 @@ section {
 .footer-copy button {
     margin-left: 2rem;
 }
-#ShowControls {
+button {
     border: none;
     outline: none;
     box-shadow: none;
@@ -115,11 +114,11 @@ section {
     background: linear-gradient(var(--secondary-color), var(--tertiary-color));
     overflow: hidden;
 }
-#ShowControls {
+button {
     background-color: var(--secondary-color);
     transition: background-color var(--snappy-animation-time) ease;
 }
-#ShowControls:active, #ShowControls:hover {
+button:active, button:hover {
     background-color: var(--light-secondary-color);
 }
 /* Overriding colors set in ./range.css */
