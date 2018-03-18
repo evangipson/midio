@@ -16,10 +16,11 @@ const waveTypes = [
 ];
 
 const baseTone = 280; // in Hz
+const maximumFrequency = baseTone * 3;
 const twelfthRootOfTwo = 1.05946309; // need this to calculate Hz based on interval & scale
 
 // root tone included as 0, top octave note not included.
-const scales = {
+let scales = {
     major: [
         0,
         2,
@@ -58,7 +59,7 @@ const scales = {
     ],
     pentatonic: [
         0,
-        3,
+        2,
         4,
         7,
         11
@@ -87,5 +88,14 @@ const scales = {
         0.5555
     ]
 };
-
+// Add negative intervals also
+for(let scale in scales) {
+    let twoOctaveScale = [];
+    for(let interval in scales[scale]) {
+        if(scales[scale][interval] != 0) {
+            twoOctaveScale.unshift(-1 * scales[scale][interval]);
+        }
+    }
+    scales[scale] = twoOctaveScale.concat(scales[scale]);
+}
 let currentScale = scales.ambient; // will need this later for UI

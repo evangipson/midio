@@ -109,18 +109,6 @@ const getUniqueChordNote = (frequency, scale) => {
 };
 
 /**
- * Will get an x & y position given a click event.
- * Will return null if provided no event.
- * @param {HTMLEvent} event
- */
-const getNotePosition = event => {
-    return {
-        x: event ? event.clientX : null,
-        y: event ? event.clientY : null
-    };
-};
-
-/**
  * Will generate a chord, returned as a set filled with
  * unique values. Relies on currentScale.
  * @param {Number} tones how many notes you want in the chord
@@ -135,15 +123,15 @@ const getChord = (tones = 3) => {
     return new Set(chordTones);
 };
 
-// Non-Pure Functions
 /**
  * Will generate a frequency based on a scale.
  * Relies on baseTone and twelfthRootOfTwo.
- * Note: Impure because of the maybe() call.
  * @param {Number} interval how far away from baseTone the note is
  */
 const getHarmonicNoteFrequency = (interval = getRandomArrayItem(currentScale)) =>
-    baseTone * Math.pow(twelfthRootOfTwo, maybe(-(interval), interval));
+    baseTone * Math.pow(twelfthRootOfTwo, interval);
+
+// Non-Pure Functions
 
 /**
  * Will play the note passed in.
@@ -224,7 +212,8 @@ function assembleNormalNote(): Note {
 function playNoteOnClick(event) {
     /* as long as we provide an echoDelay, we'll
     * hear an echo. */
-    const note = assembleNormalNote();
+    let note = assembleNormalNote();
+    note = setNotePropertiesFromClick(note, event);
     playAndShowNote(note, event);
 }
 
@@ -234,8 +223,10 @@ function playNoteOnClick(event) {
  * Note: Can generate either a tone, echo tone, or chord.
  */
 function generateSound() {
-    const note = maybe(assemblePadNote(), assembleNormalNote());
+    let note = maybe(assemblePadNote(), assembleNormalNote());
     const additionalChordTones = maybe(getRange(1, 4), false, 10); // small chance for chords
+    let fakeMouseEvent = getFakeMouseClick();
+    note = setNotePropertiesFromClick(note, fakeMouseEvent);
     playAndShowNote(note, getFakeMouseClick());
     // take care of chords if there is one.
     getChord(additionalChordTones).forEach((chordTone) => {
@@ -243,7 +234,11 @@ function generateSound() {
         let chordNote = note;
         chordNote.frequency = getHarmonicNoteFrequency(chordTone);
         chordNote.echoDelay = 0; // no echo for chords
-        playAndShowNote(chordNote, getFakeMouseClick());
+        // handle x & y seperately for chord notes, because
+        // the x-axis will need to be calculated
+        fakeMouseEvent["overrideX"] = setEventPropertiesFromNote(chordNote, fakeMouseEvent);
+        chordNote = setNoteVolumeFromClick(chordNote, fakeMouseEvent);
+        playAndShowNote(chordNote, fakeMouseEvent);
     });
 
     // now in a random amount of time, call itself again.

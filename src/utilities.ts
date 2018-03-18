@@ -16,6 +16,18 @@ const getFakeMouseClick = (screenGutter = 100) => {
     });
 };
 
+/**
+ * Takes in a value and will generate another number
+ * within a defined range, then returns that number.
+ * @param {Number} initialValue
+ * @param {Number} maxInitialValue
+ * @param {Number} minResult
+ * @param {Number} maxResult
+ */
+const getRelativeValue = (initialValue = 0, maxInitialValue = 100, minResult, maxResult) =>
+    ((initialValue / maxInitialValue) * maxResult) + minResult;
+
+
 // Non-Pure Functions
 /**
  * Will return the first provided input... maybe.

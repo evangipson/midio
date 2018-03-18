@@ -1,3 +1,39 @@
+// Pure Functions
+const setNotePropertiesFromClick = (note, event) => {
+    const visualizer = document.getElementById("Visualizer");
+    // "snap" our targetFrequency to currentScale
+    const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * currentScale.length);
+    note.frequency = getHarmonicNoteFrequency(currentScale[intervalGuess]);
+    note.volume = getRelativeValue(visualizer.clientHeight - event.clientY, visualizer.clientHeight, 0.1, 1.0);
+    console.log("In setNotePropertiesFromClick with the values: note.frequency: %s, interval: %s, note.volume: %s", note.frequency, currentScale[intervalGuess], note.volume);
+    return note;
+};
+
+const setNoteVolumeFromClick = (note, event) => {
+    note.volume = getRelativeValue(event.clientY, document.getElementById("Visualizer").clientHeight, 0.1, 1);
+    return note;
+};
+
+const setEventPropertiesFromNote = (note, event) => {
+    return getRelativeValue(note.frequency, maximumFrequency, 0, document.getElementById("Visualizer").clientWidth);
+};
+
+/**
+ * Will get an x & y position given a click event.
+ * Will return null if provided no event.
+ * @param {HTMLEvent} event
+ */
+const getNotePosition = event => {
+    let xPosition;
+    if(event) {
+        xPosition = event["overrideX"] ? event.overrideX : event.clientX;
+    }
+    return {
+        x: event ? xPosition : null,
+        y: event ? event.clientY : null
+    };
+};
+
 // Non-Pure Functions
 /**
  * Will draw the expanding circle factoring in volume
