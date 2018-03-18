@@ -46,7 +46,7 @@ const maybe = (condition, defaultCondition = null, weight = 50) => {
     if(Math.random() < weight / 100) {
         return condition;
     }
-    else if(defaultCondition) {
+    else if(defaultCondition || defaultCondition === 0) { // sometimes i want 0 to return from this
         return defaultCondition;
     }
     return null;

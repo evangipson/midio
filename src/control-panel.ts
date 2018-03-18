@@ -31,7 +31,12 @@ function randomizeControlValues() {
     let currentInput;
     for(let control in controls) {
         currentInput = controls[control];
-        currentInput.htmlInput.value = getRange(currentInput.min, currentInput.max);
+        if(currentInput.max > 1) {
+            currentInput.htmlInput.value = getRange(currentInput.min, currentInput.max);
+        }
+        else {
+            currentInput.htmlInput.value = maybe(1, 0);
+        }
     }
 }
 
