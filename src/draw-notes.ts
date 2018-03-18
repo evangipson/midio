@@ -1,19 +1,13 @@
 // Pure Functions
-const setNotePropertiesFromClick = (note, event) => {
+const setNoteFrequencyFromClick = (note, event) => {
     const visualizer = document.getElementById("Visualizer");
     // "snap" our targetFrequency to currentScale
     const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * currentScale.length);
     note.frequency = getHarmonicNoteFrequency(currentScale[intervalGuess]);
-    note.volume = getRelativeValue(visualizer.clientHeight - event.clientY, visualizer.clientHeight, 0.1, 1.0);
     return note;
 };
 
-const setNoteVolumeFromClick = (note, event) => {
-    note.volume = getRelativeValue(event.clientY, document.getElementById("Visualizer").clientHeight, 0.1, 1);
-    return note;
-};
-
-const setEventPropertiesFromNote = (note, event) => {
+const setClickPositionFromNoteFrequency = (note, event) => {
     return getRelativeValue(note.frequency, maximumFrequency, 0, document.getElementById("Visualizer").clientWidth);
 };
 
@@ -59,12 +53,13 @@ function drawNoteWithVolumeBasedOpacity(echoDelay, event, volume) {
  * @param {Number} y
  * @param {Number} opacity
  */
-function drawNoteCircle(x, y, opacity = "1.0") {
+function drawNoteCircle(x, y, opacity = 100) {
     let newCircle = document.createElement("span");
     newCircle.classList.add("note-circle");
     newCircle.style.left = x + "px";
     newCircle.style.top = y + "px";
-    newCircle.style.opacity = opacity;
+    // ""+var is a string cast
+    newCircle.style.opacity = ""+(opacity / 100);
     document.getElementById("Visualizer").appendChild(newCircle);
     circles.push(newCircle);
     window.setTimeout(function() {

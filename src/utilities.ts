@@ -27,7 +27,6 @@ const getFakeMouseClick = (screenGutter = 100) => {
 const getRelativeValue = (initialValue = 0, maxInitialValue = 100, minResult, maxResult) =>
     ((initialValue / maxInitialValue) * maxResult) + minResult;
 
-
 // Non-Pure Functions
 /**
  * Will return the first provided input... maybe.

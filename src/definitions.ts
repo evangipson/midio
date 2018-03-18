@@ -6,30 +6,29 @@
 const audioContext = new (window["AudioContext"] || window["webkitAudioContext"])();
 
 // HTML Control Variables
-// TypeScript needs the correct type so I'm casting to an HTMLInputElement
-let currentLFORange = (<HTMLInputElement>document.getElementById("LFORange")).value;
-let currentLFODepth = (<HTMLInputElement>document.getElementById("LFODepth")).value;
 /* List of controls used in the control panel.
  * Implemented in control-panel.ts.
- * htmlName lines up with the ID of the control. */
+ * htmlInput lines up with the ID of the control in HTML. */
 const controls = {
     "volume" : {
-        htmlName: "MasterVolume",
+        htmlInput: (<HTMLInputElement>document.getElementById("MasterVolume")),
         min: 0,
-        max: 100,
-        variable: currentLFORange
+        max: 50
     },
     "lfoRange" : {
-        htmlName: "LFORange",
+        htmlInput: (<HTMLInputElement>document.getElementById("LFORange")),
         min: 0,
         max: 50
     },
     "lfoDepth" : {
-        htmlName: "LFODepth",
+        htmlInput: (<HTMLInputElement>document.getElementById("LFODepth")),
         min: 0,
         max: 100
     }
 };
+const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
+const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
+const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 
 // used to keep track of circles which represent notes
 let circles = [];
