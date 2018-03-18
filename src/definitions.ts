@@ -5,6 +5,32 @@
 // Immutable global variable, used to chain audio
 const audioContext = new (window["AudioContext"] || window["webkitAudioContext"])();
 
+// HTML Control Variables
+// TypeScript needs the correct type so I'm casting to an HTMLInputElement
+let currentLFORange = (<HTMLInputElement>document.getElementById("LFORange")).value;
+let currentLFODepth = (<HTMLInputElement>document.getElementById("LFODepth")).value;
+/* List of controls used in the control panel.
+ * Implemented in control-panel.ts.
+ * htmlName lines up with the ID of the control. */
+const controls = {
+    "volume" : {
+        htmlName: "MasterVolume",
+        min: 0,
+        max: 100,
+        variable: currentLFORange
+    },
+    "lfoRange" : {
+        htmlName: "LFORange",
+        min: 0,
+        max: 50
+    },
+    "lfoDepth" : {
+        htmlName: "LFODepth",
+        min: 0,
+        max: 100
+    }
+};
+
 // used to keep track of circles which represent notes
 let circles = [];
 

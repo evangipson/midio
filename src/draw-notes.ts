@@ -53,25 +53,6 @@ function drawNoteWithVolumeBasedOpacity(echoDelay, event, volume) {
 }
 
 /**
- * Wires up the close/open functionality of the controls menu.
- */
-function enableControlMenu() {
-    let showControlsButton = document.getElementById("ShowControls");
-    let content = document.getElementById("ControlList");
-    showControlsButton.addEventListener("click", function() {
-        // relies on the max height being set on the content
-        if(content.style.maxHeight) {
-            this.classList.remove("active");
-            content.style.maxHeight = null;
-        }
-        else {
-            this.classList.add("active");
-            content.style.maxHeight = content.scrollHeight + "px";
-        }
-    });
-}
-
-/**
  * Takes care of drawing the expanding notes on screen.
  * Intended to be called by playMIDINote() so shouldn't be called directly.
  * @param {Number} x

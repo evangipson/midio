@@ -92,6 +92,15 @@ section {
 #ControlList input {
     margin: 2rem auto;
 }
+#ControlList .panel {
+    width: calc(50% - 4rem);
+    display: inline-block;
+    padding: 0;
+    margin: 0 0 0 2rem;
+}
+#ControlList .panel.left {
+    margin: 0 2rem 0 0;
+}
 .light-font {
     font-weight: 300;
     font-size: 0.9rem;

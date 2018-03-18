@@ -84,7 +84,7 @@ class Oscillator {
      */
     hookUpFilters() {
         this.lfoNode.connect(this.lfoGain);
-        this.lfoGain.connect(this.mainOsc.frequency); // experiment with hooking up LFO to other stuff
+        this.lfoGain.connect(this.gainNode.gain); // experiment with hooking up LFO to other stuff
         this.mainOsc.connect(this.gainNode);
         this.gainNode.connect(audioContext.destination);
         return this; // allow chaining
@@ -145,7 +145,8 @@ function playAndShowNote(note: Note, event = null) {
     const osc = new Oscillator()
         .setProperties(note.type, note.frequency)
         .setADSR(note.volume, note.attack, note.release, note.time)
-        .getLFO(maybe(getRange(1, 10), 0), getRange(5, 30), maybe("sine", "square")) // randomize LFO
+        // +variable = ParseInt(variable); "+" is a unary operator
+        .getLFO(+currentLFORange, +currentLFODepth, maybe("sine", "square")) // randomize LFO
         .hookUpFilters()
         .play(note.time);
 

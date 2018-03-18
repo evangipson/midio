@@ -20,10 +20,15 @@
 			<button id="ShowControls"></button>
 		</div>
 		<div id="ControlList">
-			<label for="drive">Drive<input name="drive" type="range"></label>
-			<label for="agility">Agility<input name="agility" type="range"></label>
-			<label for="density">Density<input name="density" type="range"></label>
-			<label for="hostility">Hostility<input name="hostility" type="range"></label>
+			<section class="left panel">
+				<h2>LFO</h2>
+				<label for="range">Range<input name="range" id="LFORange" type="range"></label>
+				<label for="depth">Depth<input name="depth" id="LFODepth" type="range"></label>
+				<label for="probability">Probability<input name="probability" id="LFOProbability" type="range"></label>
+			</section>
+			<section class="panel">
+				<label for="volume">Volume<input name="volume" id="MasterVolume" type="range"></label>
+			</section>
 		</div>
 	</section>
 	<script type="text/javascript" src="src/main.js"></script>
