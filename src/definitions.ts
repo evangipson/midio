@@ -5,6 +5,8 @@
 // Immutable global variable, used to chain audio
 const audioContext = new (window["AudioContext"] || window["webkitAudioContext"])();
 
+const baseTone = 280; // in Hz
+
 // HTML Control Variables
 /* List of controls used in the control panel.
  * Implemented in control-panel.ts.
@@ -18,17 +20,29 @@ const controls = {
     "lfoRange" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFORange")),
         min: 0,
-        max: 50
+        max: 30
     },
     "lfoDepth" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFODepth")),
         min: 0,
         max: 100
+    },
+    "lfoProbability" : {
+        htmlInput: (<HTMLInputElement>document.getElementById("LFOProbability")),
+        min: 0,
+        max: 100
+    },
+    "baseNote" : {
+        htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
+        min: baseTone / 3,
+        max: baseTone * 3
     }
 };
 const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
+const getCurrentLFOProbability = () => +controls.lfoProbability.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
+const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
 
 // used to keep track of circles which represent notes
 let circles = [];
@@ -39,9 +53,6 @@ const waveTypes = [
     "triangle",
     "square"
 ];
-
-const baseTone = 280; // in Hz
-const maximumFrequency = baseTone * 3;
 const twelfthRootOfTwo = 1.05946309; // need this to calculate Hz based on interval & scale
 
 // root tone included as 0, top octave note not included.

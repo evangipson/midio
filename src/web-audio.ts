@@ -119,7 +119,7 @@ const getUniqueChordNote = (frequency, scale) => {
 const getChord = (tones = 3) => {
     let chordTones = [];
     for(var i = 0; i < tones; i++) {
-        chordTones.push(getUniqueChordNote(baseTone, currentScale));
+        chordTones.push(getUniqueChordNote(getCurrentBaseNote(), currentScale));
     }
     // since sets can only store unique values, let's make
     // a set with the chord tones, since i want them unique.
@@ -132,7 +132,7 @@ const getChord = (tones = 3) => {
  * @param {Number} interval how far away from baseTone the note is
  */
 const getHarmonicNoteFrequency = (interval = getRandomArrayItem(currentScale)) =>
-    baseTone * Math.pow(twelfthRootOfTwo, interval);
+    getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval);
 
 // Non-Pure Functions
 
@@ -149,7 +149,7 @@ function playAndShowNote(note: Note, event = null) {
         .setProperties(note.type, note.frequency)
         .setADSR(note.volume, note.attack, note.release, note.time)
         // +variable = ParseInt(variable); "+" is a unary operator
-        .getLFO(getCurrentLFORange(), getCurrentLFODepth(), maybe("sine", "square")) // randomize LFO
+        .getLFO(maybe(getCurrentLFORange(), 0, getCurrentLFOProbability()), getCurrentLFODepth(), maybe("sine", "square")) // randomize LFO
         .hookUpFilters()
         .play(note.time, note.attack, note.release);
 
@@ -171,7 +171,7 @@ function playAndShowNote(note: Note, event = null) {
  * Note: Isn't pure because it's random, and has no inputs.
  */
 function getRandomNoteDuration() {
-    return Math.random() * 0.2 + 0.08;
+    return Math.random() * 0.2 + 0.1;
 }
 
 /**
@@ -179,7 +179,7 @@ function getRandomNoteDuration() {
  * defining a "pad", or long, usually background note.
  */
 function assemblePadNote(): Note {
-    const attackValue = getRange(30, 100) / 10;
+    const attackValue = getRange(1.5, 8); // in seconds
     return {
         type: getRandomArrayItem(waveTypes),
         frequency: getHarmonicNoteFrequency(),
@@ -196,7 +196,7 @@ function assemblePadNote(): Note {
  * defining a "normal" note.
  */
 function assembleNormalNote(): Note {
-    const attackValue = getRange(10, 30) / 10;
+    const attackValue = getRange(0.5, 3); // in seconds
     return {
         type: getRandomArrayItem(waveTypes),
         frequency: getHarmonicNoteFrequency(),
@@ -204,7 +204,7 @@ function assembleNormalNote(): Note {
         volume: getCurrentMasterVolume(),
         attack: attackValue,
         release: attackValue,
-        echoDelay: maybe(getRange(100, 1500)), // in ms
+        echoDelay: maybe(getRange(250, 2000)), // in ms
     };
 }
 

@@ -8,7 +8,12 @@ const setNoteFrequencyFromClick = (note, event) => {
 };
 
 const setClickPositionFromNoteFrequency = (note, event) => {
-    return getRelativeValue(note.frequency, maximumFrequency, 0, document.getElementById("Visualizer").clientWidth);
+    return getRelativeValue(
+        note.frequency,
+        getHarmonicNoteFrequency(currentScale[currentScale.length - 1]),
+        0,
+        document.getElementById("Visualizer").clientWidth
+    );
 };
 
 /**
