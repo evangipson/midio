@@ -88,8 +88,8 @@ const scales = [
         2,
         5,
         10,
-    ],
-    // let's try crazy stuff
+    ]
+    /* TODO: let's try crazy stuff
     [
         Math.pow(Math.log2(11), 11),
         22/7,
@@ -100,7 +100,7 @@ const scales = [
         99/9,
         1.0000020345627,
         5.5/5.4
-    ]
+    ] */
 ];
 
 // Add negative intervals and top octave
