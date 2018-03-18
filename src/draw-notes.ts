@@ -22,13 +22,14 @@ const setClickPositionFromNoteFrequency = (note, event) => {
  * @param {HTMLEvent} event
  */
 const getNotePosition = event => {
-    let xPosition;
+    let xPosition, yPosition;
     if(event) {
         xPosition = event["overrideX"] ? event.overrideX : event.clientX;
+        yPosition = event["overrideX"] ? getRange(50, document.getElementById("Visualizer").clientHeight - 50) : event.clientY;
     }
     return {
         x: event ? xPosition : null,
-        y: event ? event.clientY : null
+        y: event ? yPosition : null
     };
 };
 

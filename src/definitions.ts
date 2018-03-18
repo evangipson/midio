@@ -148,7 +148,7 @@ const controls = {
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
         min: 0,
-        max: 3
+        max: 20
     },
     "density" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Density")),
@@ -182,7 +182,7 @@ const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
 const getCurrentLFOProbability = () => +controls.lfoProbability.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
-const getCurrentSoftness = () => +controls.softness.htmlInput.value;
+const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
 const getCurrentDensity = () => +controls.density.htmlInput.value;
 const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
 const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;
