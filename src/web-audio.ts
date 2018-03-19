@@ -143,10 +143,10 @@ const getHarmonicNoteFrequency = (interval = getRandomArrayItem(getCurrentScale(
  * until the next note. To be called by generateSound().
  */
 const getSecondsUntilNextNote = () => getRelativeValue(
-    maximumDensity - getCurrentDensity(), // a higher density means LESS time between notes
+    maximumDensity - getRange(getCurrentDensity() * 0.5, getCurrentDensity()), // a higher density means LESS time between notes
     maximumDensity,
-    0.2,
-    12
+    0.1,
+    8
 );
 
 // Non-Pure Functions
@@ -273,7 +273,7 @@ function generateSound(event = null) {
             // create a new tone, with some modifications
             let chordNote = note;
             chordNote.frequency = chordTone;
-            previousDelay += getRange(0.25, 1);
+            previousDelay += getRange(0.15, 1.5);
             chordNote.delay = previousDelay;
             // handle x & y seperately for chord notes, because
             // the x-axis will need to be calculated
