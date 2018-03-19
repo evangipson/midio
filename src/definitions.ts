@@ -176,6 +176,26 @@ const controls = {
         min: 0,
         max: 1
     },
+    "sine": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Sine")),
+        min: 0,
+        max: 1
+    },
+    "square": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Square")),
+        min: 0,
+        max: 1
+    },
+    "triangle": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Triangle")),
+        min: 0,
+        max: 1
+    },
+    "saw": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Saw")),
+        min: 0,
+        max: 1
+    }
 };
 const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
@@ -188,3 +208,19 @@ const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
 const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;
 const isChordal = () => +controls.chords.htmlInput.value === 0 ? false : true;
 const isArpeggiated = () => +controls.arpeggios.htmlInput.value === 0 ? false : true;
+const getActiveWaveTypes = () => {
+    let activeWaveTypes = [];
+    if(+controls.sine.htmlInput.value === 1) {
+        activeWaveTypes.push("sine");
+    }
+    if(+controls.saw.htmlInput.value === 1) {
+        activeWaveTypes.push("saw");
+    }
+    if(+controls.triangle.htmlInput.value === 1) {
+        activeWaveTypes.push("triangle");
+    }
+    if(+controls.square.htmlInput.value === 1) {
+        activeWaveTypes.push("square");
+    }
+    return activeWaveTypes.length > 0 ? activeWaveTypes : ["triangle"]; // default is triangle wavess
+};

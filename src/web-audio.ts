@@ -202,7 +202,7 @@ function getRandomNoteDuration() {
  */
 function assemblePadNote(): Note {
     return {
-        type: getRandomArrayItem(waveTypes),
+        type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(),
         time: getRange(1, 6), // in seconds
         volume: getCurrentMasterVolume(),
@@ -220,7 +220,7 @@ function assemblePadNote(): Note {
  */
 function assembleNormalNote(): Note {
     return {
-        type: getRandomArrayItem(waveTypes),
+        type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(),
         time: getRandomNoteDuration(),
         volume: getCurrentMasterVolume(),

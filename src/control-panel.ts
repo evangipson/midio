@@ -18,7 +18,7 @@ function setControlMinimumsAndMaximums() {
         else if(control === "baseNote") {
             currentInput.htmlInput.value = baseTone;
         }
-        else if(control === "autoplay") { // we do want autoplay
+        else if(control === "autoplay" || control === "triangle") { // we do want triangle autoplay
             currentInput.htmlInput.value = 1;
         }
     }
@@ -61,6 +61,12 @@ function randomizeControlValues() {
 function enableControlMenu() {
     let showControlsButton = document.getElementById("ShowControls");
     let randomizeControlsButton = document.getElementById("RandomizeControls");
+    let triangleRange = <HTMLInputElement>document.getElementById("Triangle");
+    const otherRanges = [
+        <HTMLInputElement>document.getElementById("Sine"),
+        <HTMLInputElement>document.getElementById("Square"),
+        <HTMLInputElement>document.getElementById("Saw")
+    ]
     let autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
     let content = document.getElementById("ControlList");
     setControlMinimumsAndMaximums();
@@ -86,6 +92,20 @@ function enableControlMenu() {
     autoplayToggle.addEventListener("change", function() {
         toggleDensityVisibility();
     });
+    triangleRange.addEventListener("change", function() {
+        const activeWaves = getActiveWaveTypes();
+        if(+this.value === 0 && activeWaves.length === 1 && activeWaves[0] === "triangle") {
+            this.value = "1"; // disallow triangle from being toggled off if it's the only one
+        }
+    });
+    otherRanges.forEach((range) => {
+        range.addEventListener("change", function() {
+            const activeWaves = getActiveWaveTypes();
+            if(+this.value === 0 && activeWaves.length === 1 && activeWaves[0] === "triangle") {
+                triangleRange.value = "1"; // disallow triangle from being toggled off if it's the only one
+            }
+        });
+    }
     // we are autoplay from the get go.
     generateSound();
 }
