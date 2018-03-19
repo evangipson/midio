@@ -50,9 +50,10 @@ function randomizeControlValues() {
             currentInput.htmlInput.value = getRange(currentInput.min, currentInput.max);
         }
         else {
-            currentInput.htmlInput.value = maybe(1, 0);
+            currentInput.htmlInput.value = maybe("1", "0");
         }
     }
+    controls.triangle.htmlInput.value = "1"; // always turn triangles on with randomize
 }
 
 /**
@@ -105,7 +106,7 @@ function enableControlMenu() {
                 triangleRange.value = "1"; // disallow triangle from being toggled off if it's the only one
             }
         });
-    }
+    });
     // we are autoplay from the get go.
     generateSound();
 }
