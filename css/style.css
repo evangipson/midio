@@ -67,6 +67,10 @@ section {
     max-height: 0;
     transition: max-height var(--snappy-animation-time) ease-out;
     overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center
 }
 .footer-copy p, .footer-copy button {
     display: inline-block;
@@ -96,6 +100,10 @@ button {
     display: inline-block;
     padding: 0;
     margin: 0 0 0 2rem;
+}
+#ControlList label.half {
+    display: flex;
+    flex-direction: column;
 }
 /* this rule works if we assume only two panels */
 #ControlList .panel:first-child() {
