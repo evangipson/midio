@@ -12,12 +12,6 @@ let autoplayEventLoop; // keeping track of autoplay
 // used to keep track of circles which represent notes
 let circles = [];
 
-const waveTypes = [
-    "sine",
-    "sawtooth",
-    "triangle",
-    "square"
-];
 const twelfthRootOfTwo = Math.pow(2, 1/12); // need this to calculate Hz based on interval & scale
 
 /* array representing intervals from the root tone.
@@ -214,7 +208,7 @@ const getActiveWaveTypes = () => {
         activeWaveTypes.push("sine");
     }
     if(+controls.saw.htmlInput.value === 1) {
-        activeWaveTypes.push("saw");
+        activeWaveTypes.push("sawtooth");
     }
     if(+controls.triangle.htmlInput.value === 1) {
         activeWaveTypes.push("triangle");
