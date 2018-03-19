@@ -24,6 +24,21 @@ function setControlMinimumsAndMaximums() {
     }
 }
 
+function toggleDensityVisibility() {
+    /* .parentElement is here because label is a direct parent of input,
+    * and i need to hide/show the label as well. */
+    let densityLabelWithInput = document.getElementById("Density").parentElement;
+    // +variable = ParseInt(variable); unary operator
+    if(+controls.autoplay.htmlInput.value === 0) {
+        clearTimeout(autoplayEventLoop);
+        densityLabelWithInput.style.display = "none";
+    }
+    else {
+        generateSound();
+        densityLabelWithInput.style.display = "block";
+    }
+}
+
 /**
  * Randomizes all control panel values.
  */
@@ -49,7 +64,10 @@ function enableControlMenu() {
     let autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
     let content = document.getElementById("ControlList");
     setControlMinimumsAndMaximums();
-    randomizeControlsButton.addEventListener("click", randomizeControlValues);
+    randomizeControlsButton.addEventListener("click", function() {
+        randomizeControlValues();
+        toggleDensityVisibility();
+    });
     showControlsButton.addEventListener("click", function() {
         // relies on the max height being set on the content
         if(content.style.maxHeight) {
@@ -66,18 +84,7 @@ function enableControlMenu() {
      * max value on the toggle because this is a "change" event,
      * and only fires when a value changes. */
     autoplayToggle.addEventListener("change", function() {
-        /* .parentElement is here because label is a direct parent of input,
-         * and i need to hide/show the label as well. */
-        let densityLabelWithInput = document.getElementById("Density").parentElement;
-        // +variable = ParseInt(variable); unary operator
-        if(+this.value === 0) {
-            clearTimeout(autoplayEventLoop);
-            densityLabelWithInput.style.display = "none";
-        }
-        else {
-            generateSound();
-            densityLabelWithInput.style.display = "block";
-        }
+        toggleDensityVisibility();
     });
     // we are autoplay from the get go.
     generateSound();
