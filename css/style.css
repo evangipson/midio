@@ -1,7 +1,7 @@
 /* Variables */
 :root {
     --dark-main-color: #222;
-    --main-color: #444;
+    --main-color: rgb(68, 68, 68);
     --font-color: rgb(183, 209, 223);
     --secondary-color: #71c;
     --light-secondary-color: rgb(110, 58, 158);
@@ -13,7 +13,7 @@
 html, body {
     padding: 0;
     margin: 0;
-    overflow: hidden; /* or i get weird window expanding behavior */
+    overflow: hidden;
 }
 html, body, button, a {
     font-family: monospace;
@@ -31,7 +31,6 @@ section {
 }
 .visualizer {
     height: 100vh;
-    overflow: hidden;
     z-index: 0;
 }
 .controls {
@@ -43,6 +42,11 @@ section {
     box-sizing: border-box;
     text-align: center;
 }
+.controls.active {
+    max-height: 100vh;
+    overflow-y: scroll;
+}
+
 .note-circle {
     position: absolute;
     border-radius: 50%;
@@ -63,20 +67,36 @@ section {
     background-color: rgba(255, 255, 255, 0.0);
 }
 /* Information in controls hidden by default */
-#ControlList {
-    max-height: 0;
-    transition: max-height var(--snappy-animation-time) ease-out;
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center
+.control-panel-wrapper {
+    height: 0;
+    transition: height var(--snappy-animation-time) ease-out;
+}
+.control-panel-wrapper input {
+    margin: 1rem auto;
+}
+.control-panel-wrapper .panel {
+    padding: 0;
+    margin: 0 2rem 0 0;
+    width: calc(50% - 4rem);
+    display: inline-block;
+}
+.control-panel-wrapper .panel:first-child() {
+    margin: 0 0 0 2rem;
+}
+.control-panel-wrapper.active {
+    height: 40rem;
+}
+.control-panel-wrapper input {
+    width: 90%;
+}
+#ShowControls:after {
+    content: "Show Controls";
+}
+#ShowControls.active:after {
+    content: "Hide Controls";
 }
 .footer-copy p, .footer-copy button {
     display: inline-block;
-}
-.footer-copy button {
-    margin-left: 2rem;
 }
 button {
     border: none;
@@ -86,29 +106,6 @@ button {
     margin-top: 1rem;
     width: auto;
 }
-#ShowControls:after {
-    content: "Show Controls";
-}
-#ShowControls.active:after {
-    content: "Hide Controls";
-}
-#ControlList input {
-    margin: 2rem auto;
-}
-#ControlList .panel {
-    width: calc(50% - 4rem);
-    display: inline-block;
-    padding: 0;
-    margin: 0 0 0 2rem;
-}
-#ControlList label.half {
-    display: flex;
-    flex-direction: column;
-}
-/* this rule works if we assume only two panels */
-#ControlList .panel:first-child() {
-    margin: 0 2rem 0 0;
-}
 .light-font {
     font-weight: 300;
     font-size: 0.9rem;
@@ -117,11 +114,10 @@ button {
 
 /* Colors */
 .controls {
-    background: var(--main-color);
+    background: rgba(68, 68, 68, 0.75); /* var(--main-color) */
 }
 .visualizer {
     background: linear-gradient(var(--secondary-color), var(--tertiary-color));
-    overflow: hidden;
 }
 button {
     background-color: var(--secondary-color);
@@ -133,4 +129,35 @@ button:active, button:hover {
 /* Overriding colors set in ./range.css */
 .controls input[type=range]::-webkit-slider-runnable-track {
     background: var(--secondary-color);
+}
+
+/* Desktop Styles */
+@media screen and (min-width: 960px) {
+    .control-panel-wrapper.active {
+        height: 10rem;
+    }
+    .control-panel-wrapper .panel {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .control-panel-wrapper label {
+        margin-top: 1rem;
+    }
+    .control-panel-wrapper .panel, .control-panel-wrapper .panel:first-child() {
+        padding: 0;
+        margin: 0;
+    }
+    .footer-copy button {
+        margin-left: 2rem;
+    }
+    .control-panel-wrapper h2 {
+        padding: 0 1rem;
+        margin: 2rem 1rem 0;
+        border-right: 2px var(--font-color) solid;
+    }
+    .controls.active {
+        overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */
+    }
 }

@@ -69,21 +69,24 @@ function enableControlMenu() {
         <HTMLInputElement>document.getElementById("Saw")
     ]
     let autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
-    let content = document.getElementById("ControlList");
     setControlMinimumsAndMaximums();
     randomizeControlsButton.addEventListener("click", function() {
         randomizeControlValues();
         toggleDensityVisibility();
     });
     showControlsButton.addEventListener("click", function() {
+        let content = document.getElementById("ControlList");
+        let controlsDiv = document.getElementsByClassName("controls")[0];
         // relies on the max height being set on the content
-        if(content.style.maxHeight) {
+        if(this.classList.contains("active")) {
             this.classList.remove("active");
-            content.style.maxHeight = null;
+            content.classList.remove("active");
+            controlsDiv.classList.remove("active");
         }
         else {
             this.classList.add("active");
-            content.style.maxHeight = content.scrollHeight + "px";
+            content.classList.add("active");
+            controlsDiv.classList.add("active");
         }
     });
     /* using "change" so this only runs on mouse up.

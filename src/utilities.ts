@@ -4,7 +4,7 @@
  * within a window of the gutter provided, and returns the event.
  * @param {Number} screenGutter how much edge of the screen to give, in px.
  */
-const getFakeMouseClick = (screenGutter = 100) => {
+const getFakeMouseClick = (screenGutter = 300) => {
     const bestGuessX = getRange(screenGutter, document.getElementById("Visualizer").offsetWidth - screenGutter);
     const bestGuessY = getRange(screenGutter, document.getElementById("Visualizer").offsetHeight - screenGutter);
     return new MouseEvent('click', {
