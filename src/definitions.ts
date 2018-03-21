@@ -9,6 +9,14 @@ const baseTone = 280; // in Hz
 const maximumDensity = 65;
 let autoplayEventLoop; // keeping track of autoplay
 
+// all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
+const allWaveTypes = [
+    "sine",
+    "sawtooth",
+    "triangle",
+    "square"
+];
+
 // used to keep track of circles which represent notes
 let circles = [];
 

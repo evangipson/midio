@@ -165,11 +165,9 @@ function playAndShowNote(note: Note, event = null) {
         .setADSR(note.volume, note.attack, note.release, note.time, note.delay)
         // +variable = ParseInt(variable); "+" is a unary operator
         .getLFO(
-            maybe(getCurrentLFORange(),
-            0,
-            getCurrentLFOProbability()),
+            maybe(getCurrentLFORange(), 0, getCurrentLFOProbability()),
             getCurrentLFODepth(),
-            maybe("sine", "square"),
+            getRandomArrayItem(allWaveTypes),
             note.delay
         ) // randomize LFO
         .hookUpFilters()
