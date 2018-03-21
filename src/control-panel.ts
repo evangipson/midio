@@ -59,19 +59,20 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * 500; // in ms
-        autoplayEventLoop = window.setTimeout(function() {
+        composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
     }
 }
 
 function toggleAutoplay() {
-    // +variable = ParseInt(variable); unary operator
-    if(+controls.autoplay.htmlInput.value === 0) {
-        clearTimeout(autoplayEventLoop);
+    if(isAutoplay()) {
+        generateSound();
+        evolveSound();
     }
     else {
-        generateSound();
+        clearTimeout(autoplayEventLoop);
+        clearTimeout(composerEventLoop);
     }
 }
 

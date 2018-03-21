@@ -7,7 +7,7 @@ const audioContext = new (window["AudioContext"] || window["webkitAudioContext"]
 
 const baseTone = 280; // in Hz
 const maximumDensity = 65;
-let autoplayEventLoop; // keeping track of autoplay
+let autoplayEventLoop, composerEventLoop; // keeping track of autoplay & composer
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
 const allWaveTypes = [
