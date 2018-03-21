@@ -28,6 +28,34 @@ function setControlMinimumsAndMaximums() {
     }
 }
 
+/**
+ * Will adjust the nextInput's value by just a little amount, maybe.
+ * Note: Doesn't effect volume, autoplay, or triangle.
+ * @param nextInput string value which will act as an index on controls.
+ */
+function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
+    if(nextInput && controls[nextInput]) {
+        const oldValue = controls[nextInput].htmlInput.value;
+        if(controls[nextInput].max === 1 && nextInput != "triangle" && nextInput != "autoplay") { // don't change triangle or turn off autoplay
+            controls[nextInput].htmlInput.value = maybe("1", "0");
+        }
+        else if(nextInput != "volume") { // don't evolve volume
+            let attemptedIncrement = getRange(+controls[nextInput].htmlInput.value - +controls[nextInput].htmlInput.max * 0.2, +controls[nextInput].htmlInput.value + +controls[nextInput].htmlInput.max * 0.2);
+            if(attemptedIncrement >= controls[nextInput].htmlInput.min && attemptedIncrement <= controls[nextInput].htmlInput.max) {
+                controls[nextInput].htmlInput.value = ""+attemptedIncrement;
+            }
+        }
+        console.log("took %s from %s to %s", nextInput, oldValue, controls[nextInput].htmlInput.value)
+        nextInput = getRandomArrayItem(Object.keys(controls));
+        /* in an amount of time, call itself again, because
+         * we want to make the radio interesting over time. */
+        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * 500; // in ms
+        autoplayEventLoop = window.setTimeout(function() {
+            evolveSound(nextInput);
+        }, msUntilNextControlChange);
+    }
+}
+
 function toggleAutoplay() {
     // +variable = ParseInt(variable); unary operator
     if(+controls.autoplay.htmlInput.value === 0) {
@@ -111,4 +139,6 @@ function enableControlMenu() {
     });
     // we are autoplay from the get go.
     generateSound();
+    // and start evolving the sound from the get go.
+    evolveSound();
 }
