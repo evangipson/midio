@@ -193,7 +193,7 @@ function playAndShowNote(note: Note, event = null) {
  * Note: Isn't pure because it's random, and has no inputs.
  */
 function getRandomNoteDuration() {
-    return Math.random() * 0.2 + 0.1;
+    return Math.random() * 1.25 + 0.1;
 }
 
 /**
@@ -204,11 +204,11 @@ function assemblePadNote(): Note {
     return {
         type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(),
-        time: getRange(1, 6), // in seconds
+        time: getRange(1, 8), // in seconds
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
-        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 2),
-        release: getRange(getCurrentSoftness(), getCurrentSoftness() * 2),
+        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.5),
+        release: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.5),
         echoDelay: 0,
         delay: 0
     };
@@ -224,8 +224,8 @@ function assembleNormalNote(): Note {
         frequency: getHarmonicNoteFrequency(),
         time: getRandomNoteDuration(),
         volume: getCurrentMasterVolume(),
-        attack: getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.5),
-        release: getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.5),
+        attack: getRange(getCurrentSoftness() * 0.8, getCurrentSoftness() * 1.2),
+        release: getRange(getCurrentSoftness() * 0.8, getCurrentSoftness() * 1.2),
         echoDelay: maybe(getRange(250, 2000), 0, 25), // in ms
         delay: 0
     };
@@ -266,20 +266,21 @@ function generateSound(event = null) {
             playAndShowNote(chordNote, event);
         });
     }
-    else if(maybe(isArpeggiated())) {// 50% chance of arpeggios if user wants them
+    // 50% chance of arpeggios if user wants them
+    // 5% chance of arpeggios randomly happening
+    else if(maybe(true, false, 5) || maybe(isArpeggiated())) {
         const additionalChordTones = Math.floor(getRange(3, 8));
-        let previousDelay = 0;
+        let previousDelay = getRange(getCurrentDensity(), maximumDensity) / 100;
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
             let chordNote = note;
             chordNote.frequency = chordTone;
-            previousDelay += getRange(0.15, 1.5);
+            previousDelay += previousDelay;
             chordNote.delay = previousDelay;
             // handle x & y seperately for chord notes, because
             // the x-axis will need to be calculated
             event["overrideX"] = setClickPositionFromNoteFrequency(chordNote, event);
             playAndShowNote(chordNote, event);
         });
-        
     }
 }

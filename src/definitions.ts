@@ -6,7 +6,7 @@
 const audioContext = new (window["AudioContext"] || window["webkitAudioContext"])();
 
 const baseTone = 280; // in Hz
-const maximumDensity = 100;
+const maximumDensity = 65;
 let autoplayEventLoop; // keeping track of autoplay
 
 // used to keep track of circles which represent notes
@@ -146,7 +146,7 @@ const controls = {
     },
     "density" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Density")),
-        min: 0,
+        min: 15,
         max: maximumDensity
     },
     "mood": {
