@@ -24,18 +24,13 @@ function setControlMinimumsAndMaximums() {
     }
 }
 
-function toggleDensityVisibility() {
-    /* .parentElement is here because label is a direct parent of input,
-    * and i need to hide/show the label as well. */
-    let densityLabelWithInput = document.getElementById("Density").parentElement;
+function toggleAutoplay() {
     // +variable = ParseInt(variable); unary operator
     if(+controls.autoplay.htmlInput.value === 0) {
         clearTimeout(autoplayEventLoop);
-        densityLabelWithInput.style.display = "none";
     }
     else {
         generateSound();
-        densityLabelWithInput.style.display = "block";
     }
 }
 
@@ -72,7 +67,7 @@ function enableControlMenu() {
     setControlMinimumsAndMaximums();
     randomizeControlsButton.addEventListener("click", function() {
         randomizeControlValues();
-        toggleDensityVisibility();
+        toggleAutoplay();
     });
     showControlsButton.addEventListener("click", function() {
         let content = document.getElementById("ControlList");
@@ -94,7 +89,7 @@ function enableControlMenu() {
      * max value on the toggle because this is a "change" event,
      * and only fires when a value changes. */
     autoplayToggle.addEventListener("change", function() {
-        toggleDensityVisibility();
+        toggleAutoplay();
     });
     triangleRange.addEventListener("change", function() {
         const activeWaves = getActiveWaveTypes();
