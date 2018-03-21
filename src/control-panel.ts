@@ -11,15 +11,16 @@ function setControlMinimumsAndMaximums() {
         currentInput = controls[control];
         currentInput.htmlInput.min = currentInput.min;
         currentInput.htmlInput.max = currentInput.max;
-        currentInput.htmlInput.value = 0;
-        if(control === "volume" || control === "softness") {
+        // Set initial values
+        if(currentInput.max > 1) {
+            currentInput.htmlInput.value = getRange(currentInput.min, currentInput.max);
+        }
+        else {
+            currentInput.htmlInput.value = maybe("1", "0");
+        }
+        // Now override .value if needed per control
+        if(control === "volume") { // curate volume
             currentInput.htmlInput.value = Math.floor(currentInput.min + currentInput.max / 2);
-        }
-        else if(control === "density") {
-            currentInput.htmlInput.value = Math.floor((currentInput.min + maximumDensity) / 2);
-        }
-        else if(control === "baseNote") {
-            currentInput.htmlInput.value = baseTone;
         }
         else if(control === "autoplay" || control === "triangle") { // we do want triangle autoplay
             currentInput.htmlInput.value = 1;

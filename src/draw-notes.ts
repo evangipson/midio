@@ -70,13 +70,13 @@ function drawNoteWithVolumeBasedOpacity(echoDelay, event, volume, delay) {
  * @param {Number} y
  * @param {Number} opacity
  */
-function drawNoteCircle(x, y, opacity = 100) {
+function drawNoteCircle(x, y, opacity = controls.volume.max) {
     let newCircle = document.createElement("span");
     newCircle.classList.add("note-circle");
     newCircle.style.left = x + "px";
     newCircle.style.top = y + "px";
     // ""+var is a string cast
-    newCircle.style.opacity = ""+(opacity / 100);
+    newCircle.style.opacity = ""+(opacity / controls.volume.max);
     document.getElementById("Visualizer").appendChild(newCircle);
     circles.push(newCircle);
     window.setTimeout(function() {

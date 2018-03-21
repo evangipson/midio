@@ -117,12 +117,12 @@ const controls = {
     "volume" : {
         htmlInput: (<HTMLInputElement>document.getElementById("MasterVolume")),
         min: 0,
-        max: 50
+        max: 30
     },
     "lfoRange" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFORange")),
         min: 0,
-        max: 30
+        max: 15
     },
     "lfoDepth" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFODepth")),
@@ -136,8 +136,8 @@ const controls = {
     },
     "baseNote" : {
         htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
-        min: baseTone / 3,
-        max: baseTone * 3
+        min: 50,
+        max: baseTone * 2
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
