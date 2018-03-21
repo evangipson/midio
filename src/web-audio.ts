@@ -270,7 +270,7 @@ function generateSound(event = null) {
     // 5% chance of arpeggios randomly happening
     else if(maybe(true, false, 5) || maybe(isArpeggiated())) {
         const additionalChordTones = Math.floor(getRange(3, 8));
-        let previousDelay = getRange(getCurrentDensity(), maximumDensity) / 100;
+        let previousDelay = getRange(maximumDensity - getCurrentDensity(), maximumDensity) / 100;
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
             let chordNote = note;
