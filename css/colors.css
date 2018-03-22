@@ -37,6 +37,9 @@
 .visualizer.mood6 {
     background: linear-gradient(var(--p6-secondary), var(--p6-tertiary));
 }
+.visualizer.mood7 {
+    background: linear-gradient(var(--p7-secondary), var(--p7-tertiary));
+}
 .controls {
     background: rgba(68, 68, 68, 0.75); /* var(--p1-primary) */
 }

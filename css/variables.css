@@ -22,8 +22,8 @@
     --p6-secondary: rgb(17, 110, 197);
     --p6-tertiary: rgb(43, 170, 26);
     /* Color Palette 7 */
-    --p6-secondary: rgb(159, 255, 134);
-    --p6-tertiary: rgb(25, 146, 79);
+    --p7-secondary: rgb(159, 255, 134);
+    --p7-tertiary: rgb(25, 146, 79);
     /* Timings */
     --snappy-animation-time: 0.2s;
     --animation-time: 2s;

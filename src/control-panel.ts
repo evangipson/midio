@@ -16,7 +16,7 @@ function setInitialControlValues() {
             if(control === "lfoRange") {
                 controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max / 4);
             }
-            else if(control === "lfoDepth") {
+            else if(control === "lfoDepth" || control === "density" || control === "lfoProbability") {
                 controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max / 2);
             }
             else{
@@ -34,7 +34,7 @@ function setInitialControlValues() {
             controlValue = 1;
         }
         else if(control === "mood") {
-            changeBackgroundColor(""+controlValue);
+            changeBackgroundColor(controlValue + 1);
         }
         currentHTMLInput.value = ""+Math.floor(controlValue);
     }
@@ -83,13 +83,13 @@ function toggleAutoplay() {
  * We are relying on the number of moods in the CSS being
  * proportionate to the number of scales in definitions.ts.
  */
-function changeBackgroundColor(mood = "1") {
+function changeBackgroundColor(mood = 1) {
     let updatedVisualizerClass = "mood";
     updatedVisualizerClass += mood;
     // wipe the old mood class if there is one
     document.getElementById("Visualizer").className = "visualizer";
-    if(mood != "1") { // we don't have a "mood1" modifier - it's just the default style
-        document.getElementById("Visualizer").classList.add(updatedVisualizerClass);
+    if(mood != 1) { // we don't have a "mood1" modifier - it's just the default style
+        document.getElementById("Visualizer").classList.add(""+updatedVisualizerClass);
     }
 }
 
@@ -152,7 +152,7 @@ function enableControlMenu() {
         toggleAutoplay();
     });
     moodRange.addEventListener("change", function() {
-        changeBackgroundColor(this.value);
+        changeBackgroundColor(+this.value + 1);
     });
     triangleRange.addEventListener("change", function() {
         const activeWaves = getActiveWaveTypes();
