@@ -23,7 +23,8 @@ let circles = [];
 const twelfthRootOfTwo = Math.pow(2, 1/12); // need this to calculate Hz based on interval & scale
 
 /* array representing intervals from the root tone.
- * root tone included as 0. */
+ * root tone included as 0.
+ * NOTE: must line up with number of palettes in css/variables.css! */
 const scales = [
     // major
     [

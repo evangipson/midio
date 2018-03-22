@@ -1,0 +1,31 @@
+/* Variables using CSS Properties */
+:root {
+    /* Color Palette 1 */
+    --p1-primary: rgb(68, 68, 68);
+    --p1-secondary: #71c;
+        --p1-secondary-light: rgb(110, 58, 158);
+    --p1-tertiary: #55a;
+    --p1-font: rgb(183, 209, 223);
+    /* Color Palette 2 */
+    --p2-secondary: rgb(43, 170, 26);
+    --p2-tertiary: rgb(17, 110, 197);
+    /* Color Palette 3 */
+    --p3-secondary: rgb(156, 170, 26);
+    --p3-tertiary: rgb(235, 71, 71);
+    /* Color Palette 4 */
+    --p4-secondary: rgb(156, 75, 172);
+    --p4-tertiary: rgb(17, 110, 197);
+    /* Color Palette 5 */
+    --p5-secondary: rgb(25, 52, 141);
+    --p5-tertiary: rgb(206, 75, 188);
+    /* Color Palette 6 */
+    --p6-secondary: rgb(17, 110, 197);
+    --p6-tertiary: rgb(43, 170, 26);
+    /* Color Palette 7 */
+    --p6-secondary: rgb(159, 255, 134);
+    --p6-tertiary: rgb(25, 146, 79);
+    /* Timings */
+    --snappy-animation-time: 0.2s;
+    --animation-time: 2s;
+    --long-animation-time: 15s;
+}

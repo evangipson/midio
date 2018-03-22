@@ -1,15 +1,4 @@
-/* Variables */
-:root {
-    --dark-main-color: #222;
-    --main-color: rgb(68, 68, 68);
-    --font-color: rgb(183, 209, 223);
-    --secondary-color: #71c;
-    --light-secondary-color: rgb(110, 58, 158);
-    --tertiary-color: #55a;
-    --snappy-animation-time: 0.2s;
-    --animation-time: 2s;
-    --long-animation-time: 15s;
-}
+/* Reset & Base Style */
 html, body {
     padding: 0;
     margin: 0;
@@ -17,7 +6,7 @@ html, body {
 }
 html, body, button, a {
     font-family: monospace;
-    color: var(--font-color);
+    color: var(--p1-font);
     font-weight: bold;
     letter-spacing: 0.2px;
 }
@@ -112,25 +101,6 @@ button {
     letter-spacing: 2.5px;
 }
 
-/* Colors */
-.controls {
-    background: rgba(68, 68, 68, 0.75); /* var(--main-color) */
-}
-.visualizer {
-    background: linear-gradient(var(--secondary-color), var(--tertiary-color));
-}
-button {
-    background-color: var(--secondary-color);
-    transition: background-color var(--snappy-animation-time) ease;
-}
-button:active, button:hover {
-    background-color: var(--light-secondary-color);
-}
-/* Overriding colors set in ./range.css */
-.controls input[type=range]::-webkit-slider-runnable-track {
-    background: var(--secondary-color);
-}
-
 /* Desktop Styles */
 @media screen and (min-width: 960px) {
     .control-panel-wrapper.active {
@@ -155,7 +125,7 @@ button:active, button:hover {
     .control-panel-wrapper h2 {
         padding: 0 1rem;
         margin: 2rem 1rem 0;
-        border-right: 2px var(--font-color) solid;
+        border-right: 2px var(--p1-font) solid;
     }
     .controls.active {
         overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */

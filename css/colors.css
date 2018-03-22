@@ -1,0 +1,53 @@
+/* Animations needed for moving gradients */
+@-webkit-keyframes AnimationName {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+@-moz-keyframes AnimationName {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+@keyframes AnimationName { 
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+.visualizer {
+    -webkit-animation: AnimationName 30s ease infinite;
+    -moz-animation: AnimationName 30s ease infinite;
+    animation: AnimationName 30s ease infinite;
+    transition: background 5s ease;
+    background: linear-gradient(var(--p1-secondary), var(--p1-tertiary));
+}
+.visualizer.mood2 {
+    background: linear-gradient(var(--p2-secondary), var(--p2-tertiary));
+}
+.visualizer.mood3 {
+    background: linear-gradient(var(--p3-secondary), var(--p3-tertiary));
+}
+.visualizer.mood4 {
+    background: linear-gradient(var(--p4-secondary), var(--p4-tertiary));
+}
+.visualizer.mood5 {
+    background: linear-gradient(var(--p5-secondary), var(--p5-tertiary));
+}
+.visualizer.mood6 {
+    background: linear-gradient(var(--p6-secondary), var(--p6-tertiary));
+}
+.controls {
+    background: rgba(68, 68, 68, 0.75); /* var(--p1-primary) */
+}
+button {
+    background-color: var(--p1-secondary);
+    transition: background-color var(--snappy-animation-time) ease;
+}
+button:active, button:hover {
+    background-color: var(--p1-secondary-light);
+}
+/* Overriding colors set in ./range.css */
+.controls input[type=range]::-webkit-slider-runnable-track {
+    background: var(--p1-secondary);
+}

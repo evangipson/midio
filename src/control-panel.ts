@@ -33,6 +33,9 @@ function setInitialControlValues() {
         else if(control === "autoplay" || control === "triangle") { // we do want triangle autoplay
             controlValue = 1;
         }
+        else if(control === "mood") {
+            changeBackgroundColor(""+controlValue);
+        }
         currentHTMLInput.value = ""+Math.floor(controlValue);
     }
 }
@@ -77,6 +80,20 @@ function toggleAutoplay() {
 }
 
 /**
+ * We are relying on the number of moods in the CSS being
+ * proportionate to the number of scales in definitions.ts.
+ */
+function changeBackgroundColor(mood = "1") {
+    let updatedVisualizerClass = "mood";
+    updatedVisualizerClass += mood;
+    // wipe the old mood class if there is one
+    document.getElementById("Visualizer").className = "visualizer";
+    if(mood != "1") { // we don't have a "mood1" modifier - it's just the default style
+        document.getElementById("Visualizer").classList.add(updatedVisualizerClass);
+    }
+}
+
+/**
  * Randomizes all control panel values.
  */
 function randomizeControlValues() {
@@ -100,6 +117,7 @@ function enableControlMenu() {
     let showControlsButton = document.getElementById("ShowControls");
     let randomizeControlsButton = document.getElementById("RandomizeControls");
     let triangleRange = <HTMLInputElement>document.getElementById("Triangle");
+    let moodRange = <HTMLInputElement>document.getElementById("Mood");
     const otherRanges = [
         <HTMLInputElement>document.getElementById("Sine"),
         <HTMLInputElement>document.getElementById("Square"),
@@ -132,6 +150,9 @@ function enableControlMenu() {
      * and only fires when a value changes. */
     autoplayToggle.addEventListener("change", function() {
         toggleAutoplay();
+    });
+    moodRange.addEventListener("change", function() {
+        changeBackgroundColor(this.value);
     });
     triangleRange.addEventListener("change", function() {
         const activeWaves = getActiveWaveTypes();
