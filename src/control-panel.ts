@@ -57,7 +57,7 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
                 controls[nextInput].htmlInput.value = ""+attemptedIncrement;
             }
             if(nextInput === "mood") {
-                changeBackgroundColor(+attemptedIncrement + 1);
+                changeBackgroundColor(attemptedIncrement + 1);
             }
         }
         console.log("took %s from %s to %s", nextInput, oldValue, controls[nextInput].htmlInput.value)
