@@ -38,27 +38,22 @@ class Oscillator {
     setProperties(type, frequency: number, delay: number) {
         if(type === "whiteNoise" || type === "pinkNoise" || type === "brownNoise") {
             let whiteNoise = audioContext.createBufferSource();
-            let buffer = audioContext.createBuffer(1, 4096, audioContext.sampleRate);
+            let buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
             let data = buffer.getChannelData(0);
-            for (var i = 0; i < 4096; i++) {
+            for (var i = 0; i < audioContext.sampleRate; i++) {
                 data[i] = Math.random();
             }
             whiteNoise.buffer = buffer;
             whiteNoise.loop = true;
+            this.biquadNode.type = "lowpass";
             if(type === "pinkNoise") {
-                this.biquadNode.type = "lowpass";
-                this.biquadNode.frequency.setValueAtTime(getHarmonicNoteFrequency(24), audioContext.currentTime + delay);
-                this.biquadNode.gain.setValueAtTime(100, audioContext.currentTime + delay);
+                this.biquadNode.frequency.setValueAtTime(1000, audioContext.currentTime + delay);
             }
             else if(type === "brownNoise") {
-                this.biquadNode.type = "bandpass";
-                this.biquadNode.frequency.setValueAtTime(getHarmonicNoteFrequency(0), audioContext.currentTime + delay);
-                this.biquadNode.gain.setValueAtTime(100, audioContext.currentTime + delay);
+                this.biquadNode.frequency.setValueAtTime(650, audioContext.currentTime + delay);
             }
-            else { // plain old white noise
-                this.biquadNode.type = "highpass";
-                this.biquadNode.frequency.setValueAtTime(1000, audioContext.currentTime + delay);
-                this.biquadNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
+            else {
+                this.biquadNode.frequency.setValueAtTime(5000, audioContext.currentTime + delay);
             }
             this.mainOsc = whiteNoise;
         }
