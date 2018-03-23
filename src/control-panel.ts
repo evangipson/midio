@@ -73,7 +73,7 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
-        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * 100; // in ms
+        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * 1500; // in ms
         composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
