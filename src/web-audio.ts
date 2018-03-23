@@ -281,9 +281,9 @@ function generateSound(event = null) {
     }
     let note = maybe(assemblePadNote(), assembleNormalNote());
     note = setNoteFrequencyFromClick(note, event);
-    playAndShowNote(note, event);
     // take care of chords if the user wants them.
     if(maybe(isChordal())) { // 50% chance of chords if user wants them
+        note.echoDelay = 0; // no echoey chords
         const additionalChordTones = Math.floor(getRange(2, 5));
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
@@ -298,6 +298,7 @@ function generateSound(event = null) {
     // 50% chance of arpeggios if user wants them
     // 5% chance of arpeggios randomly happening
     else if(maybe(true, false, 5) || maybe(isArpeggiated())) {
+        note.echoDelay = 0; // no echoey arps
         const additionalChordTones = Math.floor(getRange(3, 8));
         let previousDelay = getRange(maximumDensity - getCurrentDensity(), maximumDensity) / 100;
         getChord(additionalChordTones).forEach((chordTone) => {
@@ -312,4 +313,6 @@ function generateSound(event = null) {
             playAndShowNote(chordNote, event);
         });
     }
+    // now that we've modified our note if it's a chord or arp, we can play it
+    playAndShowNote(note, event);
 }
