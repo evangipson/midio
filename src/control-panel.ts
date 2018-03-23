@@ -164,14 +164,14 @@ function enableControlMenu() {
     });
     triangleRange.addEventListener("change", function() {
         const activeWaves = getActiveWaveTypes();
-        if(+this.value === 0 && activeWaves.length === 1 && activeWaves[0] === "triangle") {
+        if(+this.value === 0 && activeWaves.length === 1 && (activeWaves.includes("whiteNoise") || activeWaves.includes("triangle"))) {
             this.value = "1"; // disallow triangle from being toggled off if it's the only one
         }
     });
     otherRanges.forEach((range) => {
         range.addEventListener("change", function() {
-            const activeWaves = getActiveWaveTypes();
-            if(+this.value === 0 && activeWaves.length === 1 && activeWaves[0] === "triangle") {
+            let activeWaves = getActiveWaveTypes();
+            if(+this.value === 0 && activeWaves.length === 1 && (activeWaves.includes("whiteNoise") || activeWaves.includes("triangle"))) {
                 triangleRange.value = "1"; // disallow triangle from being toggled off if it's the only one
             }
         });

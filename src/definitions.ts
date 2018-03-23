@@ -204,6 +204,11 @@ const controls = {
         htmlInput: (<HTMLInputElement>document.getElementById("Saw")),
         min: 0,
         max: 1
+    },
+    "whiteNoise": {
+        htmlInput: (<HTMLInputElement>document.getElementById("WhiteNoise")),
+        min: 0,
+        max: 1
     }
 };
 const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
@@ -218,7 +223,7 @@ const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true
 const isChordal = () => +controls.chords.htmlInput.value === 0 ? false : true;
 const isArpeggiated = () => +controls.arpeggios.htmlInput.value === 0 ? false : true;
 const getActiveWaveTypes = () => {
-    let activeWaveTypes = [];
+    let activeWaveTypes:string[] = [];
     if(+controls.sine.htmlInput.value === 1) {
         activeWaveTypes.push("sine");
     }
@@ -230,6 +235,9 @@ const getActiveWaveTypes = () => {
     }
     if(+controls.square.htmlInput.value === 1) {
         activeWaveTypes.push("square");
+    }
+    if(+controls.whiteNoise.htmlInput.value === 1) {
+        activeWaveTypes.push("whiteNoise");
     }
     return activeWaveTypes.length > 0 ? activeWaveTypes : ["triangle"]; // default is triangle wavess
 };

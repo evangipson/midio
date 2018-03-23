@@ -1,7 +1,13 @@
 {
     "compilerOptions": {
         "target": "ES6",
-        "outFile": "src/main.js"
+        "outFile": "src/main.js",
+        // need this lib or else arrays don't include .includes(), only strings in ES6.
+        // https://github.com/gdi2290/angular-starter/issues/931
+        "lib": [
+            "dom",
+            "es7"
+        ]
     },
     "include": [
         "src/*.ts"

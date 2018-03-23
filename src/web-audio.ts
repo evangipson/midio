@@ -34,8 +34,21 @@ class Oscillator {
      * @param {Number} delay in seconds
      */
     setProperties(type, frequency: number, delay: number) {
-        this.mainOsc.type = type;
-        this.mainOsc.frequency.setValueAtTime(frequency, audioContext.currentTime + delay);
+        if(type === "whiteNoise") {
+            let whiteNoise = audioContext.createBufferSource();
+            let buffer = audioContext.createBuffer(1, 4096, audioContext.sampleRate);
+            let data = buffer.getChannelData(0);
+            for (var i = 0; i < 4096; i++) {
+                data[i] = Math.random();
+            }
+            whiteNoise.buffer = buffer;
+            whiteNoise.loop = true;
+            this.mainOsc = whiteNoise;
+        }
+        else {
+            this.mainOsc.type = type;
+            this.mainOsc.frequency.setValueAtTime(frequency, audioContext.currentTime + delay);
+        }
         return this; // allow chaining
     };
     /**
