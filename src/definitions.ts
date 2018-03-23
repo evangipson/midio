@@ -108,14 +108,20 @@ const scales = [
 
 // Add negative intervals and top octave
 for(let scale in scales) {
-    let twoOctaveScale = [];
+    let multiOctaveScale = new Set();
     for(let interval in scales[scale]) {
-        if(scales[scale][interval] != 0) {
-            twoOctaveScale.unshift(-1 * scales[scale][interval]);
-        }
+        multiOctaveScale.add(scales[scale][interval]); // add base tone
+        multiOctaveScale.add(scales[scale][interval] + 12); // add an octave higher
+        multiOctaveScale.add(-1 * scales[scale][interval]); // add same interval but negative
+        multiOctaveScale.add(-1 * (scales[scale][interval] + 12)); // add negative octave interval
     }
-    scales[scale] = twoOctaveScale.concat(scales[scale]);
-    scales[scale].push(12); // add the octave
+    // add top and bottom 2 octave root
+    multiOctaveScale.add(-24);
+    multiOctaveScale.add(24);
+    // sort our array numerically
+    scales[scale] = Array.from(multiOctaveScale).sort((a, b) => {
+        return a - b;
+    });
 }
 
 // HTML Control Variables
