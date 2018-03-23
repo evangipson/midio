@@ -209,6 +209,16 @@ const controls = {
         htmlInput: (<HTMLInputElement>document.getElementById("WhiteNoise")),
         min: 0,
         max: 1
+    },
+    "pinkNoise": {
+        htmlInput: (<HTMLInputElement>document.getElementById("PinkNoise")),
+        min: 0,
+        max: 1
+    },
+    "brownNoise": {
+        htmlInput: (<HTMLInputElement>document.getElementById("BrownNoise")),
+        min: 0,
+        max: 1
     }
 };
 const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
@@ -238,6 +248,12 @@ const getActiveWaveTypes = () => {
     }
     if(+controls.whiteNoise.htmlInput.value === 1) {
         activeWaveTypes.push("whiteNoise");
+    }
+    if(+controls.pinkNoise.htmlInput.value === 1) {
+        activeWaveTypes.push("pinkNoise");
+    }
+    if(+controls.brownNoise.htmlInput.value === 1) {
+        activeWaveTypes.push("brownNoise");
     }
     return activeWaveTypes.length > 0 ? activeWaveTypes : ["triangle"]; // default is triangle wavess
 };

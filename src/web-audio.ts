@@ -21,10 +21,12 @@ class Oscillator {
     gainNode: GainNode;
     lfoNode: OscillatorNode;
     lfoGain: GainNode; // how loud the LFO will be
+    biquadNode: BiquadFilterNode;
     constructor() {
         this.mainOsc = audioContext.createOscillator();
         this.gainNode = audioContext.createGain();
         this.lfoNode = audioContext.createOscillator();
+        this.biquadNode = audioContext.createBiquadFilter();
     }
     /**
      * Sets the mainOsc's type and frequency.
@@ -34,7 +36,7 @@ class Oscillator {
      * @param {Number} delay in seconds
      */
     setProperties(type, frequency: number, delay: number) {
-        if(type === "whiteNoise") {
+        if(type === "whiteNoise" || type === "pinkNoise" || type === "brownNoise") {
             let whiteNoise = audioContext.createBufferSource();
             let buffer = audioContext.createBuffer(1, 4096, audioContext.sampleRate);
             let data = buffer.getChannelData(0);
@@ -43,6 +45,21 @@ class Oscillator {
             }
             whiteNoise.buffer = buffer;
             whiteNoise.loop = true;
+            if(type === "pinkNoise") {
+                this.biquadNode.type = "lowpass";
+                this.biquadNode.frequency.setValueAtTime(getHarmonicNoteFrequency(24), audioContext.currentTime + delay);
+                this.biquadNode.gain.setValueAtTime(100, audioContext.currentTime + delay);
+            }
+            else if(type === "brownNoise") {
+                this.biquadNode.type = "bandpass";
+                this.biquadNode.frequency.setValueAtTime(getHarmonicNoteFrequency(0), audioContext.currentTime + delay);
+                this.biquadNode.gain.setValueAtTime(100, audioContext.currentTime + delay);
+            }
+            else { // plain old white noise
+                this.biquadNode.type = "highpass";
+                this.biquadNode.frequency.setValueAtTime(1000, audioContext.currentTime + delay);
+                this.biquadNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
+            }
             this.mainOsc = whiteNoise;
         }
         else {
@@ -106,7 +123,8 @@ class Oscillator {
     hookUpFilters() {
         this.lfoNode.connect(this.lfoGain);
         this.lfoGain.connect(this.gainNode.gain); // experiment with hooking up LFO to other stuff
-        this.mainOsc.connect(this.gainNode);
+        this.mainOsc.connect(this.biquadNode);
+        this.biquadNode.connect(this.gainNode);
         this.gainNode.connect(audioContext.destination);
         return this; // allow chaining
     };
