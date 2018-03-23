@@ -33,6 +33,10 @@ function setInitialControlValues() {
         else if(control === "autoplay" || control === "triangle") { // we do want triangle autoplay
             controlValue = 1;
         }
+        // we never want noise waves on by default
+        else if(control === "whiteNoise" || control === "brownNoise" || control === "pinkNoise") {
+            controlValue = 0;
+        }
         else if(control === "mood") {
             changeBackgroundColor(Math.round(controlValue) + 1);
         }
