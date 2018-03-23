@@ -34,9 +34,9 @@ function setInitialControlValues() {
             controlValue = 1;
         }
         else if(control === "mood") {
-            changeBackgroundColor(controlValue + 1);
+            changeBackgroundColor(Math.round(controlValue) + 1);
         }
-        currentHTMLInput.value = ""+Math.floor(controlValue);
+        currentHTMLInput.value = ""+Math.round(controlValue);
     }
 }
 
@@ -47,24 +47,29 @@ function setInitialControlValues() {
  */
 function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
     if(nextInput && controls[nextInput]) {
-        const oldValue = controls[nextInput].htmlInput.value;
-        if(controls[nextInput].max === 1 && nextInput != "triangle" && nextInput != "autoplay") { // don't change triangle or turn off autoplay
-            controls[nextInput].htmlInput.value = maybe("1", "0");
+        let newValue;
+        const nextHTMLInput = controls[nextInput].htmlInput;
+        const oldValue = nextHTMLInput.value;
+        const minValue = Math.floor(+nextHTMLInput.value - ((+nextHTMLInput.max - +nextHTMLInput.min) / 3));
+        const maxValue = Math.ceil(+nextHTMLInput.value + ((+nextHTMLInput.max - +nextHTMLInput.min) / 3));
+        // don't set anything outside the bounds
+        const attemptedValue = getRange(minValue >= +nextHTMLInput.min ? minValue : +nextHTMLInput.min, maxValue <= +nextHTMLInput.max ? maxValue : +nextHTMLInput.max );
+        newValue = Math.round(attemptedValue);
+        if(nextInput === "mood") {
+            changeBackgroundColor(newValue + 1);
         }
-        else if(nextInput != "volume") { // don't evolve volume
-            let attemptedIncrement = getRange(+controls[nextInput].htmlInput.value - +controls[nextInput].htmlInput.max * 0.2, +controls[nextInput].htmlInput.value + +controls[nextInput].htmlInput.max * 0.2);
-            if(attemptedIncrement >= controls[nextInput].htmlInput.min && attemptedIncrement <= controls[nextInput].htmlInput.max) {
-                controls[nextInput].htmlInput.value = ""+attemptedIncrement;
-            }
-            if(nextInput === "mood") {
-                changeBackgroundColor(attemptedIncrement + 1);
-            }
+        // if we have a toggle or binary switch, we only need 1 or 0.
+        if(+nextHTMLInput.max === 1) {
+            newValue = maybe(1, 0);
         }
-        console.log("took %s from %s to %s", nextInput, oldValue, controls[nextInput].htmlInput.value)
-        nextInput = getRandomArrayItem(Object.keys(controls));
+        // don't evolve volume, triangle, or turn off autoplay
+        if(nextInput != "triangle" && nextInput != "autoplay" && nextInput != "volume") {
+            nextHTMLInput.value = ""+newValue;
+        }
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
-        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * 500; // in ms
+        nextInput = getRandomArrayItem(Object.keys(controls));
+        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * 100; // in ms
         composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
@@ -88,11 +93,11 @@ function toggleAutoplay() {
  */
 function changeBackgroundColor(mood = 1) {
     let updatedVisualizerClass = "mood";
-    updatedVisualizerClass += mood;
+    updatedVisualizerClass += ""+mood;
     // wipe the old mood class if there is one
     document.getElementById("Visualizer").className = "visualizer";
     if(mood != 1) { // we don't have a "mood1" modifier - it's just the default style
-        document.getElementById("Visualizer").classList.add(""+updatedVisualizerClass);
+        document.getElementById("Visualizer").classList.add(updatedVisualizerClass);
     }
 }
 

@@ -64,4 +64,4 @@ const getRandomArrayItem = array => array[Math.floor(Math.random()*array.length)
  * @param {Number} min
  * @param {Number} max
  */
-const getRange = (min, max) => Math.floor(Math.random() * max) + min;
+const getRange = (min, max) => Math.random() * (max - min) + min;
