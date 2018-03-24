@@ -10,6 +10,9 @@ const maximumDensity = 65;
 // keeping track of autoplay & composer
 let autoplayEventLoop;
 let composerEventLoop;
+// keeping track of the user's click length for note times
+let noteTimingEventHandler;
+let clickedNoteLength = 0;
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
 const allWaveTypes = [
