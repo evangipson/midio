@@ -1,3 +1,15 @@
+// Pure Functions
+/**
+ * Will take care of ensuring at least one wave is turned on.
+ * @param length of the current active waves
+ */
+const ensureOneWaveIsOn = (length = getActiveWaveTypes().length) => {
+    if(!length) {
+        return "1";
+    }
+    return "0";
+}
+
 // Non-Pure Functions
 /**
  * Runs through our list of controls, defined in
@@ -42,6 +54,7 @@ function setInitialControlValues() {
         }
         currentHTMLInput.value = ""+Math.round(controlValue);
     }
+    controls.triangle.htmlInput.value = ensureOneWaveIsOn();
 }
 
 /**
@@ -66,10 +79,11 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         if(+nextHTMLInput.max === 1) {
             newValue = maybe(1, 0);
         }
-        // don't evolve volume, triangle, or turn off autoplay
-        if(nextInput != "triangle" && nextInput != "autoplay" && nextInput != "volume") {
+        // don't turn modify volume or turn off autoplay
+        if(nextInput != "autoplay" && nextInput != "volume") {
             nextHTMLInput.value = ""+newValue;
         }
+        controls.triangle.htmlInput.value = ensureOneWaveIsOn();
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
@@ -119,7 +133,7 @@ function randomizeControlValues() {
             currentInput.htmlInput.value = maybe("1", "0");
         }
     }
-    controls.triangle.htmlInput.value = "1"; // always turn triangles on with randomize
+    controls.triangle.htmlInput.value = ensureOneWaveIsOn();
 }
 
 /**
@@ -130,10 +144,14 @@ function enableControlMenu() {
     let randomizeControlsButton = document.getElementById("RandomizeControls");
     let triangleRange = <HTMLInputElement>document.getElementById("Triangle");
     let moodRange = <HTMLInputElement>document.getElementById("Mood");
-    const otherRanges = [
+    const allWaveRanges = [
+        <HTMLInputElement>document.getElementById("Triangle"),
         <HTMLInputElement>document.getElementById("Sine"),
         <HTMLInputElement>document.getElementById("Square"),
-        <HTMLInputElement>document.getElementById("Saw")
+        <HTMLInputElement>document.getElementById("Saw"),
+        <HTMLInputElement>document.getElementById("WhiteNoise"),
+        <HTMLInputElement>document.getElementById("PinkNoise"),
+        <HTMLInputElement>document.getElementById("BrownNoise")
     ]
     let autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
     setInitialControlValues();
@@ -166,17 +184,10 @@ function enableControlMenu() {
     moodRange.addEventListener("change", function() {
         changeBackgroundColor(+this.value + 1);
     });
-    triangleRange.addEventListener("change", function() {
-        const activeWaves = getActiveWaveTypes();
-        if(+this.value === 0 && activeWaves.length === 1  && !activeWaves.includes("triangle")) {
-            this.value = "1"; // disallow triangle from being toggled off if it's the only one
-        }
-    });
-    otherRanges.forEach((range) => {
+    allWaveRanges.forEach((range) => {
         range.addEventListener("change", function() {
-            let activeWaves = getActiveWaveTypes();
-            if(+this.value === 0 && activeWaves.length === 1 && !activeWaves.includes("triangle")) {
-                triangleRange.value = "1"; // disallow triangle from being toggled off if it's the only one
+            if(+this.value === 0) {
+                this.value = ensureOneWaveIsOn(); // disallow this wave from being toggled off if it's the only one
             }
         });
     });

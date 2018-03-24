@@ -255,5 +255,5 @@ const getActiveWaveTypes = () => {
     if(+controls.brownNoise.htmlInput.value === 1) {
         activeWaveTypes.push("brownNoise");
     }
-    return activeWaveTypes.length > 0 ? activeWaveTypes : ["triangle"]; // default is triangle wavess
+    return activeWaveTypes;
 };
