@@ -7,7 +7,9 @@ const audioContext = new (window["AudioContext"] || window["webkitAudioContext"]
 
 const baseTone = 280; // in Hz
 const maximumDensity = 65;
-let autoplayEventLoop, composerEventLoop; // keeping track of autoplay & composer
+// keeping track of autoplay & composer
+let autoplayEventLoop;
+let composerEventLoop;
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
 const allWaveTypes = [
@@ -175,6 +177,11 @@ const controls = {
         min: 0,
         max: 1
     },
+    "evolve": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Evolve")),
+        min: 0,
+        max: 1
+    },
     "chords": {
         htmlInput: (<HTMLInputElement>document.getElementById("Chords")),
         min: 0,
@@ -230,6 +237,7 @@ const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
 const getCurrentDensity = () => +controls.density.htmlInput.value;
 const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
 const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;
+const isEvolve = () => +controls.evolve.htmlInput.value === 0 ? false : true;
 const isChordal = () => +controls.chords.htmlInput.value === 0 ? false : true;
 const isArpeggiated = () => +controls.arpeggios.htmlInput.value === 0 ? false : true;
 const getActiveWaveTypes = () => {

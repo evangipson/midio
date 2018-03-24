@@ -42,7 +42,8 @@ function setInitialControlValues() {
         if(control === "volume") { // curate volume
             controlValue = (+currentHTMLInput.min + +currentHTMLInput.max) / 2;
         }
-        else if(control === "autoplay" || control === "triangle") { // we do want triangle autoplay
+        // we want triangle evolving autoplay off the bat
+        else if(control === "autoplay" || control === "evolve" || control === "triangle") {
             controlValue = 1;
         }
         // we never want noise waves on by default
@@ -54,7 +55,6 @@ function setInitialControlValues() {
         }
         currentHTMLInput.value = ""+Math.round(controlValue);
     }
-    controls.triangle.htmlInput.value = ensureOneWaveIsOn();
 }
 
 /**
@@ -79,28 +79,41 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         if(+nextHTMLInput.max === 1) {
             newValue = maybe(1, 0);
         }
-        // don't turn modify volume or turn off autoplay
-        if(nextInput != "autoplay" && nextInput != "volume") {
+        // don't turn modify volume or turn off autoplay/evolve
+        if(nextInput != "autoplay" && nextInput != "evolve" && nextInput != "volume") {
             nextHTMLInput.value = ""+newValue;
         }
         controls.triangle.htmlInput.value = ensureOneWaveIsOn();
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
-        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * 1500; // in ms
+        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * Math.floor(getRange(750, 1500)); // in ms
         composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
     }
 }
 
+/**
+ * Used for autoplay capability.
+ */
 function toggleAutoplay() {
     if(isAutoplay()) {
         generateSound();
-        evolveSound();
     }
     else {
         clearTimeout(autoplayEventLoop);
+    }
+}
+
+/**
+ * used for evolve capability.
+ */
+function toggleEvolve() {
+    if(isEvolve()) {
+        evolveSound();
+    }
+    else {
         clearTimeout(composerEventLoop);
     }
 }
@@ -140,10 +153,9 @@ function randomizeControlValues() {
  * Wires up the close/open functionality of the controls menu.
  */
 function enableControlMenu() {
-    let showControlsButton = document.getElementById("ShowControls");
-    let randomizeControlsButton = document.getElementById("RandomizeControls");
-    let triangleRange = <HTMLInputElement>document.getElementById("Triangle");
-    let moodRange = <HTMLInputElement>document.getElementById("Mood");
+    const showControlsButton = document.getElementById("ShowControls");
+    const randomizeControlsButton = document.getElementById("RandomizeControls");
+    const moodRange = <HTMLInputElement>document.getElementById("Mood");
     const allWaveRanges = [
         <HTMLInputElement>document.getElementById("Triangle"),
         <HTMLInputElement>document.getElementById("Sine"),
@@ -153,15 +165,17 @@ function enableControlMenu() {
         <HTMLInputElement>document.getElementById("PinkNoise"),
         <HTMLInputElement>document.getElementById("BrownNoise")
     ]
-    let autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
+    const autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
+    const evolveToggle = <HTMLInputElement>document.getElementById("Evolve");
     setInitialControlValues();
     randomizeControlsButton.addEventListener("click", function() {
         randomizeControlValues();
         toggleAutoplay();
+        toggleEvolve();
     });
     showControlsButton.addEventListener("click", function() {
-        let content = document.getElementById("ControlList");
-        let controlsDiv = document.getElementsByClassName("controls")[0];
+        const content = document.getElementById("ControlList");
+        const controlsDiv = document.getElementsByClassName("controls")[0];
         // relies on the max height being set on the content
         if(this.classList.contains("active")) {
             this.classList.remove("active");
@@ -180,6 +194,9 @@ function enableControlMenu() {
      * and only fires when a value changes. */
     autoplayToggle.addEventListener("change", function() {
         toggleAutoplay();
+    });
+    evolveToggle.addEventListener("change", function() {
+        toggleEvolve();
     });
     moodRange.addEventListener("change", function() {
         changeBackgroundColor(+this.value + 1);
