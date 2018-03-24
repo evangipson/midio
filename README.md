@@ -1,5 +1,9 @@
 # midio
-midio started as a randomly generated sequence of MIDI notes based on a scale, then it was moved forward by my curiosity toward [functional programming](https://en.wikipedia.org/wiki/Functional_programming) and the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API). midio will work really hard to generate you endlessly interesting audio on the fly.
+midio is a web-based generative synthesizer "radio" which uses the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and [TypeScript](https://www.typescriptlang.org/) to create tones of varying lengths and intervals based on some user input (which lives in a control panel) and internal logic, defined in the source code.
+
+The user can either load up the page and just listen while midio generates an ever-evolving song for them, or turn autoplay off and click the colorful area that takes up most of the screen and experiment with the inputs to have some fun.
+
+midio started as a randomly generated sequence of MIDI notes based on a scale, then it was moved forward by my curiosity toward [functional programming](https://en.wikipedia.org/wiki/Functional_programming) and the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API).
 
 | midio Readme |
 |---|
@@ -9,6 +13,7 @@ midio started as a randomly generated sequence of MIDI notes based on a scale, t
 | [License](#license) |
 
 # Built With
+* [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 * [TypeScript](https://www.typescriptlang.org/)
 * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS3)
 * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
