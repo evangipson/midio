@@ -27,7 +27,7 @@ const twelfthRootOfTwo = Math.pow(2, 1/12); // need this to calculate Hz based o
 /* array representing intervals from the root tone.
  * root tone included as 0.
  * NOTE: must line up with number of palettes in css/variables.css! */
-const scales = [
+let scales = [
     // major
     [
         0,
@@ -74,7 +74,7 @@ const scales = [
         2,
         4,
         7,
-        11
+        9
     ],
     // my own custom "jazz"
     [
@@ -93,6 +93,73 @@ const scales = [
         2,
         5,
         10,
+    ],
+    // mixolydian
+    [
+        0,
+        2,
+        4,
+        5,
+        7,
+        9,
+        10
+    ],
+    // lydian
+    [
+        0,
+        2,
+        4,
+        6,
+        7,
+        9,
+        11
+    ],
+    // phrygian dominant
+    [
+        0,
+        1,
+        4,
+        5,
+        7,
+        8,
+        10
+    ],
+    // blues
+    [
+        0,
+        3,
+        5,
+        6,
+        7,
+        10
+    ],
+    // altered scale
+    [
+        0,
+        1,
+        3,
+        4,
+        6,
+        8,
+        10
+    ],
+    // whole tone
+    [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+    ],
+    // hexatonic scale
+    [
+        0,
+        3,
+        4,
+        7,
+        8,
+        11
     ]
     /* TODO: let's try crazy stuff
     [
@@ -107,7 +174,11 @@ const scales = [
         5.5/5.4
     ] */
 ];
-
+// mix up the order of scales
+for (let i = scales.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [scales[i], scales[j]] = [scales[j], scales[i]];
+}
 // Add negative intervals and top octave
 for(let scale in scales) {
     let multiOctaveScale = new Set();

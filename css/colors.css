@@ -40,6 +40,27 @@
 .visualizer.mood7 {
     background: linear-gradient(var(--p7-secondary), var(--p7-tertiary));
 }
+.visualizer.mood8 {
+    background: linear-gradient(var(--p8-secondary), var(--p8-tertiary));
+}
+.visualizer.mood9 {
+    background: linear-gradient(var(--p9-secondary), var(--p9-tertiary));
+}
+.visualizer.mood10 {
+    background: linear-gradient(var(--p10-secondary), var(--p10-tertiary));
+}
+.visualizer.mood11 {
+    background: linear-gradient(var(--p11-secondary), var(--p11-tertiary));
+}
+.visualizer.mood12 {
+    background: linear-gradient(var(--p12-secondary), var(--p12-tertiary));
+}
+.visualizer.mood13 {
+    background: linear-gradient(var(--p13-secondary), var(--p13-tertiary));
+}
+.visualizer.mood14 {
+    background: linear-gradient(var(--p14-secondary), var(--p14-tertiary));
+}
 .controls {
     background: rgba(68, 68, 68, 0.75); /* var(--p1-primary) */
 }
