@@ -26,6 +26,7 @@ class Oscillator {
         this.mainOsc = audioContext.createOscillator();
         this.gainNode = audioContext.createGain();
         this.lfoNode = audioContext.createOscillator();
+        this.lfoGain = audioContext.createGain();
         this.biquadNode = audioContext.createBiquadFilter();
     }
     /**
@@ -35,7 +36,7 @@ class Oscillator {
      * @param {Number} frequency in Hz
      * @param {Number} delay in seconds
      */
-    setProperties(type, frequency: number, delay: number) {
+    setProperties(type: string, frequency: number, delay: number) {
         if(type === "whiteNoise" || type === "pinkNoise" || type === "brownNoise") {
             let whiteNoise = audioContext.createBufferSource();
             let buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
@@ -58,7 +59,7 @@ class Oscillator {
             this.mainOsc = whiteNoise;
         }
         else {
-            this.mainOsc.type = type;
+            this.mainOsc.type = <OscillatorType>type;
             this.mainOsc.frequency.setValueAtTime(frequency, audioContext.currentTime + delay);
         }
         return this; // allow chaining
@@ -101,10 +102,8 @@ class Oscillator {
      * @param {String} type wave shape for the LFO
      * @param {Number} delay in seconds
      */
-    getLFO(frequency: number = 5, gain: number = 15, type, delay) {
-        this.lfoNode = audioContext.createOscillator();
-        this.lfoGain = audioContext.createGain();
-        this.lfoNode.type = type;
+    getLFO(frequency: number = 5, gain: number = 15, type: string, delay: number) {
+        this.lfoNode.type = <OscillatorType>type;
         this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime + delay);
         // don't allow the gain of the LFO to surpass the current master volume
         this.lfoGain.gain.setValueAtTime(getRelativeValue(gain, 100, 0, getCurrentMasterVolume()) / 100, audioContext.currentTime);
@@ -131,7 +130,7 @@ class Oscillator {
  * Relies on twelfthRootOfTwo.
  * @param {Number} frequency in Hz
  */
-const getUniqueChordNote = (frequency) => {
+const getUniqueChordNote = (frequency: number) => {
     let uniqueFrequency = getHarmonicNoteFrequency();
     // this makes sure there is enough space between the next note by
     // making sure at least one half step is between the two notes.
@@ -184,7 +183,7 @@ const getSecondsUntilNextNote = () => getRelativeValue(
  * @param {Note} note Note interface containing multiple properties
  * @param {HTMLEvent} event to determine where to draw the circles. default is null.
  */
-function playAndShowNote(note: Note, event = null) {
+function playAndShowNote(note: Note, event: CustomMouseEvent) {
     // handle creating an oscillator and starting & stopping it
     const osc = new Oscillator()
         .setProperties(note.type, note.frequency, note.delay)
@@ -200,7 +199,7 @@ function playAndShowNote(note: Note, event = null) {
         .play(note.time, note.attack, note.release, note.delay);
 
     // draw those pretty circles on the canvas
-    if(event) {
+    if(event.event) {
         drawNoteWithVolumeBasedOpacity(note.echoDelay, event, note.volume, note.delay);
     }
     // handle repeating notes
@@ -261,11 +260,12 @@ function assembleNormalNote(): Note {
  * and continually generate a new tone some time after
  * (if autoplay is enabled).
  * Note: Can generate either a tone, echo tone, or chord.
- * @param {ClickEvent} event
+ * @param {MouseEvent} event
  */
-function generateSound(event = null) {
+function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     let note = maybe(assemblePadNote(), assembleNormalNote());
-    if(!event) {
+    let overrideX = 0; // used when we have to draw chords and arpeggios
+    if(!event.clientX) {
         event = getFakeMouseClick();
         /* in an amount of time, call itself again, because
          * we can be sure this is a generated note due to the absence
@@ -290,8 +290,8 @@ function generateSound(event = null) {
             chordNote.frequency = chordTone;
             // handle x & y seperately for chord notes, because
             // the x-axis will need to be calculated
-            event["overrideX"] = setClickPositionFromNoteFrequency(chordNote, event);
-            playAndShowNote(chordNote, event);
+            overrideX = setClickPositionFromNoteFrequency(chordNote, event);
+            playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
         });
     }
     // 50% chance of arpeggios if user wants them
@@ -308,10 +308,10 @@ function generateSound(event = null) {
             chordNote.delay = previousDelay;
             // handle x & y seperately for chord notes, because
             // the x-axis will need to be calculated
-            event["overrideX"] = setClickPositionFromNoteFrequency(chordNote, event);
-            playAndShowNote(chordNote, event);
+            overrideX = setClickPositionFromNoteFrequency(chordNote, event);
+            playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
         });
     }
     // now that we've modified our note if it's a chord or arp, we can play it
-    playAndShowNote(note, event);
+    playAndShowNote(note, {event} as CustomMouseEvent);
 }

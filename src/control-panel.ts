@@ -21,10 +21,10 @@ function setInitialControlValues() {
     let currentHTMLInput, controlValue;
     for(let control in controls) {
         currentHTMLInput = controls[control].htmlInput;
-        currentHTMLInput.min = controls[control].min;
-        currentHTMLInput.max = controls[control].max;
+        currentHTMLInput.min = ""+controls[control].min;
+        currentHTMLInput.max = ""+controls[control].max;
         // Set initial values
-        if(currentHTMLInput.max > 1) {
+        if(controls[control].max > 1) {
             if(control === "lfoRange") {
                 controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max / 4);
             }
@@ -125,10 +125,11 @@ function toggleEvolve() {
 function changeBackgroundColor(mood = 1) {
     let updatedVisualizerClass = "mood";
     updatedVisualizerClass += ""+mood;
-    // wipe the old mood class if there is one
-    document.getElementById("Visualizer").className = "visualizer";
-    if(mood != 1) { // we don't have a "mood1" modifier - it's just the default style
-        document.getElementById("Visualizer").classList.add(updatedVisualizerClass);
+    const visualizerElement = document.getElementById("Visualizer");
+    if(visualizerElement && mood != 1) { // we don't have a "mood1" modifier - it's just the default style
+        // wipe the old mood class if there is one
+        visualizerElement.className = "visualizer";
+        visualizerElement.classList.add(updatedVisualizerClass);
     }
 }
 
@@ -140,7 +141,7 @@ function randomizeControlValues() {
     for(let control in controls) {
         currentInput = controls[control];
         if(currentInput.max > 1) {
-            currentInput.htmlInput.value = getRange(currentInput.min, currentInput.max);
+            currentInput.htmlInput.value = ""+getRange(currentInput.min, currentInput.max);
         }
         else {
             currentInput.htmlInput.value = maybe("1", "0");
@@ -168,26 +169,30 @@ function enableControlMenu() {
     const autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
     const evolveToggle = <HTMLInputElement>document.getElementById("Evolve");
     setInitialControlValues();
-    randomizeControlsButton.addEventListener("click", function() {
-        randomizeControlValues();
-        toggleAutoplay();
-        toggleEvolve();
-    });
-    showControlsButton.addEventListener("click", function() {
-        const content = document.getElementById("ControlList");
-        const controlsDiv = document.getElementsByClassName("controls")[0];
-        // relies on the max height being set on the content
-        if(this.classList.contains("active")) {
-            this.classList.remove("active");
-            content.classList.remove("active");
-            controlsDiv.classList.remove("active");
-        }
-        else {
-            this.classList.add("active");
-            content.classList.add("active");
-            controlsDiv.classList.add("active");
-        }
-    });
+    if(randomizeControlsButton) {
+        randomizeControlsButton.addEventListener("click", function() {
+            randomizeControlValues();
+            toggleAutoplay();
+            toggleEvolve();
+        });
+    }
+    if(showControlsButton) {
+        showControlsButton.addEventListener("click", function() {
+            let content = document.getElementById("ControlList");
+            const controlsDiv = document.getElementsByClassName("controls")[0];
+            // relies on the max height being set on the content
+            if(content && this.classList.contains("active")) {
+                this.classList.remove("active");
+                content.classList.remove("active");
+                controlsDiv.classList.remove("active");
+            }
+            else if(content) {
+                this.classList.add("active");
+                content.classList.add("active");
+                controlsDiv.classList.add("active");
+            }
+        });
+    }
     /* using "change" so this only runs on mouse up.
      * NOTE: can't just fire over and over again by clicking
      * max value on the toggle because this is a "change" event,

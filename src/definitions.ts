@@ -2,16 +2,17 @@
  * I will load this file first in the HTML. */
 'use strict';
 
-// Immutable global variable, used to chain audio
-const audioContext = new (window["AudioContext"] || window["webkitAudioContext"])();
+/* Immutable global variable, used to chain audio
+ * "as any" will force an index signature so it's not implicit. */
+const audioContext = new ((window as any)["AudioContext"] || (window as any)["webkitAudioContext"])();
 
 const baseTone = 280; // in Hz
 const maximumDensity = 65;
 // keeping track of autoplay & composer
-let autoplayEventLoop;
-let composerEventLoop;
+let autoplayEventLoop: number;
+let composerEventLoop: number;
 // keeping track of the user's click length for note times
-let noteTimingEventHandler;
+let noteTimingEventHandler: number;
 let clickedNoteLength = 0;
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
@@ -23,7 +24,7 @@ const allWaveTypes = [
 ];
 
 // used to keep track of circles which represent notes
-let circles = [];
+let circles:HTMLSpanElement[] = [];
 
 const twelfthRootOfTwo = Math.pow(2, 1/12); // need this to calculate Hz based on interval & scale
 
@@ -201,10 +202,25 @@ for(let scale in scales) {
 }
 
 // HTML Control Variables
+/**
+ * Our interfaces used to instantiate HTML controls.
+ */
+interface HTMLControl {
+    htmlInput: HTMLInputElement,
+    min: number,
+    max: number
+};
+interface HTMLControlList {
+    [key: string]: HTMLControl
+};
+interface CustomMouseEvent extends MouseEvent {
+    event: MouseEvent,
+    overrideX: number
+};
 /* List of controls used in the control panel.
  * Implemented in control-panel.ts.
  * htmlInput lines up with the ID of the control in HTML. */
-const controls = {
+const controls:HTMLControlList = {
     "volume" : {
         htmlInput: (<HTMLInputElement>document.getElementById("MasterVolume")),
         min: 0,
