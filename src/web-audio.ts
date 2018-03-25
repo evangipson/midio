@@ -231,8 +231,8 @@ function assemblePadNote(): Note {
         time: getRange(1, 8), // in seconds
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
-        attack: getRange(getCurrentSoftness() * 1.4, getCurrentSoftness() * 2.5),
-        release: getRange(getCurrentSoftness() * 1.8, getCurrentSoftness() * 3),
+        attack: getRange(controls.softness.max * 0.65, controls.softness.max),
+        release: getRange(controls.softness.max * 0.85, controls.softness.max * 1.2),
         echoDelay: 0,
         delay: 0
     };
