@@ -25,7 +25,7 @@ function setInitialControlValues() {
         currentHTMLInput.max = ""+controls[control].max;
         // Set initial values
         if(controls[control].max > 1) {
-            if(control === "lfoRange") {
+            if(control === "lfoRate") {
                 controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max / 4);
             }
             else if(control === "lfoDepth" || control === "density" || control === "lfoProbability") {

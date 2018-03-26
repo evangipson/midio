@@ -190,7 +190,7 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
         .setADSR(note.volume, note.attack, note.release, note.time, note.delay)
         // +variable = ParseInt(variable); "+" is a unary operator
         .getLFO(
-            maybe(getCurrentLFORange(), 0, getCurrentLFOProbability()),
+            maybe(getCurrentLFORate(), 0, getCurrentLFOProbability()),
             getCurrentLFODepth(),
             getRandomArrayItem(allWaveTypes),
             note.delay

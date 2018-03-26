@@ -226,8 +226,8 @@ const controls:HTMLControlList = {
         min: 0,
         max: 30
     },
-    "lfoRange" : {
-        htmlInput: (<HTMLInputElement>document.getElementById("LFORange")),
+    "lfoRate" : {
+        htmlInput: (<HTMLInputElement>document.getElementById("LFORate")),
         min: 0,
         max: 15
     },
@@ -318,7 +318,7 @@ const controls:HTMLControlList = {
         max: 1
     }
 };
-const getCurrentLFORange = () => +controls.lfoRange.htmlInput.value;
+const getCurrentLFORate = () => +controls.lfoRate.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
 const getCurrentLFOProbability = () => +controls.lfoProbability.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
