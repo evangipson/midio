@@ -55,6 +55,7 @@ function setInitialControlValues() {
         }
         currentHTMLInput.value = ""+Math.round(controlValue);
     }
+    controls.triangle.htmlInput.value = ensureOneWaveIsOn(); // make sure at least triangle is on.
 }
 
 /**
