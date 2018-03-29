@@ -71,12 +71,3 @@ const getRandomArrayItem = (array:any[]) => array[Math.floor(Math.random()*array
  * @param {Number} max
  */
 const getRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-/**
- * Will shuffle the given array into random order
- * then return it back.
- * Credit: https://stackoverflow.com/a/12646864
- * @param {Array} array
- */
-const shuffleArray = (array: any[]) => {
-};
