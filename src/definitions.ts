@@ -184,7 +184,7 @@ const controls:HTMLControlList = {
     "volume" : {
         htmlInput: (<HTMLInputElement>document.getElementById("MasterVolume")),
         min: 0,
-        max: 30
+        max: 20
     },
     "lfoRate" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFORate")),
@@ -265,7 +265,7 @@ const controls:HTMLControlList = {
 };
 const getCurrentLFORate = () => +controls.lfoRate.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
-const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
+const getCurrentMasterVolume = () => +controls.volume.htmlInput.value / 20;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
 const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
 const getCurrentDensity = () => +controls.density.htmlInput.value;
