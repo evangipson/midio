@@ -7,7 +7,7 @@
 const audioContext = new ((window as any)["AudioContext"] || (window as any)["webkitAudioContext"])();
 
 const baseTone = 280; // in Hz
-const maximumDensity = 65;
+const maximumDensity = 15;
 // keeping track of autoplay & composer
 let autoplayEventLoop: number;
 let composerEventLoop: number;
@@ -16,10 +16,10 @@ let noteTimingEventHandler: number;
 let clickedNoteLength = 0;
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
-const allWaveTypes = [
+const lfoWaveTypes = [
     "sine",
-    "sawtooth",
     "triangle",
+    "sawtooth",
     "square"
 ];
 
@@ -234,26 +234,21 @@ const controls:HTMLControlList = {
     "lfoDepth" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFODepth")),
         min: 0,
-        max: 100
-    },
-    "lfoProbability" : {
-        htmlInput: (<HTMLInputElement>document.getElementById("LFOProbability")),
-        min: 0,
-        max: 100
+        max: 10
     },
     "baseNote" : {
         htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
-        min: 50,
-        max: baseTone * 2
+        min: 150,
+        max: baseTone * 1.2
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
-        min: 0,
-        max: 20
+        min: 1,
+        max: 5
     },
     "density" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Density")),
-        min: 15,
+        min: 5,
         max: maximumDensity
     },
     "mood": {
@@ -269,16 +264,6 @@ const controls:HTMLControlList = {
     },
     "evolve": {
         htmlInput: (<HTMLInputElement>document.getElementById("Evolve")),
-        min: 0,
-        max: 1
-    },
-    "chords": {
-        htmlInput: (<HTMLInputElement>document.getElementById("Chords")),
-        min: 0,
-        max: 1
-    },
-    "arpeggios": {
-        htmlInput: (<HTMLInputElement>document.getElementById("Arpeggios")),
         min: 0,
         max: 1
     },
@@ -320,16 +305,13 @@ const controls:HTMLControlList = {
 };
 const getCurrentLFORate = () => +controls.lfoRate.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
-const getCurrentLFOProbability = () => +controls.lfoProbability.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
-const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
+const getCurrentSoftness = () => +controls.softness.htmlInput.value;
 const getCurrentDensity = () => +controls.density.htmlInput.value;
 const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
 const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;
 const isEvolve = () => +controls.evolve.htmlInput.value === 0 ? false : true;
-const isChordal = () => +controls.chords.htmlInput.value === 0 ? false : true;
-const isArpeggiated = () => +controls.arpeggios.htmlInput.value === 0 ? false : true;
 const getActiveWaveTypes = () => {
     let activeWaveTypes:string[] = [];
     if(+controls.sine.htmlInput.value === 1) {

@@ -22,21 +22,41 @@ class Oscillator {
     lfoNode: OscillatorNode;
     lfoGain: GainNode; // how loud the LFO will be
     biquadNode: BiquadFilterNode;
-    constructor() {
+    attack: number; // in seconds
+    delay: number; // in seconds
+    time: number; // in seconds
+    release: number; // in seconds
+    volume: number; // out of 100
+    /**
+     * Will create an oscillator given ADSR values.
+     * @param attack how long it takes the note to fade in, in seconds.
+     * @param delay how long to wait before playing the note, in seconds.
+     * @param time how long to play the note, in seconds. 
+     * @param release how long to let the note fade out, in seconds.
+     * @param volume how loud to make the note, out of 100.
+     */
+    constructor(attack: number, delay: number, time: number, release: number, volume: number) {
         this.mainOsc = audioContext.createOscillator();
         this.gainNode = audioContext.createGain();
         this.lfoNode = audioContext.createOscillator();
         this.lfoGain = audioContext.createGain();
         this.biquadNode = audioContext.createBiquadFilter();
-    }
+        this.attack = attack;
+        this.delay = delay;
+        this.time = time;
+        this.release = release;
+        this.volume = volume;
+    };
     /**
      * Sets the mainOsc's type and frequency.
      * Relies on audioContext.
      * @param {String} type
      * @param {Number} frequency in Hz
-     * @param {Number} delay in seconds
      */
-    setProperties(type: string, frequency: number, delay: number) {
+    setProperties(type: string, frequency: number) {
+        // don't play any super high frequencies ever
+        this.biquadNode.type = "lowpass";
+        this.biquadNode.frequency.setValueAtTime(2000, audioContext.currentTime + this.delay);
         if(type === "whiteNoise" || type === "pinkNoise" || type === "brownNoise") {
             let whiteNoise = audioContext.createBufferSource();
             let buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
@@ -46,67 +66,18 @@ class Oscillator {
             }
             whiteNoise.buffer = buffer;
             whiteNoise.loop = true;
-            this.biquadNode.type = "lowpass";
             if(type === "pinkNoise") {
-                this.biquadNode.frequency.setValueAtTime(1000, audioContext.currentTime + delay);
+                this.biquadNode.frequency.setValueAtTime(1000, audioContext.currentTime + this.delay);
             }
             else if(type === "brownNoise") {
-                this.biquadNode.frequency.setValueAtTime(650, audioContext.currentTime + delay);
-            }
-            else {
-                this.biquadNode.frequency.setValueAtTime(5000, audioContext.currentTime + delay);
+                this.biquadNode.frequency.setValueAtTime(650, audioContext.currentTime + this.delay);
             }
             this.mainOsc = whiteNoise;
         }
         else {
             this.mainOsc.type = <OscillatorType>type;
-            this.mainOsc.frequency.setValueAtTime(frequency, audioContext.currentTime + delay);
+            this.mainOsc.frequency.setValueAtTime(frequency, audioContext.currentTime);
         }
-        return this; // allow chaining
-    };
-    /**
-     * Starts the mainOsc, then stops it in the
-     * time provided, in seconds.
-     * Relies on audioContext.
-     * @param {Number} time in seconds
-     * @param {Number} attack in seconds
-     * @param {Number} release in seconds
-     * @param {Number} delay in seconds
-     */
-    play(time: number, attack: number, release: number, delay: number) {
-        this.lfoNode.start(audioContext.currentTime + delay);
-        this.mainOsc.start(audioContext.currentTime + delay);
-        this.lfoNode.stop(audioContext.currentTime + delay + attack + release + time);
-        this.mainOsc.stop(audioContext.currentTime + delay + attack + release + time);
-    };
-    /**
-     * Will set a attack and release on the gainNode.
-     * @param {Number} volume from 0 to 100
-     * @param {Number} attack in seconds
-     * @param {Number} release in seconds
-     * @param {Number} time how long the note should sound.
-     * Needed to implement release.
-     * @param {Number} delay in seconds
-     */
-    setADSR(volume: number, attack: number = 0.1, release: number = 0.1, time: number, delay: number) {
-        this.gainNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
-        this.gainNode.gain.linearRampToValueAtTime(volume / 100, audioContext.currentTime + delay + attack);
-        this.gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + delay + attack + time + release);
-        return this; // allow chaining
-    };
-    /**
-     * Sets the LFO's frequency, gain, and type.
-     * @param {Number} frequency how fast the LFO modulates
-     * @param {Number} gain out of 100. How strong the LFO
-     * will sound.
-     * @param {String} type wave shape for the LFO
-     * @param {Number} delay in seconds
-     */
-    getLFO(frequency: number = 5, gain: number = 15, type: string, delay: number) {
-        this.lfoNode.type = <OscillatorType>type;
-        this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime + delay);
-        // don't allow the gain of the LFO to surpass the current master volume
-        this.lfoGain.gain.setValueAtTime(getRelativeValue(gain, 100, 0, getCurrentMasterVolume()) / 100, audioContext.currentTime);
         return this; // allow chaining
     };
     /**
@@ -121,6 +92,41 @@ class Oscillator {
         this.biquadNode.connect(this.gainNode);
         this.gainNode.connect(audioContext.destination);
         return this; // allow chaining
+    };
+    /**
+     * Sets the LFO's frequency, gain, and type.
+     * @param {Number} frequency how fast the LFO modulates
+     * @param {Number} gain out of 100. How strong the LFO
+     * will sound.
+     * @param {String} type wave shape for the LFO
+     */
+    setLFO(frequency: number = 5, gain: number, type: string) {
+        this.lfoNode.type = <OscillatorType>type;
+        if(frequency && gain) {
+            this.lfoNode.start(audioContext.currentTime + this.delay);
+            this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            // don't allow the gain of the LFO to surpass the current master volume
+            this.lfoGain.gain.setValueAtTime(0, audioContext.currentTime);
+            this.lfoGain.gain.linearRampToValueAtTime(getRelativeValue(gain, 100, 0, this.volume) / 100, audioContext.currentTime + this.delay + this.attack);
+            this.lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.release + this.time);
+            this.lfoNode.stop(audioContext.currentTime + this.delay + this.attack + this.release + this.time);
+        }
+        return this; // allow chaining
+    };
+    /**
+     * Starts the mainOsc, then stops it in the
+     * time provided, in seconds.
+     * Relies on audioContext.
+     */
+    play() {
+        // Start necessary Oscillators
+        this.mainOsc.start(audioContext.currentTime + this.delay);
+        // Do ADSR envelope
+        this.gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        this.gainNode.gain.linearRampToValueAtTime(this.volume / 100, audioContext.currentTime + this.delay + this.attack);
+        this.gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.time + this.release);
+        // Stop the oscillators when we don't need them anymore
+        this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack + this.release + this.time);
     };
 }
 
@@ -170,7 +176,7 @@ const getHarmonicNoteFrequency = (interval = getRandomArrayItem(getCurrentScale(
 const getSecondsUntilNextNote = () => getRelativeValue(
     maximumDensity - getRange(getCurrentDensity() * 0.5, getCurrentDensity()), // a higher density means LESS time between notes
     maximumDensity,
-    0.1,
+    1,
     8
 );
 
@@ -178,25 +184,21 @@ const getSecondsUntilNextNote = () => getRelativeValue(
 
 /**
  * Will play the note passed in.
- * Relies on note.attack, note.release, note.volume,
- * note.type, note.frequency, note.time, note.echoDelay
  * @param {Note} note Note interface containing multiple properties
  * @param {HTMLEvent} event to determine where to draw the circles. default is null.
  */
 function playAndShowNote(note: Note, event: CustomMouseEvent) {
     // handle creating an oscillator and starting & stopping it
-    const osc = new Oscillator()
-        .setProperties(note.type, note.frequency, note.delay)
-        .setADSR(note.volume, note.attack, note.release, note.time, note.delay)
+    const osc = new Oscillator(note.attack, note.delay, note.time, note.release, note.volume)
+        .setProperties(note.type, note.frequency)
         // +variable = ParseInt(variable); "+" is a unary operator
-        .getLFO(
-            maybe(getCurrentLFORate(), 0, getCurrentLFOProbability()),
+        .setLFO(
+            getRange(getCurrentLFORate() * 0.6, getCurrentLFORate()),
             getCurrentLFODepth(),
-            getRandomArrayItem(allWaveTypes),
-            note.delay
+            getRandomArrayItem(lfoWaveTypes)
         ) // randomize LFO
         .hookUpFilters()
-        .play(note.time, note.attack, note.release, note.delay);
+        .play();
 
     // draw those pretty circles on the canvas
     if(event.event) {
@@ -216,7 +218,7 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
  * Note: Isn't pure because it's random, and has no inputs.
  */
 function getRandomNoteDuration() {
-    return Math.random() * 1.25 + 0.1;
+    return Math.random() + 0.25;
 }
 
 /**
@@ -226,8 +228,8 @@ function getRandomNoteDuration() {
 function assemblePadNote(): Note {
     return {
         type: getRandomArrayItem(getActiveWaveTypes()),
-        frequency: getHarmonicNoteFrequency(),
-        time: getRange(1, 8), // in seconds
+        frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
+        time: getRange(2, 3), // in seconds
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
         attack: getRange(controls.softness.max * 0.65, controls.softness.max),
@@ -244,12 +246,12 @@ function assemblePadNote(): Note {
 function assembleNormalNote(): Note {
     return {
         type: getRandomArrayItem(getActiveWaveTypes()),
-        frequency: getHarmonicNoteFrequency(),
+        frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
         time: getRandomNoteDuration(),
         volume: getCurrentMasterVolume(),
-        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.5),
-        release: getRange(getCurrentSoftness() * 1.5, getCurrentSoftness() * 3),
-        echoDelay: maybe(getRange(250, 2000), 0, 25), // in ms
+        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.25),
+        release: getRange(getCurrentSoftness() * 1.25, getCurrentSoftness() * 2),
+        echoDelay: maybe(getRange(500, 2000), 0, 25), // in ms
         delay: 0
     };
 }
@@ -263,7 +265,7 @@ function assembleNormalNote(): Note {
  * @param {MouseEvent} event
  */
 function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
-    let note = maybe(assemblePadNote(), assembleNormalNote());
+    let note = maybe(assembleNormalNote(), assemblePadNote(), 75); // mostly normal notes are generated
     let overrideX = 0; // used when we have to draw chords and arpeggios
     if(!event.clientX) {
         event = getFakeMouseClick();
@@ -279,11 +281,10 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
         // this note was generated by a manual click, try and set note time to length
         note.time = clickedNoteLength;
     }
-    note = setNoteFrequencyFromClick(note, event);
-    // take care of chords if the user wants them.
-    if(maybe(isChordal())) { // 50% chance of chords if user wants them
+    // small chance to get a chord
+    if(maybe(true, false, 15)) {
         note.echoDelay = 0; // no echoey chords
-        const additionalChordTones = Math.floor(getRange(2, 5));
+        const additionalChordTones = Math.floor(getRange(2, 4));
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
             let chordNote = note;
@@ -294,24 +295,25 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
             playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
         });
     }
-    // 50% chance of arpeggios if user wants them
-    // 5% chance of arpeggios randomly happening
-    else if(maybe(true, false, 5) || maybe(isArpeggiated())) {
+    // we will probably play an arpeggio because they are interesting.
+    else if(maybe(true)) {
+        note = assembleNormalNote(); // we don't want pad arpeggios ever
         note.echoDelay = 0; // no echoey arps
-        const additionalChordTones = Math.floor(getRange(3, 8));
-        let previousDelay = getRange(maximumDensity - getCurrentDensity(), maximumDensity) / 100;
+        const additionalChordTones = Math.floor(getRange(2, 4));
+        let previousDelay = getRange(.33, .66); // how many seconds untli the next arp note?
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
             let chordNote = note;
             chordNote.frequency = chordTone;
-            previousDelay += previousDelay;
             chordNote.delay = previousDelay;
+            previousDelay += getRange(.33, .66);
             // handle x & y seperately for chord notes, because
             // the x-axis will need to be calculated
             overrideX = setClickPositionFromNoteFrequency(chordNote, event);
             playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
         });
     }
+    note = setNoteFrequencyFromClick(note, event);
     // now that we've modified our note if it's a chord or arp, we can play it
     playAndShowNote(note, {event} as CustomMouseEvent);
 }
