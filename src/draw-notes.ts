@@ -62,20 +62,16 @@ const getNotePosition = (event: CustomMouseEvent) => {
  * Will draw the expanding circle factoring in volume
  * as opacity (out of 1.0). Also handles getting the note
  * position from the event.
- * @param {Number} echoDelay
  * @param {MouseEvent} event
  * @param {Number} volume
  * @param {Number} delay
  */
-function drawNoteWithVolumeBasedOpacity(echoDelay: number, event: CustomMouseEvent, volume: number, delay: number) {
+function drawNoteWithVolumeBasedOpacity(event: CustomMouseEvent, volume: number, delay: number) {
     let coords = getNotePosition(event);
-    if((echoDelay && delay) || delay) {
+    if(delay) {
         setTimeout(function() {
             drawNoteCircle(coords.x, coords.y, volume);
         }, delay * 1000);
-    }
-    else if(echoDelay) {
-        drawNoteCircle(coords.x, coords.y, volume);
     }
     else {
         drawNoteCircle(coords.x, coords.y);

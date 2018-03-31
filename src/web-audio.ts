@@ -8,7 +8,6 @@ interface Note {
     volume: number; // from 0 - 100
     attack: number; // in seconds
     release: number; // in seconds
-    echoDelay: number; // in ms
     delay: number;
 }
 
@@ -106,7 +105,7 @@ class Oscillator {
             this.lfoNode.start(audioContext.currentTime + this.delay);
             this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime);
             // don't allow the gain of the LFO to surpass the current master volume
-            this.lfoGain.gain.setValueAtTime(0, audioContext.currentTime);
+            this.lfoGain.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
             this.lfoGain.gain.linearRampToValueAtTime(getRelativeValue(gain, 100, 0, this.volume) / 100, audioContext.currentTime + this.delay + this.attack);
             this.lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.release + this.time);
             this.lfoNode.stop(audioContext.currentTime + this.delay + this.attack + this.release + this.time);
@@ -122,8 +121,8 @@ class Oscillator {
         // Start necessary Oscillators
         this.mainOsc.start(audioContext.currentTime + this.delay);
         // Do ADSR envelope
-        this.gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        this.gainNode.gain.linearRampToValueAtTime(this.volume / 100, audioContext.currentTime + this.delay + this.attack);
+        this.gainNode.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
+        this.gainNode.gain.linearRampToValueAtTime(this.volume / 200, audioContext.currentTime + this.delay + this.attack);
         this.gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.time + this.release);
         // Stop the oscillators when we don't need them anymore
         this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack + this.release + this.time);
@@ -174,10 +173,10 @@ const getHarmonicNoteFrequency = (interval = getRandomArrayItem(getCurrentScale(
  * until the next note. To be called by generateSound().
  */
 const getSecondsUntilNextNote = () => getRelativeValue(
-    maximumDensity - getRange(getCurrentDensity() * 0.85, getCurrentDensity()), // a higher density means LESS time between notes
+    maximumDensity - getRange(getCurrentDensity() * 0.75, getCurrentDensity()), // a higher density means LESS time between notes
     maximumDensity,
-    2,
-    9
+    1.5,
+    8
 );
 
 // Non-Pure Functions
@@ -202,14 +201,7 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
 
     // draw those pretty circles on the canvas
     if(event.event) {
-        drawNoteWithVolumeBasedOpacity(note.echoDelay, event, note.volume, note.delay);
-    }
-    // handle repeating notes
-    if(note.echoDelay && note.volume > 20) {
-        note.volume = note.volume - 20;
-        window.setTimeout(function() {
-            playAndShowNote(note, event);
-        }, note.echoDelay);
+        drawNoteWithVolumeBasedOpacity(event, note.volume, note.delay); // volume is out of 20
     }
 }
 
@@ -234,7 +226,6 @@ function assemblePadNote(): Note {
         // pads have higher attack & release than normal notes
         attack: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10)),
         release: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10) * 1.25),
-        echoDelay: 0,
         delay: 0
     };
 }
@@ -251,9 +242,58 @@ function assembleNormalNote(): Note {
         volume: getCurrentMasterVolume(),
         attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.2),
         release: getRange(getCurrentSoftness() * 1.2, getCurrentSoftness() * 2),
-        echoDelay: maybe(getRange(500, 2000), 0, 35), // in ms
         delay: 0
     };
+}
+
+/**
+ * Will build and play a chord given a Note and a MouseEvent.
+ * @param note 
+ * @param event 
+ */
+function buildChordFromNote(note: Note, event: MouseEvent) {
+    let chordNote: Note;
+    let overrideX: number;
+    const additionalChordTones = Math.floor(getRange(2, 4));
+    getChord(additionalChordTones).forEach((chordTone) => {
+        // create a new tone, with some modifications
+        chordNote = note;
+        chordNote.frequency = chordTone;
+        // handle x & y seperately for chord notes, because
+        // the x-axis will need to be calculated
+        overrideX = setClickPositionFromNoteFrequency(chordNote, event);
+        playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
+    });
+}
+
+/**
+ * Will build and play an arpeggio given a Note and a MouseEvent.
+ * @param note 
+ * @param event 
+ */
+function buildArpeggioFromNote(note: Note, event: MouseEvent) {
+    let chordNote: Note;
+    let overrideX: number;
+    const additionalChordTones = Math.floor(getRange(2, 8));
+    let previousDelay = getRange(.33, 1); // how many seconds untli the next arp note?
+    /* change our base note to be more "arppegio" friendly,
+     * no pad arps */
+    note.time = clickedNoteLength ? clickedNoteLength : getRandomNoteDuration();
+    // use shorter notes when we have an arp
+    note.attack = +controls.softness.min / 10;
+    note.release = note.attack * getRange(1.35, 2.0);
+    // create new tones, with some modifications
+    getChord(additionalChordTones).forEach((chordTone) => {
+        chordNote = note;
+        chordNote.frequency = chordTone;
+        // compound delay
+        chordNote.delay = previousDelay;
+        previousDelay += getRange(.33, 1);
+        // handle x & y seperately for chord notes, because
+        // the x-axis will need to be calculated
+        overrideX = setClickPositionFromNoteFrequency(chordNote, event);
+        playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
+    });
 }
 
 /**
@@ -266,7 +306,7 @@ function assembleNormalNote(): Note {
  */
 function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     let note = maybe(assembleNormalNote(), assemblePadNote(), 75); // mostly normal notes are generated
-    let overrideX = 0; // used when we have to draw chords and arpeggios
+    // If we've called this function from the autoplay loop
     if(!event.clientX) {
         event = getFakeMouseClick();
         /* in an amount of time, call itself again, because
@@ -277,48 +317,18 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
             generateSound();
         }, msUntilNextNote);
     }
+    // If we've called this function from a user click
     else {
-        // this note was generated by a manual click, try and set note time to length
         note.time = clickedNoteLength;
     }
+    note = setNoteFrequencyFromClick(note, event);
+    playAndShowNote(note, {event} as CustomMouseEvent);
     // small chance to get a chord
-    if(maybe(true, false, 10)) {
-        note.echoDelay = 0; // no echoey chords
-        const additionalChordTones = Math.floor(getRange(2, 4));
-        let chordNote: Note;
-        getChord(additionalChordTones).forEach((chordTone) => {
-            // create a new tone, with some modifications
-            chordNote = note;
-            chordNote.frequency = chordTone;
-            // handle x & y seperately for chord notes, because
-            // the x-axis will need to be calculated
-            overrideX = setClickPositionFromNoteFrequency(chordNote, event);
-            playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-        });
+    if(maybe(true, false, 15)) {
+        buildChordFromNote(note, event);
     }
     // we will probably play an arpeggio because they are interesting.
-    else if(maybe(true, false, 60)) {
-        note.time = clickedNoteLength ? clickedNoteLength : getRandomNoteDuration(); // no pad arps
-        // use shorter notes when we have an arp
-        note.attack = +controls.softness.min / 10;
-        note.release = note.attack * 2;
-        note.echoDelay = 0; // no echoey arps
-        const additionalChordTones = Math.floor(getRange(2, 8));
-        let previousDelay = getRange(.33, 1); // how many seconds untli the next arp note?
-        let chordNote: Note;
-        getChord(additionalChordTones).forEach((chordTone) => {
-            // create a new tone, with some modifications
-            chordNote = note;
-            chordNote.frequency = chordTone;
-            chordNote.delay = previousDelay;
-            previousDelay += getRange(.33, 1);
-            // handle x & y seperately for chord notes, because
-            // the x-axis will need to be calculated
-            overrideX = setClickPositionFromNoteFrequency(chordNote, event);
-            playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-        });
+    else if(maybe(true, false, 70)) {
+        buildArpeggioFromNote(note, event);
     }
-    note = setNoteFrequencyFromClick(note, event);
-    // now that we've modified our note if it's a chord or arp, we can play it
-    playAndShowNote(note, {event} as CustomMouseEvent);
 }

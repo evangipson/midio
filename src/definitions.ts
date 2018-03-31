@@ -184,17 +184,17 @@ const controls:HTMLControlList = {
     "volume" : {
         htmlInput: (<HTMLInputElement>document.getElementById("MasterVolume")),
         min: 0,
-        max: 20
+        max: 100
     },
     "lfoRate" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFORate")),
         min: 0,
-        max: 15
+        max: 13
     },
     "lfoDepth" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFODepth")),
         min: 0,
-        max: 10
+        max: 20
     },
     "baseNote" : {
         htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
@@ -203,8 +203,8 @@ const controls:HTMLControlList = {
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
-        min: 5,
-        max: 40
+        min: 3,
+        max: 30
     },
     "density" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Density")),
@@ -265,7 +265,7 @@ const controls:HTMLControlList = {
 };
 const getCurrentLFORate = () => +controls.lfoRate.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
-const getCurrentMasterVolume = () => +controls.volume.htmlInput.value / 20;
+const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
 const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
 const getCurrentDensity = () => +controls.density.htmlInput.value;
