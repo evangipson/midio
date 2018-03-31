@@ -204,7 +204,7 @@ const controls:HTMLControlList = {
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
         min: 5,
-        max: 50
+        max: 40
     },
     "density" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Density")),
