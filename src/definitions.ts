@@ -80,17 +80,6 @@ let scales = [
         7,
         9
     ],
-    // my own custom "jazz"
-    [
-        0,
-        1,
-        2,
-        4,
-        5,
-        6,
-        8,
-        10
-    ],
     // my own custom "ambient"
     [
         0,
@@ -118,16 +107,6 @@ let scales = [
         9,
         11
     ],
-    // phrygian dominant
-    [
-        0,
-        1,
-        4,
-        5,
-        7,
-        8,
-        10
-    ],
     // blues
     [
         0,
@@ -135,25 +114,6 @@ let scales = [
         5,
         6,
         7,
-        10
-    ],
-    // altered scale
-    [
-        0,
-        1,
-        3,
-        4,
-        6,
-        8,
-        10
-    ],
-    // whole tone
-    [
-        0,
-        2,
-        4,
-        6,
-        8,
         10
     ],
     // hexatonic scale
@@ -243,8 +203,8 @@ const controls:HTMLControlList = {
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
-        min: 0.75,
-        max: 4.0
+        min: 10,
+        max: 50
     },
     "density" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Density")),
@@ -307,7 +267,7 @@ const getCurrentLFORate = () => +controls.lfoRate.htmlInput.value;
 const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
-const getCurrentSoftness = () => +controls.softness.htmlInput.value;
+const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
 const getCurrentDensity = () => +controls.density.htmlInput.value;
 const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
 const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;

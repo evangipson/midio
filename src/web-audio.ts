@@ -232,8 +232,8 @@ function assemblePadNote(): Note {
         time: getRange(1, 5), // in seconds
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
-        attack: getRange(controls.softness.max * 0.85, controls.softness.max),
-        release: getRange(controls.softness.max * 0.85, controls.softness.max * 1.5),
+        attack: getRange((controls.softness.max/10) * 0.85, (controls.softness.max/10)),
+        release: getRange((controls.softness.max/10) * 0.85, (controls.softness.max/10) * 1.5),
         echoDelay: 0,
         delay: 0
     };
@@ -249,8 +249,8 @@ function assembleNormalNote(): Note {
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
         time: getRandomNoteDuration(),
         volume: getCurrentMasterVolume(),
-        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 2),
-        release: getRange(getCurrentSoftness() * 2, getCurrentSoftness() * 3),
+        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.2),
+        release: getRange(getCurrentSoftness() * 1.2, getCurrentSoftness() * 2),
         echoDelay: maybe(getRange(500, 3000), 0, 25), // in ms
         delay: 0
     };
@@ -265,7 +265,7 @@ function assembleNormalNote(): Note {
  * @param {MouseEvent} event
  */
 function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
-    let note = maybe(assembleNormalNote(), assemblePadNote(), 75); // mostly normal notes are generated
+    let note = maybe(assembleNormalNote(), assemblePadNote(), 90); // mostly normal notes are generated
     let overrideX = 0; // used when we have to draw chords and arpeggios
     if(!event.clientX) {
         event = getFakeMouseClick();
@@ -285,9 +285,10 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     if(maybe(true, false, 10)) {
         note.echoDelay = 0; // no echoey chords
         const additionalChordTones = Math.floor(getRange(3, 4));
+        let chordNote: Note;
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
-            let chordNote = note;
+            chordNote = note;
             chordNote.frequency = chordTone;
             // handle x & y seperately for chord notes, because
             // the x-axis will need to be calculated
@@ -301,9 +302,10 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
         note.echoDelay = 0; // no echoey arps
         const additionalChordTones = Math.floor(getRange(2, 4));
         let previousDelay = getRange(.33, 1); // how many seconds untli the next arp note?
+        let chordNote: Note;
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
-            let chordNote = note;
+            chordNote = note;
             chordNote.frequency = chordTone;
             chordNote.delay = previousDelay;
             previousDelay += getRange(.33, 1);

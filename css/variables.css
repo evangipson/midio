@@ -28,23 +28,20 @@
     --p8-secondary: rgb(69, 51, 177);
     --p8-tertiary: rgb(21, 107, 235);
     /* Color Palette 9 */
-    --p9-secondary: rgb(186, 125, 214);
-    --p9-tertiary: rgb(113, 30, 129);
+    --p9-secondary: rgb(255, 252, 74);
+    --p9-tertiary: rgb(35, 214, 116);
     /* Color Palette 10 */
-    --p10-secondary: rgb(255, 252, 74);
-    --p10-tertiary: rgb(35, 214, 116);
+    --p10-secondary: rgb(16, 126, 34);
+    --p10-tertiary: rgb(24, 176, 223);
     /* Color Palette 11 */
     --p11-secondary: rgb(143, 11, 11);
     --p11-tertiary: rgb(37, 25, 146);
     /* Color Palette 12 */
     --p12-secondary: rgb(86, 214, 154);
     --p12-tertiary: rgb(37, 25, 146);
-    /* Color Palette13 */
+    /* Color Palette 13 */
     --p13-secondary: rgb(224, 113, 105);
     --p13-tertiary: rgb(179, 62, 27);
-    /* Color Palette 14 */
-    --p14-secondary: rgb(16, 126, 34);
-    --p14-tertiary: rgb(24, 176, 223);
     /* Timings */
     --snappy-animation-time: 0.2s;
     --animation-time: 2s;
