@@ -174,10 +174,10 @@ const getHarmonicNoteFrequency = (interval = getRandomArrayItem(getCurrentScale(
  * until the next note. To be called by generateSound().
  */
 const getSecondsUntilNextNote = () => getRelativeValue(
-    maximumDensity - getRange(getCurrentDensity() * 0.5, getCurrentDensity()), // a higher density means LESS time between notes
+    maximumDensity - getRange(getCurrentDensity() * 0.85, getCurrentDensity()), // a higher density means LESS time between notes
     maximumDensity,
-    1,
-    8
+    1.25,
+    7
 );
 
 // Non-Pure Functions
@@ -229,11 +229,11 @@ function assemblePadNote(): Note {
     return {
         type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
-        time: getRange(2, 3), // in seconds
+        time: getRange(1, 5), // in seconds
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
-        attack: getRange(controls.softness.max * 0.65, controls.softness.max),
-        release: getRange(controls.softness.max * 0.85, controls.softness.max * 1.2),
+        attack: getRange(controls.softness.max * 0.85, controls.softness.max),
+        release: getRange(controls.softness.max * 0.85, controls.softness.max * 1.5),
         echoDelay: 0,
         delay: 0
     };
@@ -249,9 +249,9 @@ function assembleNormalNote(): Note {
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
         time: getRandomNoteDuration(),
         volume: getCurrentMasterVolume(),
-        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.25),
-        release: getRange(getCurrentSoftness() * 1.25, getCurrentSoftness() * 2),
-        echoDelay: maybe(getRange(500, 2000), 0, 25), // in ms
+        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 2),
+        release: getRange(getCurrentSoftness() * 2, getCurrentSoftness() * 3),
+        echoDelay: maybe(getRange(500, 3000), 0, 25), // in ms
         delay: 0
     };
 }
@@ -282,9 +282,9 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
         note.time = clickedNoteLength;
     }
     // small chance to get a chord
-    if(maybe(true, false, 15)) {
+    if(maybe(true, false, 10)) {
         note.echoDelay = 0; // no echoey chords
-        const additionalChordTones = Math.floor(getRange(2, 4));
+        const additionalChordTones = Math.floor(getRange(3, 4));
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
             let chordNote = note;
@@ -297,16 +297,16 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     }
     // we will probably play an arpeggio because they are interesting.
     else if(maybe(true)) {
-        note = assembleNormalNote(); // we don't want pad arpeggios ever
+        note.time = clickedNoteLength ? clickedNoteLength : getRandomNoteDuration(); // no pad arps
         note.echoDelay = 0; // no echoey arps
         const additionalChordTones = Math.floor(getRange(2, 4));
-        let previousDelay = getRange(.33, .66); // how many seconds untli the next arp note?
+        let previousDelay = getRange(.33, 1); // how many seconds untli the next arp note?
         getChord(additionalChordTones).forEach((chordTone) => {
             // create a new tone, with some modifications
             let chordNote = note;
             chordNote.frequency = chordTone;
             chordNote.delay = previousDelay;
-            previousDelay += getRange(.33, .66);
+            previousDelay += getRange(.33, 1);
             // handle x & y seperately for chord notes, because
             // the x-axis will need to be calculated
             overrideX = setClickPositionFromNoteFrequency(chordNote, event);

@@ -25,11 +25,8 @@ function setInitialControlValues() {
         currentHTMLInput.max = ""+controls[control].max;
         // Set initial values
         if(controls[control].max > 1) {
-            if(control === "lfoRate") {
+            if(control === "lfoRate" || control === "lfoDepth") {
                 controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max / 4);
-            }
-            else if(control === "lfoDepth") {
-                controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max / 2);
             }
             else{
                 controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max);
@@ -88,7 +85,7 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
-        const msUntilNextControlChange = getRange(maximumDensity - getCurrentDensity(), maximumDensity) * Math.floor(getRange(750, 1500)); // in ms
+        const msUntilNextControlChange = Math.floor(getRange(3000, 10000)); // in ms
         composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
