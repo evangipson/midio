@@ -203,7 +203,7 @@ const controls:HTMLControlList = {
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
-        min: 10,
+        min: 5,
         max: 50
     },
     "density" : {

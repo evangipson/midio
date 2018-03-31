@@ -176,8 +176,8 @@ const getHarmonicNoteFrequency = (interval = getRandomArrayItem(getCurrentScale(
 const getSecondsUntilNextNote = () => getRelativeValue(
     maximumDensity - getRange(getCurrentDensity() * 0.85, getCurrentDensity()), // a higher density means LESS time between notes
     maximumDensity,
-    1.25,
-    7
+    2,
+    9
 );
 
 // Non-Pure Functions
