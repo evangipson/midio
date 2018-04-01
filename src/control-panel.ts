@@ -67,7 +67,6 @@ function setInitialControlValues() {
  * @param nextInput string value which will act as an index on controls.
  */
 function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
-    nextInput = "sawtooth";
     if (DEBUG) console.info("COMPOSER evolving " + nextInput + " paramater");
     if(nextInput && controls[nextInput]) {
         let newValue;
