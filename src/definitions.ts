@@ -7,7 +7,6 @@
 const audioContext = new ((window as any)["AudioContext"] || (window as any)["webkitAudioContext"])();
 
 const baseTone = 280; // in Hz
-const maximumDensity = 15;
 // keeping track of autoplay & composer
 let autoplayEventLoop: number;
 let composerEventLoop: number;
@@ -30,7 +29,8 @@ const twelfthRootOfTwo = Math.pow(2, 1/12); // need this to calculate Hz based o
 
 /* array representing intervals from the root tone.
  * root tone included as 0.
- * NOTE: must line up with number of palettes in css/variables.css! */
+ * NOTE: must line up with number of palettes in css/variables.css!
+ * NOTE: all scales must have at least 2 tones in them to create chords and arpeggios. */
 let scales = [
     // major
     [
@@ -160,6 +160,13 @@ for(let scale in scales) {
         return a - b;
     });
 }
+// Some information for chord & arpeggio building
+let shortestScaleLength = 0;
+for(let scale in scales) {
+    if(scales[scale].length > shortestScaleLength) {
+        shortestScaleLength = scales[scale].length;
+    }
+}
 
 // HTML Control Variables
 /**
@@ -208,8 +215,8 @@ const controls:HTMLControlList = {
     },
     "density" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Density")),
-        min: 5,
-        max: maximumDensity
+        min: 0,
+        max: 100
     },
     "mood": {
         htmlInput: (<HTMLInputElement>document.getElementById("Mood")),

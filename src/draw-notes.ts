@@ -1,8 +1,7 @@
 // Pure Functions
 /**
- * Will set a note's frequency given a MouseEvent.
- * If no visualizer is present, will return the same note without
- * changing frequency.
+ * Will return a note's frequency given a MouseEvent.
+ * If no visualizer is present, will return the same frequency.
  * @param note
  * @param event 
  */
@@ -13,7 +12,7 @@ const setNoteFrequencyFromClick = (note: Note, event: MouseEvent) => {
         const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * getCurrentScale().length);
         note.frequency = getHarmonicNoteFrequency(getCurrentScale()[intervalGuess]);
     }
-    return note;
+    return note.frequency;
 };
 
 /**
