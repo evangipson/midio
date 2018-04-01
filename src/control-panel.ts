@@ -81,7 +81,16 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         if(nextInput != "autoplay" && nextInput != "evolve" && nextInput != "volume") {
             nextHTMLInput.value = ""+newValue;
         }
-        controls.triangle.htmlInput.value = ensureOneWaveIsOn();
+        // after we set the HTMLInput value, make sure at least one wave is on
+        if(nextInput === "triangle" ||
+            nextInput === "sine" ||
+            nextInput === "sawtooth" ||
+            nextInput === "square" ||
+            nextInput === "whiteNoise" ||
+            nextInput === "pinkNoise" ||
+            nextInput === "brownNoise") {
+                nextHTMLInput.value = ""+ensureOneWaveIsOn(); // counts on the HTMLInput already being toggled
+        }
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
