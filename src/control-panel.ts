@@ -2,12 +2,13 @@
 /**
  * Will take care of ensuring at least one wave is turned on.
  * @param length of the current active waves
+ * @param {String} attemptedValue 
  */
-const ensureOneWaveIsOn = (length = getActiveWaveTypes().length) => {
-    if(!length) {
-        return "1";
+const ensureOneWaveIsOn = (attemptedValue: string) => {
+    if(getActiveWaveTypes().length != 0) {
+        return attemptedValue;
     }
-    return "0";
+    return "1";
 }
 
 // Non-Pure Functions
@@ -43,16 +44,21 @@ function setInitialControlValues() {
         else if(control === "autoplay" || control === "evolve" || control === "triangle") {
             controlValue = 1;
         }
-        // we never want noise waves on by default
-        else if(control === "whiteNoise" || control === "brownNoise" || control === "pinkNoise") {
-            controlValue = 0;
-        }
         else if(control === "mood") {
             changeBackgroundColor(Math.round(controlValue) + 1);
         }
         currentHTMLInput.value = ""+Math.round(controlValue);
+        // after we set the HTMLInput value, make sure at least one wave is on
+        if(control === "triangle" ||
+            control === "sine" ||
+            control === "sawtooth" ||
+            control === "square" ||
+            control === "whiteNoise" ||
+            control === "pinkNoise" ||
+            control === "brownNoise") {
+                currentHTMLInput.value = ""+ensureOneWaveIsOn(currentHTMLInput.value); // counts on the HTMLInput already being toggled
+        }
     }
-    controls.triangle.htmlInput.value = ensureOneWaveIsOn(); // make sure at least triangle is on.
 }
 
 /**
@@ -61,6 +67,8 @@ function setInitialControlValues() {
  * @param nextInput string value which will act as an index on controls.
  */
 function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
+    nextInput = "sawtooth";
+    if (DEBUG) console.info("COMPOSER evolving " + nextInput + " paramater");
     if(nextInput && controls[nextInput]) {
         let newValue;
         const nextHTMLInput = controls[nextInput].htmlInput;
@@ -89,12 +97,13 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
             nextInput === "whiteNoise" ||
             nextInput === "pinkNoise" ||
             nextInput === "brownNoise") {
-                nextHTMLInput.value = ""+ensureOneWaveIsOn(); // counts on the HTMLInput already being toggled
+                nextHTMLInput.value = ""+ensureOneWaveIsOn(nextHTMLInput.value); // counts on the HTMLInput already being toggled
         }
+        if (DEBUG) console.info("the value was " + oldValue + " but now it's " + nextHTMLInput.value);
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
-        const msUntilNextControlChange = Math.floor(getRange(8000, 30000)); // in ms
+        const msUntilNextControlChange = Math.floor(getRange(8000, 30000) / 10); // in ms
         composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
@@ -147,14 +156,15 @@ function randomizeControlValues() {
     let currentInput;
     for(let control in controls) {
         currentInput = controls[control];
-        if(currentInput.max > 1) {
+        /*if(currentInput.max > 1) {
             currentInput.htmlInput.value = ""+getRange(currentInput.min, currentInput.max);
         }
         else {
             currentInput.htmlInput.value = maybe("1", "0");
-        }
+        }*/
+        evolveSound(control);
     }
-    controls.triangle.htmlInput.value = ensureOneWaveIsOn();
+    //controls.triangle.htmlInput.value = ensureOneWaveIsOn(currentHTMLInput.value);
 }
 
 /**
@@ -216,7 +226,7 @@ function enableControlMenu() {
     allWaveRanges.forEach((range) => {
         range.addEventListener("change", function() {
             if(+this.value === 0) {
-                this.value = ensureOneWaveIsOn(); // disallow this wave from being toggled off if it's the only one
+                this.value = ensureOneWaveIsOn(""+this.value); // disallow this wave from being toggled off if it's the only one
             }
         });
     });

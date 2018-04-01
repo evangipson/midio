@@ -2,6 +2,8 @@
  * I will load this file first in the HTML. */
 'use strict';
 
+const DEBUG = true; // used to control console.log statements
+
 /* Immutable global variable, used to chain audio
  * "as any" will force an index signature so it's not implicit. */
 const audioContext = new ((window as any)["AudioContext"] || (window as any)["webkitAudioContext"])();
@@ -249,7 +251,7 @@ const controls:HTMLControlList = {
         min: 0,
         max: 1
     },
-    "saw": {
+    "sawtooth": {
         htmlInput: (<HTMLInputElement>document.getElementById("Saw")),
         min: 0,
         max: 1
@@ -284,7 +286,7 @@ const getActiveWaveTypes = () => {
     if(+controls.sine.htmlInput.value === 1) {
         activeWaveTypes.push("sine");
     }
-    if(+controls.saw.htmlInput.value === 1) {
+    if(+controls.sawtooth.htmlInput.value === 1) {
         activeWaveTypes.push("sawtooth");
     }
     if(+controls.triangle.htmlInput.value === 1) {

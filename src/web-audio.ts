@@ -259,15 +259,20 @@ function assembleNormalNote(): Note {
  * @param event 
  */
 function buildChordFromNote(note: Note, event: MouseEvent) {
+    if (DEBUG) console.info("creating a chord");
     let chordNote: Note;
     let overrideX: number;
     /* Our chord should have at last 2 tones, and at maximum 4 tones, unless
      * our scale doesn't have 4 tones, then just use as many as possible. */
     const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 4 ? 4 : shortestScaleLength));
+    if (DEBUG) console.info("the chord will be " + additionalChordTones + " notes");
+    if (DEBUG) console.info("========================================");
+    if (DEBUG) console.info(note);
     getChord(additionalChordTones).forEach((chordTone) => {
         // create a new tone, with some modifications
         chordNote = note;
         chordNote.frequency = chordTone;
+        if (DEBUG) console.info(chordNote);
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
@@ -283,11 +288,15 @@ function buildChordFromNote(note: Note, event: MouseEvent) {
  * @param event 
  */
 function buildArpeggioFromNote(note: Note, event: MouseEvent) {
+    if (DEBUG) console.info("creating an arpeggio");
     let chordNote: Note;
     let overrideX: number;
-    /* Our arpeggio should have at last 2 tones, and at maximum 8 tones, unless
-     * our scale doesn't have 8 tones, then just use as many as possible. */
-    const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 8 ? 8 : shortestScaleLength));
+    /* Our arpeggio should have at last 2 tones, and at maximum 5 tones, unless
+     * our scale doesn't have 5 tones, then just use as many as possible. */
+    const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 5 ? 5 : shortestScaleLength));
+    if (DEBUG) console.info("the arpeggio will be " + additionalChordTones + " notes");
+    if (DEBUG) console.info("========================================");
+    if (DEBUG) console.info(note);
     let previousDelay = timeUntilNextArpeggioNote();
     /* change our base note to be more "arppegio" friendly,
      * no pad arps */
@@ -302,6 +311,7 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
         // compound delay
         chordNote.delay = previousDelay;
         previousDelay += timeUntilNextArpeggioNote();
+        if (DEBUG) console.info(chordNote);
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
@@ -323,6 +333,7 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     let note = maybe(assembleNormalNote(), assemblePadNote());
     // If we've called this function from the autoplay loop
     if(!event.clientX) {
+        if (DEBUG) console.info("COMPOSER composing...");
         event = getFakeMouseClick();
         /* in an amount of time, call itself again, because
          * we can be sure this is a generated note due to the absence
@@ -334,17 +345,21 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     }
     // If we've called this function from a user click
     else {
+        if (DEBUG) console.info("user input a note.");
         note.time = clickedNoteLength;
     }
     // note frequency is driven by our (maybe fake) event
     note.frequency = setNoteFrequencyFromClick(note, event);
     // small chance to get a chord
-    if(maybe(true, false, 33)) {
+    if(maybe(true, false, 40)) {
         note = buildChordFromNote(note, event); // we mutate the note in buildChordFromNote()
     }
     // we will probably play an arpeggio because they are interesting.
-    else if(maybe(true, false)) {
+    else if(maybe(true, false, 20)) {
         note = buildArpeggioFromNote(note, event); // we mutate the note in buildArpeggioFromNote()
+    }
+    else {
+        if (DEBUG) console.info(note);
     }
     // now that we "sanitized" the note, we can play it
     playAndShowNote(note, {event} as CustomMouseEvent);
