@@ -56,7 +56,7 @@ function setInitialControlValues() {
             control === "whiteNoise" ||
             control === "pinkNoise" ||
             control === "brownNoise") {
-                currentHTMLInput.value = ""+ensureOneWaveIsOn(currentHTMLInput.value); // counts on the HTMLInput already being toggled
+                currentHTMLInput.value = ensureOneWaveIsOn(currentHTMLInput.value); // counts on the HTMLInput already being toggled
         }
     }
 }
@@ -97,13 +97,13 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
             nextInput === "whiteNoise" ||
             nextInput === "pinkNoise" ||
             nextInput === "brownNoise") {
-                nextHTMLInput.value = ""+ensureOneWaveIsOn(nextHTMLInput.value); // counts on the HTMLInput already being toggled
+                nextHTMLInput.value = ensureOneWaveIsOn(nextHTMLInput.value); // counts on the HTMLInput already being toggled
         }
         if (DEBUG) console.info("the value was " + oldValue + " but now it's " + nextHTMLInput.value);
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
-        const msUntilNextControlChange = Math.floor(getRange(8000, 30000) / 10); // in ms
+        const msUntilNextControlChange = Math.floor(getRange(8000, 30000)); // in ms
         composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
@@ -226,7 +226,7 @@ function enableControlMenu() {
     allWaveRanges.forEach((range) => {
         range.addEventListener("change", function() {
             if(+this.value === 0) {
-                this.value = ensureOneWaveIsOn(""+this.value); // disallow this wave from being toggled off if it's the only one
+                this.value = ensureOneWaveIsOn(this.value); // disallow this wave from being toggled off if it's the only one
             }
         });
     });
