@@ -131,6 +131,14 @@ class Oscillator {
 
 // Pure Functions
 /**
+ * Will tell you the frequency of an interval in half
+ * steps from the current base note. Used originally
+ * for building melodies.
+ */
+const getFrequencyOfInterval = (interval: number) =>
+    getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval) - getCurrentBaseNote();
+
+/**
  * Will generate a chord, returned as an array filled with
  * unique freqencies based on the currentScale. Needs a base
  * tone to ensure we aren't returning two of the same note.
@@ -143,7 +151,9 @@ const getChord = (baseTone: Note, tones = 3) => {
     let attemptedFrequency: number;
     for(var i = 1; i < tones; i++) {
         attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
-        while(chordTones.includes(attemptedFrequency)) {
+        // If we have the tone already in the code or the interval is more than 3 whole steps away...
+        while(chordTones.includes(attemptedFrequency) || Math.abs(baseTone.frequency - attemptedFrequency) > getFrequencyOfInterval(6)) {
+            // get a new frequency and try again
             attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
         }
         chordTones.push(attemptedFrequency);
@@ -158,13 +168,15 @@ const getChord = (baseTone: Note, tones = 3) => {
  * @param tones 
  */
 const getMelody = (baseTone: Note, tones = 3) => {
-    let chordTones:number[] = [];
+    let chordTones:number[] = [
+        baseTone.frequency // we already have 1 tone in the melody
+    ];
     let attemptedFrequency: number;
     let previousNote = baseTone;
     for(var i = 1; i < tones; i++) {
         attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
         // if the next frequency is the same as the previous or more than 5 whole steps...
-        while(previousNote.frequency == attemptedFrequency || Math.abs(previousNote.frequency - attemptedFrequency) > ((getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, 10))) - getCurrentBaseNote()) {
+        while(previousNote.frequency == attemptedFrequency || Math.abs(previousNote.frequency - attemptedFrequency) > getFrequencyOfInterval(10)) {
             // try to get a "closer" note instead so we don't have large interval steps
             attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
         }
