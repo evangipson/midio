@@ -8,7 +8,6 @@ const DEBUG = true; // used to control console.log statements
  * "as any" will force an index signature so it's not implicit. */
 const audioContext = new ((window as any)["AudioContext"] || (window as any)["webkitAudioContext"])();
 
-const baseTone = 280; // in Hz
 // keeping track of autoplay & composer
 let autoplayEventLoop: number;
 let composerEventLoop: number;
@@ -207,23 +206,23 @@ const controls:HTMLControlList = {
     },
     "baseNote" : {
         htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
-        min: 150,
-        max: baseTone * 1.2
+        min: 220,
+        max: 350
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
         min: 3,
         max: 30
     },
-    "density" : {
-        htmlInput: (<HTMLInputElement>document.getElementById("Density")),
-        min: 0,
-        max: 100
-    },
     "mood": {
         htmlInput: (<HTMLInputElement>document.getElementById("Mood")),
         min: 0,
         max: scales.length - 1
+    },
+    "tempo": {
+        htmlInput: (<HTMLInputElement>document.getElementById("Tempo")),
+        min: 45,
+        max: 110
     },
     // "Toggles"
     "autoplay": {
@@ -277,7 +276,7 @@ const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
 const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
 const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
 const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
-const getCurrentDensity = () => +controls.density.htmlInput.value;
+const getCurrentTempo = () => +controls.tempo.htmlInput.value;
 const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
 const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;
 const isEvolve = () => +controls.evolve.htmlInput.value === 0 ? false : true;
@@ -305,4 +304,25 @@ const getActiveWaveTypes = () => {
         activeWaveTypes.push("brownNoise");
     }
     return activeWaveTypes;
+};
+
+/**
+ * Responsible for setting all of the timings for
+ * the common note lengths. Should be invoked from
+ * the control panel, when tempo is adjusted.
+ */
+let noteTimings = [
+    240 / getCurrentTempo(), // whole note
+    120 / getCurrentTempo(), // half note
+    60 / getCurrentTempo(), // quarter note
+    30 / getCurrentTempo(), // eighth note
+    15 / getCurrentTempo(), // sixteenth note
+];
+function setNoteTimings() {
+    noteTimings[0] = 240 / getCurrentTempo(); // whole note
+    noteTimings[1] = 120 / getCurrentTempo(); // half note
+    noteTimings[2] = 60 / getCurrentTempo(); // quarter note
+    noteTimings[3] = 30 / getCurrentTempo(); // eighth note
+    noteTimings[4] = 15 / getCurrentTempo(); // sixteenth note
+    if (DEBUG) console.info(noteTimings);
 };

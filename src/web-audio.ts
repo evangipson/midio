@@ -131,34 +131,30 @@ class Oscillator {
 
 // Pure Functions
 /**
- * Will return an interval that isn't present in
- * the chordIntervals passed in, to build a chord.
- */
-const getUniqueChordNote = (chordIntervals: number[]) => {
-    let attemptedInterval = getRandomArrayItem(getCurrentScale());
-    while(chordIntervals.includes(attemptedInterval)) {
-        attemptedInterval = getRandomArrayItem(getCurrentScale());
-    }
-    return attemptedInterval;
-};
-
-/**
  * Will generate a chord, returned as an array filled with
- * unique freqencies based on the currentScale.
+ * unique freqencies based on the currentScale. Needs a base
+ * tone to ensure we aren't returning two of the same note.
  * @param {Number} tones how many notes you want in the chord
  */
-const getChord = (tones = 3) => {
-    let chordTones:number[] = [];
-    for(var i = 0; i < tones; i++) {
-        chordTones.push(getHarmonicNoteFrequency(getUniqueChordNote(chordTones)));
+const getChord = (baseTone: Note, tones = 3) => {
+    let chordTones:number[] = [
+        baseTone.frequency // we already have 1 tone in the chord
+    ];
+    let attemptedFrequency: number;
+    for(var i = 1; i < tones; i++) {
+        attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
+        while(chordTones.includes(attemptedFrequency)) {
+            attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
+        }
+        chordTones.push(attemptedFrequency);
     }
     return chordTones;
 };
 
 /**
  * Will generate a frequency based on a scale.
- * Relies on baseTone and twelfthRootOfTwo. Will return
- * the frequency for the base tone, set by the pitch slider,
+ * Relies on twelfthRootOfTwo. Will return the
+ * frequency for the base tone, set by the pitch slider,
  * by default.
  * @param {Number} interval how far away from baseTone the note is
  */
@@ -167,25 +163,20 @@ const getHarmonicNoteFrequency = (interval = 0) =>
 
 /**
  * Will return a suitable value for seconds
- * until the next note. To be called by generateSound().
+ * until the next musical phrase.
+ * To be called by generateSound().
  */
-const getSecondsUntilNextNote = () => getRelativeValue(
-    controls.density.max - getCurrentDensity(), // a higher density means LESS time between notes
-    controls.density.max,
-    2,
-    8
+const getSecondsUntilNextPhrase = () => maybe(
+    maybe(noteTimings[0], noteTimings[1]), // whole or half note
+    maybe(noteTimings[0] * 1.5, noteTimings[0] * 2) // 1 1/2 or 2 bars
 );
 
 /**
  * Will return, in seconds, how long to delay until
- * the next arpeggio note. Based on density.
+ * the next arpeggio note. Won't use whole or half notes.
  */
-const timeUntilNextArpeggioNote = () => getRelativeValue(
-    controls.density.max - getCurrentDensity(), // a higher density means LESS time between notes
-    controls.density.max,
-    getRange(.33, 1),
-    getRange(1, 3)
-);
+const timeUntilNextArpeggioNote = () =>
+    noteTimings[Math.floor(getRange(2, noteTimings.length - 1))];
 
 // Non-Pure Functions
 /**
@@ -216,9 +207,8 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
  * Will return a random note duration, in seconds.
  * Note: Isn't pure because it's random, and has no inputs.
  */
-function getRandomNoteDuration() {
-    return Math.random() + 0.25;
-}
+const getRandomNoteDuration = () =>
+    getRandomArrayItem(noteTimings);
 
 /**
  * Will return an object containing properties
@@ -228,7 +218,8 @@ function assemblePadNote(): Note {
     return {
         type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
-        time: getRange(1, 5), // in seconds
+        // either half, whole, or (rarely) double whole note
+        time: maybe(noteTimings[1], maybe(noteTimings[0], noteTimings[0] * 2)),
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
         attack: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10)),
@@ -255,7 +246,7 @@ function assembleNormalNote(): Note {
 
 /**
  * Will build and play a chord given a Note and a MouseEvent.
- * @param note z
+ * @param note 
  * @param event 
  */
 function buildChordFromNote(note: Note, event: MouseEvent) {
@@ -267,8 +258,7 @@ function buildChordFromNote(note: Note, event: MouseEvent) {
     const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 4 ? 4 : shortestScaleLength));
     if (DEBUG) console.info("the chord will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
-    if (DEBUG) console.info(note);
-    getChord(additionalChordTones).forEach((chordTone) => {
+    getChord(note, additionalChordTones).forEach((chordTone) => {
         // create a new tone, with some modifications
         chordNote = note;
         chordNote.frequency = chordTone;
@@ -296,16 +286,16 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
     const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 5 ? 5 : shortestScaleLength));
     if (DEBUG) console.info("the arpeggio will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
-    if (DEBUG) console.info(note);
     let previousDelay = timeUntilNextArpeggioNote();
     /* change our base note to be more "arppegio" friendly,
      * no pad arps */
-    note.time = clickedNoteLength ? clickedNoteLength : getRandomNoteDuration();
-    // use shorter notes when we have an arp
-    note.attack = +controls.softness.min / 10;
-    note.release = note.attack * getRange(1.25, 1.5);
+    note.time = getRandomNoteDuration();
+    /* use shorter notes when we have an arp
+     * Note: values borrowed from "getNormalNote()" */
+    note.attack = getRange(getCurrentSoftness(), getCurrentSoftness() * 1.2),
+    note.release = getRange(getCurrentSoftness() * 1.2, getCurrentSoftness() * 2),
     // create new tones, with some modifications
-    getChord(additionalChordTones).forEach((chordTone) => {
+    getChord(note, additionalChordTones).forEach((chordTone) => {
         chordNote = note;
         chordNote.frequency = chordTone;
         // compound delay
@@ -330,7 +320,7 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
  * @param {MouseEvent} event
  */
 function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
-    let note = maybe(assembleNormalNote(), assemblePadNote());
+    let note = maybe(assembleNormalNote(), assemblePadNote(), 80);
     // If we've called this function from the autoplay loop
     if(!event.clientX) {
         if (DEBUG) console.info("COMPOSER composing...");
@@ -338,7 +328,7 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
         /* in an amount of time, call itself again, because
          * we can be sure this is a generated note due to the absence
          * of an event. */
-        const msUntilNextNote = getSecondsUntilNextNote() * 1000; // in ms
+        const msUntilNextNote = getSecondsUntilNextPhrase() * 1000; // in ms
         autoplayEventLoop = window.setTimeout(function() {
             generateSound();
         }, msUntilNextNote);
@@ -351,11 +341,11 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     // note frequency is driven by our (maybe fake) event
     note.frequency = setNoteFrequencyFromClick(note, event);
     // small chance to get a chord
-    if(maybe(true, false, 40)) {
+    if(maybe(true, false, 20)) {
         note = buildChordFromNote(note, event); // we mutate the note in buildChordFromNote()
     }
     // we will probably play an arpeggio because they are interesting.
-    else if(maybe(true, false, 20)) {
+    else if(maybe(true, false)) {
         note = buildArpeggioFromNote(note, event); // we mutate the note in buildArpeggioFromNote()
     }
     else {

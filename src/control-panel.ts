@@ -75,7 +75,7 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         const minValue = Math.floor(+nextHTMLInput.value - ((+nextHTMLInput.max - +nextHTMLInput.min) / 3));
         const maxValue = Math.ceil(+nextHTMLInput.value + ((+nextHTMLInput.max - +nextHTMLInput.min) / 3));
         // don't set anything outside the bounds
-        const attemptedValue = getRange(minValue >= +nextHTMLInput.min ? minValue : +nextHTMLInput.min, maxValue <= +nextHTMLInput.max ? maxValue : +nextHTMLInput.max );
+        const attemptedValue = getRange(minValue >= +nextHTMLInput.min ? minValue : +nextHTMLInput.min, maxValue <= +nextHTMLInput.max ? maxValue : +nextHTMLInput.max);
         newValue = Math.round(attemptedValue);
         if(nextInput === "mood") {
             changeBackgroundColor(newValue + 1);
@@ -172,18 +172,15 @@ function randomizeControlValues() {
 function enableControlMenu() {
     const showControlsButton = document.getElementById("ShowControls");
     const randomizeControlsButton = document.getElementById("RandomizeControls");
-    const moodRange = <HTMLInputElement>document.getElementById("Mood");
     const allWaveRanges = [
-        <HTMLInputElement>document.getElementById("Triangle"),
-        <HTMLInputElement>document.getElementById("Sine"),
-        <HTMLInputElement>document.getElementById("Square"),
-        <HTMLInputElement>document.getElementById("Saw"),
-        <HTMLInputElement>document.getElementById("WhiteNoise"),
-        <HTMLInputElement>document.getElementById("PinkNoise"),
-        <HTMLInputElement>document.getElementById("BrownNoise")
+        controls.triangle.htmlInput,
+        controls.sine.htmlInput,
+        controls.square.htmlInput,
+        controls.sawtooth.htmlInput,
+        controls.whiteNoise.htmlInput,
+        controls.pinkNoise.htmlInput,
+        controls.brownNoise.htmlInput
     ]
-    const autoplayToggle = <HTMLInputElement>document.getElementById("Autoplay");
-    const evolveToggle = <HTMLInputElement>document.getElementById("Evolve");
     setInitialControlValues();
     if(randomizeControlsButton) {
         randomizeControlsButton.addEventListener("click", function() {
@@ -213,14 +210,17 @@ function enableControlMenu() {
      * NOTE: can't just fire over and over again by clicking
      * max value on the toggle because this is a "change" event,
      * and only fires when a value changes. */
-    autoplayToggle.addEventListener("change", function() {
+    controls.autoplay.htmlInput.addEventListener("change", function() {
         toggleAutoplay();
     });
-    evolveToggle.addEventListener("change", function() {
+    controls.evolve.htmlInput.addEventListener("change", function() {
         toggleEvolve();
     });
-    moodRange.addEventListener("change", function() {
+    controls.mood.htmlInput.addEventListener("change", function() {
         changeBackgroundColor(+this.value + 1);
+    });
+    controls.tempo.htmlInput.addEventListener("change", function() {
+        setNoteTimings(); // uses getCurrentTempo() to fetch value
     });
     allWaveRanges.forEach((range) => {
         range.addEventListener("change", function() {
