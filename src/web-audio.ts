@@ -172,11 +172,11 @@ const getSecondsUntilNextPhrase = () => maybe(
 );
 
 /**
- * Will return, in seconds, how long to delay until
- * the next arpeggio note. Won't use whole or half notes.
+ * Will return, in seconds, how long a "short note"
+ * should sound. Won't use whole or half notes.
  */
-const timeUntilNextArpeggioNote = () =>
-    noteTimings[Math.floor(getRange(2, noteTimings.length - 1))];
+const getShortNoteDuration = () =>
+    noteTimings[Math.floor(getRange(1, noteTimings.length - 1))];
 
 // Non-Pure Functions
 /**
@@ -219,7 +219,7 @@ function assemblePadNote(): Note {
         type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
         // either half, whole, or (rarely) double whole note
-        time: maybe(noteTimings[1], maybe(noteTimings[0], noteTimings[0] * 2)),
+        time: maybe(noteTimings[0], maybe(noteTimings[1], noteTimings[0] * 2)),
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
         attack: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10)),
@@ -238,8 +238,8 @@ function assembleNormalNote(): Note {
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
         time: getRandomNoteDuration(),
         volume: getCurrentMasterVolume(),
-        attack: getRange(getCurrentSoftness(), getCurrentSoftness() * 1.2),
-        release: getRange(getCurrentSoftness() * 1.2, getCurrentSoftness() * 2),
+        attack: getRange(getCurrentSoftness() * 0.8, getCurrentSoftness() * 1.2),
+        release: getRange(getCurrentSoftness() * 0.8, getCurrentSoftness() * 1.5),
         delay: 0
     };
 }
@@ -281,26 +281,29 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
     if (DEBUG) console.info("creating an arpeggio");
     let chordNote: Note;
     let overrideX: number;
-    /* Our arpeggio should have at last 2 tones, and at maximum 5 tones, unless
-     * our scale doesn't have 5 tones, then just use as many as possible. */
-    const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 5 ? 5 : shortestScaleLength));
+    /* Our arpeggio should have at last 2 tones, and at maximum 8 tones, unless
+     * our scale doesn't have 8 tones, then just use as many as possible. */
+    const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 8 ? 8 : shortestScaleLength));
     if (DEBUG) console.info("the arpeggio will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
-    let previousDelay = timeUntilNextArpeggioNote();
+    let previousDelay = getShortNoteDuration();
+    let attemptedDelay: number;
     /* change our base note to be more "arppegio" friendly,
      * no pad arps */
-    note.time = getRandomNoteDuration();
+    note.time = previousDelay;
     /* use shorter notes when we have an arp
      * Note: values borrowed from "getNormalNote()" */
-    note.attack = getRange(getCurrentSoftness(), getCurrentSoftness() * 1.2),
-    note.release = getRange(getCurrentSoftness() * 1.2, getCurrentSoftness() * 2),
+    note.attack = getRange((controls.softness.min/10) * 1.2, (controls.softness.min/10) * 3),
+    note.release = getRange((controls.softness.min/10) * 1.2, (controls.softness.min/10) * 3),
     // create new tones, with some modifications
     getChord(note, additionalChordTones).forEach((chordTone) => {
         chordNote = note;
         chordNote.frequency = chordTone;
         // compound delay
+        let attemptedDelay = getShortNoteDuration();
         chordNote.delay = previousDelay;
-        previousDelay += timeUntilNextArpeggioNote();
+        previousDelay += attemptedDelay;
+        chordNote.time = attemptedDelay;
         if (DEBUG) console.info(chordNote);
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated

@@ -211,8 +211,8 @@ const controls:HTMLControlList = {
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
-        min: 3,
-        max: 30
+        min: .5,
+        max: 40
     },
     "mood": {
         htmlInput: (<HTMLInputElement>document.getElementById("Mood")),
@@ -221,7 +221,7 @@ const controls:HTMLControlList = {
     },
     "tempo": {
         htmlInput: (<HTMLInputElement>document.getElementById("Tempo")),
-        min: 45,
+        min: 60,
         max: 110
     },
     // "Toggles"
@@ -323,6 +323,6 @@ function setNoteTimings() {
     noteTimings[1] = 120 / getCurrentTempo(); // half note
     noteTimings[2] = 60 / getCurrentTempo(); // quarter note
     noteTimings[3] = 30 / getCurrentTempo(); // eighth note
-    noteTimings[4] = 15 / getCurrentTempo(); // sixteenth note
+    //noteTimings[4] = 15 / getCurrentTempo(); // sixteenth note
     if (DEBUG) console.info(noteTimings);
 };
