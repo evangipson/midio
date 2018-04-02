@@ -152,6 +152,29 @@ const getChord = (baseTone: Note, tones = 3) => {
 };
 
 /**
+ * Will assemble an array of numbers that will
+ * contain frequencies for a melody.
+ * @param baseTone
+ * @param tones 
+ */
+const getMelody = (baseTone: Note, tones = 3) => {
+    let chordTones:number[] = [];
+    let attemptedFrequency: number;
+    let previousNote = baseTone;
+    for(var i = 1; i < tones; i++) {
+        attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
+        // if the next frequency is the same as the previous or more than 5 whole steps...
+        while(previousNote.frequency == attemptedFrequency || Math.abs(previousNote.frequency - attemptedFrequency) > ((getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, 10))) - getCurrentBaseNote()) {
+            // try to get a "closer" note instead so we don't have large interval steps
+            attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
+        }
+        previousNote.frequency = attemptedFrequency;
+        chordTones.push(attemptedFrequency);
+    }
+    return chordTones;
+};
+
+/**
  * Will generate a frequency based on a scale.
  * Relies on twelfthRootOfTwo. Will return the
  * frequency for the base tone, set by the pitch slider,
@@ -167,8 +190,8 @@ const getHarmonicNoteFrequency = (interval = 0) =>
  * To be called by generateSound().
  */
 const getSecondsUntilNextPhrase = () => maybe(
-    maybe(noteTimings[0], noteTimings[1]), // whole or half note
-    maybe(noteTimings[0] * 1.5, noteTimings[0] * 2) // 1 1/2 or 2 bars
+    noteTimings[0], // whole note
+    maybe(noteTimings[0] * 2, noteTimings[0] * 3) // 2 or 3 bars
 );
 
 /**
@@ -176,7 +199,15 @@ const getSecondsUntilNextPhrase = () => maybe(
  * should sound. Won't use whole or half notes.
  */
 const getShortNoteDuration = () =>
-    noteTimings[Math.floor(getRange(1, noteTimings.length - 1))];
+    noteTimings[Math.floor(getRange(2, noteTimings.length - 1))];
+
+/**
+ * Will return, in seconds, how long a "melody note"
+ * should sound. Won't use extremely long or short notes.
+ */
+const getMelodyNoteDuration = () =>
+    noteTimings[Math.floor(getRange(1, noteTimings.length - 2))];
+
 
 // Non-Pure Functions
 /**
@@ -281,9 +312,9 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
     if (DEBUG) console.info("creating an arpeggio");
     let chordNote: Note;
     let overrideX: number;
-    /* Our arpeggio should have at last 2 tones, and at maximum 8 tones, unless
-     * our scale doesn't have 8 tones, then just use as many as possible. */
-    const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 8 ? 8 : shortestScaleLength));
+    /* Our arpeggio should have at last 2 tones, and at maximum 5 tones, unless
+     * our scale doesn't have 5 tones, then just use as many as possible. */
+    const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 5 ? 5 : shortestScaleLength));
     if (DEBUG) console.info("the arpeggio will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
     let previousDelay = getShortNoteDuration();
@@ -304,6 +335,40 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
         chordNote.delay = previousDelay;
         previousDelay += attemptedDelay;
         chordNote.time = attemptedDelay;
+        if (DEBUG) console.info(chordNote);
+        // handle x & y seperately for chord notes, because
+        // the x-axis will need to be calculated
+        overrideX = setClickPositionFromNoteFrequency(chordNote, event);
+        playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
+    });
+    // give our "sanitized" arpeggio note back
+    return note;
+}
+
+/**
+ * Will build and play a melody given a Note and a MouseEvent.
+ * @param note 
+ * @param event 
+ */
+function buildMelodyFromNote(note: Note, event: MouseEvent) {
+    if (DEBUG) console.info("creating a melody");
+    let chordNote: Note;
+    let overrideX: number;
+    /* Our melody should have at last 3 tones, and at maximum 6 tones, unless
+     * our scale doesn't have 6 tones, then just use as many as possible. */
+    const additionalMelodyTones = Math.floor(getRange(3, shortestScaleLength > 6 ? 6 : shortestScaleLength));
+    if (DEBUG) console.info("the melody will be " + additionalMelodyTones + " notes");
+    if (DEBUG) console.info("========================================");
+    let currentNotelength = getMelodyNoteDuration();
+    note.time = currentNotelength;
+    // create new tones, with some modifications
+    getMelody(note, additionalMelodyTones).forEach((chordTone) => {
+        let nextDelay = getMelodyNoteDuration();
+        chordNote = note;
+        chordNote.time = nextDelay;
+        chordNote.frequency = chordTone;
+        currentNotelength += nextDelay;
+        chordNote.delay = currentNotelength;
         if (DEBUG) console.info(chordNote);
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
@@ -344,13 +409,18 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     // note frequency is driven by our (maybe fake) event
     note.frequency = setNoteFrequencyFromClick(note, event);
     // small chance to get a chord
-    if(maybe(true, false, 20)) {
+    if(maybe(true, false, 33)) {
         note = buildChordFromNote(note, event); // we mutate the note in buildChordFromNote()
     }
-    // we will probably play an arpeggio because they are interesting.
-    else if(maybe(true, false)) {
+    // chance to play a melody
+    else if(maybe(true, false, 75)) {
+        note = buildMelodyFromNote(note, event); // we mutate the note in buildMelodyFromNote()
+    }
+    // we will rarely play arpeggios
+    else if(maybe(true, false, 15)) {
         note = buildArpeggioFromNote(note, event); // we mutate the note in buildArpeggioFromNote()
     }
+    // or we'll just play the boring single tone if no "special" notes happen
     else {
         if (DEBUG) console.info(note);
     }
