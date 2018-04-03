@@ -40,7 +40,7 @@ const setClickPositionFromNoteFrequency = (note: Note, event: MouseEvent) => {
  * Will get an x & y position given a click event.
  * Will return null if provided no event. If no
  * event or visualizer is given, will return {x:0, y:0}.
- * @param {CustomMouseEvent} event
+ * @param event
  */
 const getNotePosition = (event: CustomMouseEvent) => {
     let xPosition = 0;
@@ -61,12 +61,12 @@ const getNotePosition = (event: CustomMouseEvent) => {
  * Will draw the expanding circle factoring in volume
  * as opacity (out of 1.0). Also handles getting the note
  * position from the event.
- * @param {MouseEvent} event
- * @param {Number} volume
- * @param {Number} delay
+ * @param event
+ * @param volume
+ * @param delay
  */
 function drawNoteWithVolumeBasedOpacity(event: CustomMouseEvent, volume: number, delay: number) {
-    let coords = getNotePosition(event);
+    const coords = getNotePosition(event);
     if(delay) {
         setTimeout(function() {
             drawNoteCircle(coords.x, coords.y, volume);
@@ -80,9 +80,9 @@ function drawNoteWithVolumeBasedOpacity(event: CustomMouseEvent, volume: number,
 /**
  * Takes care of drawing the expanding notes on screen.
  * Intended to be called by playAndShowNote(), shouldn't be called directly.
- * @param {Number} x
- * @param {Number} y
- * @param {Number} opacity
+ * @param x
+ * @param y
+ * @param opacity
  */
 function drawNoteCircle(x: number, y: number, opacity = controls.volume.max) {
     let newCircle = document.createElement("span");

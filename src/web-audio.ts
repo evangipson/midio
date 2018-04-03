@@ -60,8 +60,8 @@ class Oscillator {
     /**
      * Sets the mainOsc's type and frequency.
      * Relies on audioContext.
-     * @param {String} type
-     * @param {Number} frequency in Hz
+     * @param type
+     * @param frequency in Hz
      */
     setProperties(type: string, frequency: number) {
         // don't play any super high frequencies ever by using a lowpass filter
@@ -161,10 +161,10 @@ class Oscillator {
     };
     /**
      * Sets the LFO's frequency, gain, and type.
-     * @param {Number} frequency how fast the LFO modulates
-     * @param {Number} gain out of 100. How strong the LFO
+     * @param frequency how fast the LFO modulates
+     * @param gain out of 100. How strong the LFO
      * will sound.
-     * @param {String} type wave shape for the LFO
+     * @param type wave shape for the LFO
      */
     setLFO(frequency: number = 5, gain: number, type: string) {
         this.lfoNode.type = <OscillatorType>type;
@@ -217,7 +217,7 @@ const getFrequencyOfInterval = (interval: number) =>
  * Will generate a chord, returned as an array filled with
  * unique freqencies based on the currentScale. Needs a base
  * tone to ensure we aren't returning two of the same note.
- * @param {Number} tones how many notes you want in the chord
+ * @param tones how many notes you want in the chord
  */
 const getChord = (baseTone: Note, tones = 3) => {
     let chordTones:number[] = [
@@ -266,7 +266,7 @@ const getMelody = (baseTone: Note, tones = 3) => {
  * Relies on twelfthRootOfTwo. Will return the
  * frequency for the base tone, set by the pitch slider,
  * by default.
- * @param {Number} interval how far away from baseTone the note is
+ * @param interval how far away from baseTone the note is
  */
 const getHarmonicNoteFrequency = (interval = 0) =>
     getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval);
@@ -299,8 +299,8 @@ const getMelodyNoteDuration = () =>
 // Non-Pure Functions
 /**
  * Will play the note passed in.
- * @param {Note} note Note interface containing multiple properties
- * @param {HTMLEvent} event to determine where to draw the circles. default is null.
+ * @param note Note interface containing multiple properties
+ * @param event to determine where to draw the circles. default is null.
  */
 function playAndShowNote(note: Note, event: CustomMouseEvent) {
     // handle creating an oscillator and starting & stopping it
@@ -464,7 +464,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
  * and continually generate a new tone some time after
  * (if autoplay is enabled).
  * Note: Can generate either a tone, echo tone, or chord.
- * @param {MouseEvent} event
+ * @param event
  */
 function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     let note = maybe(assembleNormalNote(), assemblePadNote(), 85);

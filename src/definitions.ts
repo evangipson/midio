@@ -2,7 +2,7 @@
  * I will load this file first in the HTML. */
 'use strict';
 
-const DEBUG = true; // used to control console.log statements
+const DEBUG:boolean = true; // used to control console.log statements
 
 /* Immutable global variable, used to chain audio
  * "as any" will force an index signature so it's not implicit. */
@@ -13,10 +13,10 @@ let autoplayEventLoop: number;
 let composerEventLoop: number;
 // keeping track of the user's click length for note times
 let noteTimingEventHandler: number;
-let clickedNoteLength = 0;
+let clickedNoteLength: number = 0;
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
-const lfoWaveTypes = [
+const lfoWaveTypes:string[] = [
     "sine",
     "triangle",
     "sawtooth",
@@ -26,13 +26,13 @@ const lfoWaveTypes = [
 // used to keep track of circles which represent notes
 let circles:HTMLSpanElement[] = [];
 
-const twelfthRootOfTwo = Math.pow(2, 1/12); // need this to calculate Hz based on interval & scale
+const twelfthRootOfTwo:number = Math.pow(2, 1/12); // need this to calculate Hz based on interval & scale
 
 /* array representing intervals from the root tone.
  * root tone included as 0.
  * NOTE: must line up with number of palettes in css/variables.css!
  * NOTE: all scales must have at least 2 tones in them to create chords and arpeggios. */
-let scales = [
+let scales:number[][] = [
     // major
     [
         0,
@@ -162,7 +162,7 @@ for(let scale in scales) {
     });
 }
 // Some information for chord & arpeggio building
-let shortestScaleLength = 0;
+let shortestScaleLength: number = 0;
 for(let scale in scales) {
     if(scales[scale].length > shortestScaleLength) {
         shortestScaleLength = scales[scale].length;
@@ -311,17 +311,23 @@ const getActiveWaveTypes = () => {
  * the common note lengths. Should be invoked from
  * the control panel, when tempo is adjusted.
  */
-let noteTimings = [
+let noteTimings: number[] = [
     240 / getCurrentTempo(), // whole note
     120 / getCurrentTempo(), // half note
+    90 / getCurrentTempo(), // dotted quarter note
     60 / getCurrentTempo(), // quarter note
+    45 / getCurrentTempo(), // dotted eighth note
     30 / getCurrentTempo(), // eighth note
+    22.5 / getCurrentTempo(), // dotted sixtenth note
     15 / getCurrentTempo(), // sixteenth note
 ];
 function setNoteTimings() {
     noteTimings[0] = 240 / getCurrentTempo(); // whole note
     noteTimings[1] = 120 / getCurrentTempo(); // half note
-    noteTimings[2] = 60 / getCurrentTempo(); // quarter note
-    noteTimings[3] = 30 / getCurrentTempo(); // eighth note
-    noteTimings[4] = 15 / getCurrentTempo(); // sixteenth note
+    noteTimings[2] = 90 / getCurrentTempo(); // dotted quarter note
+    noteTimings[3] = 60 / getCurrentTempo(); // quarter note
+    noteTimings[4] = 45 / getCurrentTempo(); // dotted eighth note
+    noteTimings[5] = 30 / getCurrentTempo(); // eighth note
+    noteTimings[6] = 22.5 / getCurrentTempo(); // dotted sixteenth note
+    noteTimings[7] = 15 / getCurrentTempo(); // sixteenth note
 };

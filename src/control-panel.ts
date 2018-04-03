@@ -1,15 +1,33 @@
 // Pure Functions
 /**
- * Will take care of ensuring at least one wave is turned on.
- * @param length of the current active waves
- * @param {String} attemptedValue 
+ * Will prevent the last wave from being turned off.
+ * @param attemptedValue 
  */
-const ensureOneWaveIsOn = (attemptedValue: string) => {
-    if(getActiveWaveTypes().length != 0) {
+const ensureLastWaveStaysOn = (attemptedValue: string) => {
+    if(getActiveWaveTypes().length !== 0) {
         return attemptedValue;
     }
     return "1";
-}
+};
+
+/**
+ * Will take care of ensuring at least one wave is turned on.
+ * @param inputKey 
+ * @param attemptedValue 
+ */
+const ensureOneWaveIsOn = (inputKey: string, attemptedValue: string) => {
+    let returnValue = "0";
+    if(inputKey === "triangle" ||
+    inputKey === "sine" ||
+    inputKey === "sawtooth" ||
+    inputKey === "square" ||
+    inputKey === "whiteNoise" ||
+    inputKey === "pinkNoise" ||
+    inputKey === "brownNoise") {
+        returnValue = ensureLastWaveStaysOn(attemptedValue); // counts on the HTMLInput already being toggled
+    }
+    return returnValue;
+};
 
 // Non-Pure Functions
 /**
@@ -39,7 +57,7 @@ function setInitialControlValues() {
         }
         // Now override .value if needed per control
         if(control === "volume") { // curate volume
-            controlValue = (+currentHTMLInput.min + +currentHTMLInput.max) / 2;
+            controlValue = (controls.volume.min + controls.volume.max) / 2;
         }
         // we want triangle evolving autoplay off the bat
         else if(control === "autoplay" || control === "evolve" || control === "triangle") {
@@ -48,17 +66,8 @@ function setInitialControlValues() {
         else if(control === "mood") {
             changeBackgroundColor(Math.round(controlValue) + 1);
         }
-        currentHTMLInput.value = ""+Math.round(controlValue);
         // after we set the HTMLInput value, make sure at least one wave is on
-        if(control === "triangle" ||
-            control === "sine" ||
-            control === "sawtooth" ||
-            control === "square" ||
-            control === "whiteNoise" ||
-            control === "pinkNoise" ||
-            control === "brownNoise") {
-                currentHTMLInput.value = ensureOneWaveIsOn(currentHTMLInput.value); // counts on the HTMLInput already being toggled
-        }
+        currentHTMLInput.value = ensureOneWaveIsOn(control, ""+Math.round(controlValue));
     }
 }
 
@@ -87,23 +96,14 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         }
         // don't turn modify volume or turn off autoplay/evolve
         if(nextInput != "autoplay" && nextInput != "evolve" && nextInput != "volume") {
-            nextHTMLInput.value = ""+newValue;
-        }
-        // after we set the HTMLInput value, make sure at least one wave is on
-        if(nextInput === "triangle" ||
-            nextInput === "sine" ||
-            nextInput === "sawtooth" ||
-            nextInput === "square" ||
-            nextInput === "whiteNoise" ||
-            nextInput === "pinkNoise" ||
-            nextInput === "brownNoise") {
-                nextHTMLInput.value = ensureOneWaveIsOn(nextHTMLInput.value); // counts on the HTMLInput already being toggled
+            // after we set the HTMLInput value, make sure at least one wave is on
+            nextHTMLInput.value = ensureOneWaveIsOn(nextInput, ""+newValue);
         }
         if (DEBUG) console.info("the value was " + oldValue + " but now it's " + nextHTMLInput.value);
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
         nextInput = getRandomArrayItem(Object.keys(controls));
-        const msUntilNextControlChange = Math.floor(getRange(8000, 30000)); // in ms
+        const msUntilNextControlChange = Math.floor(getRange(10000, 60000)); // in ms
         composerEventLoop = window.setTimeout(function() {
             evolveSound(nextInput);
         }, msUntilNextControlChange);
@@ -139,10 +139,9 @@ function toggleEvolve() {
  * proportionate to the number of scales in definitions.ts.
  */
 function changeBackgroundColor(mood = 1) {
-    let updatedVisualizerClass = "mood";
-    updatedVisualizerClass += ""+mood;
+    const updatedVisualizerClass = "mood" + mood;
     const visualizerElement = document.getElementById("Visualizer");
-    if(visualizerElement && mood != 1) { // we don't have a "mood1" modifier - it's just the default style
+    if(visualizerElement) {
         // wipe the old mood class if there is one
         visualizerElement.className = "visualizer";
         visualizerElement.classList.add(updatedVisualizerClass);
@@ -156,23 +155,15 @@ function randomizeControlValues() {
     let currentInput;
     for(let control in controls) {
         currentInput = controls[control];
-        /*if(currentInput.max > 1) {
-            currentInput.htmlInput.value = ""+getRange(currentInput.min, currentInput.max);
-        }
-        else {
-            currentInput.htmlInput.value = maybe("1", "0");
-        }*/
         evolveSound(control);
     }
-    //controls.triangle.htmlInput.value = ensureOneWaveIsOn(currentHTMLInput.value);
 }
 
 /**
- * Wires up the close/open functionality of the controls menu.
+ * Will take care of wiring up the event listeners
+ * for the inputs in the control panel.
  */
-function enableControlMenu() {
-    const showControlsButton = document.getElementById("ShowControls");
-    const randomizeControlsButton = document.getElementById("RandomizeControls");
+function addInputEventListeners() {
     const allWaveRanges = [
         controls.triangle.htmlInput,
         controls.sine.htmlInput,
@@ -181,8 +172,40 @@ function enableControlMenu() {
         controls.whiteNoise.htmlInput,
         controls.pinkNoise.htmlInput,
         controls.brownNoise.htmlInput
-    ]
-    setInitialControlValues();
+    ];
+    /* using "change" so this only runs on mouse up.
+     * NOTE: can't just fire over and over again by clicking
+     * max value on the toggle because this is a "change" event,
+     * and only fires when a value changes. */
+    controls.autoplay.htmlInput.addEventListener("change", function() {
+        toggleAutoplay();
+    });
+    controls.evolve.htmlInput.addEventListener("change", function() {
+        toggleEvolve();
+    });
+    controls.mood.htmlInput.addEventListener("change", function() {
+        changeBackgroundColor(+this.value + 1);
+    });
+    controls.tempo.htmlInput.addEventListener("change", function() {
+        setNoteTimings(); // uses getCurrentTempo() to fetch value
+    });
+    allWaveRanges.forEach((range) => {
+        range.addEventListener("change", function() {
+            if(+this.value === 0) {
+                this.value = ensureLastWaveStaysOn(this.value); // disallow this wave from being toggled off if it's the only one
+            }
+        });
+    });
+}
+
+/**
+ * Will wire up the buttons for the control panel,
+ * to hide and show itself, and to randomize (or evolve)
+ * all inputs.
+ */
+function addButtonEventListeners() {
+    const showControlsButton = document.getElementById("ShowControls");
+    const randomizeControlsButton = document.getElementById("RandomizeControls");
     if(randomizeControlsButton) {
         randomizeControlsButton.addEventListener("click", function() {
             randomizeControlValues();
@@ -207,31 +230,16 @@ function enableControlMenu() {
             }
         });
     }
-    /* using "change" so this only runs on mouse up.
-     * NOTE: can't just fire over and over again by clicking
-     * max value on the toggle because this is a "change" event,
-     * and only fires when a value changes. */
-    controls.autoplay.htmlInput.addEventListener("change", function() {
-        toggleAutoplay();
-    });
-    controls.evolve.htmlInput.addEventListener("change", function() {
-        toggleEvolve();
-    });
-    controls.mood.htmlInput.addEventListener("change", function() {
-        changeBackgroundColor(+this.value + 1);
-    });
-    controls.tempo.htmlInput.addEventListener("change", function() {
-        setNoteTimings(); // uses getCurrentTempo() to fetch value
-    });
-    allWaveRanges.forEach((range) => {
-        range.addEventListener("change", function() {
-            if(+this.value === 0) {
-                this.value = ensureOneWaveIsOn(this.value); // disallow this wave from being toggled off if it's the only one
-            }
-        });
-    });
-    // we are autoplay from the get go.
+}
+
+/**
+ * Is responsible for initializing the control panel and
+ * initializing autoplay & evolving.
+ */
+function initControlMenu() {
+    setInitialControlValues();
+    addButtonEventListeners();
+    addInputEventListeners();
     generateSound();
-    // and start evolving the sound from the get go.
     evolveSound();
 }

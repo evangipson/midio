@@ -3,7 +3,7 @@
  * Creates a click event somewhere randomly on the visualizer,
  * within a window of the gutter provided, and returns the event.
  * Will return null if no visualizer div is present.
- * @param {Number} screenGutter how much edge of the screen to give, in px.
+ * @param screenGutter how much edge of the screen to give, in px.
  */
 const getFakeMouseClick = (screenGutter = 300) => {
     const visualizerElement = document.getElementById("Visualizer");
@@ -25,10 +25,10 @@ const getFakeMouseClick = (screenGutter = 300) => {
 /**
  * Takes in a value and will generate another number
  * within a defined range, then returns that number.
- * @param {Number} initialValue
- * @param {Number} maxInitialValue
- * @param {Number} minResult
- * @param {Number} maxResult
+ * @param initialValue
+ * @param maxInitialValue
+ * @param minResult
+ * @param maxResult
  */
 const getRelativeValue = (initialValue = 0, maxInitialValue = 100, minResult: number, maxResult: number) =>
     ((initialValue / maxInitialValue) * maxResult) + minResult;
@@ -42,10 +42,10 @@ const getRelativeValue = (initialValue = 0, maxInitialValue = 100, minResult: nu
  * Note: Isn't a pure function because it doesn't guarantee
  * the same output given the same inputs, or in other words,
  * it deals with Math.random().
- * @param {Any} condition will return... maybe.
- * @param {Any} defaultCondition will return if
+ * @param condition will return... maybe.
+ * @param defaultCondition will return if
  * the first condition fails.
- * @param {Number} weight 0 to 100. how likely it is
+ * @param weight 0 to 100. how likely it is
  * the first condition should happen, in percentage.
  */
 const maybe = (condition: any, defaultCondition: any = null, weight = 50) => {
@@ -61,13 +61,13 @@ const maybe = (condition: any, defaultCondition: any = null, weight = 50) => {
 /**
  * Gives back a random array item, provided
  * the array.
- * @param {Array} array
+ * @param array
  */
 const getRandomArrayItem = (array:any[]) => array[Math.floor(Math.random()*array.length)];
 
 /**
  * Gives back a number in the range provided.
- * @param {Number} min
- * @param {Number} max
+ * @param min
+ * @param max
  */
 const getRange = (min: number, max: number) => Math.random() * (max - min) + min;
