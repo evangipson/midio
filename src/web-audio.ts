@@ -185,22 +185,21 @@ class Oscillator {
      * Relies on audioContext.
      */
     play() {
-        const adjustedCurrentMaxVolume = this.volume / 200;
-        // Start necessary Oscillators
-        this.mainOsc.start(audioContext.currentTime + this.delay);
-        // Model the ADSR Envelope
-        this.masterGainNode.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
-        // take "attack" + "delay" to get volume to max
-        this.masterGainNode.gain.linearRampToValueAtTime(adjustedCurrentMaxVolume, audioContext.currentTime + this.delay + this.attack);
-        //this.masterGainNode.gain.setValueAtTime(adjustedCurrentMaxVolume, audioContext.currentTime + this.delay + this.attack);
-        // now "decay" the max volume down to the "sustain" level
-        this.masterGainNode.gain.exponentialRampToValueAtTime(adjustedCurrentMaxVolume * this.sustain, audioContext.currentTime + this.delay + this.attack + this.decay);
-        //this.masterGainNode.gain.setValueAtTime(adjustedCurrentMaxVolume * this.sustain, audioContext.currentTime + this.delay + this.attack + this.decay);
-        // and hold that until "time" + "release" are done
-        this.masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
-        //this.masterGainNode.gain.setValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
-        // Stop the oscillators & disconnect the master gain when we don't need them anymore
-        this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack  + this.decay +  this.time + this.release);
+        if(this.volume > 0) {
+            const adjustedCurrentMaxVolume = this.volume / 200;
+            // Start necessary Oscillators
+            this.mainOsc.start(audioContext.currentTime + this.delay);
+            // Model the ADSR Envelope
+            this.masterGainNode.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
+            // take "attack" + "delay" to get volume to max
+            this.masterGainNode.gain.linearRampToValueAtTime(adjustedCurrentMaxVolume, audioContext.currentTime + this.delay + this.attack);
+            // now "decay" the max volume down to the "sustain" level
+            this.masterGainNode.gain.exponentialRampToValueAtTime(adjustedCurrentMaxVolume * this.sustain, audioContext.currentTime + this.delay + this.attack + this.decay);
+            // and hold that until "time" + "release" are done
+            this.masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
+            // Stop the oscillators & disconnect the master gain when we don't need them anymore
+            this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack  + this.decay +  this.time + this.release);
+        }
     };
 }
 

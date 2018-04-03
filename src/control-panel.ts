@@ -12,11 +12,13 @@ const ensureLastWaveStaysOn = (attemptedValue: string) => {
 
 /**
  * Will take care of ensuring at least one wave is turned on.
+ * Meant to be called anytime an input that has potential
+ * to be a wave input changes.
  * @param inputKey 
  * @param attemptedValue 
  */
 const ensureOneWaveIsOn = (inputKey: string, attemptedValue: string) => {
-    let returnValue = "0";
+    let returnValue = attemptedValue;
     if(inputKey === "triangle" ||
     inputKey === "sine" ||
     inputKey === "sawtooth" ||
@@ -49,18 +51,14 @@ function setInitialControlValues() {
                 controlValue = 0;
             }
             else{
-                controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max);
+                controlValue = getRange(controls[control].min, controls[control].max);
             }
         }
         else {
             controlValue = maybe(1, 0);
         }
-        // Now override .value if needed per control
-        if(control === "volume") { // curate volume
-            controlValue = (controls.volume.min + controls.volume.max) / 2;
-        }
         // we want triangle evolving autoplay off the bat
-        else if(control === "autoplay" || control === "evolve" || control === "triangle") {
+        if(control === "autoplay" || control === "evolve" || control === "triangle") {
             controlValue = 1;
         }
         else if(control === "mood") {
@@ -69,6 +67,8 @@ function setInitialControlValues() {
         // after we set the HTMLInput value, make sure at least one wave is on
         currentHTMLInput.value = ensureOneWaveIsOn(control, ""+Math.round(controlValue));
     }
+    // curate volume to be halfway
+    controls.volume.htmlInput.value = ""+((controls.volume.min + controls.volume.max) / 2);
 }
 
 /**
