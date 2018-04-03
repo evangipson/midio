@@ -221,8 +221,8 @@ const controls:HTMLControlList = {
     },
     "tempo": {
         htmlInput: (<HTMLInputElement>document.getElementById("Tempo")),
-        min: 60,
-        max: 110
+        min: 40,
+        max: 80
     },
     // "Toggles"
     "autoplay": {
@@ -323,5 +323,5 @@ function setNoteTimings() {
     noteTimings[1] = 120 / getCurrentTempo(); // half note
     noteTimings[2] = 60 / getCurrentTempo(); // quarter note
     noteTimings[3] = 30 / getCurrentTempo(); // eighth note
-    //noteTimings[4] = 15 / getCurrentTempo(); // sixteenth note
+    noteTimings[4] = 15 / getCurrentTempo(); // sixteenth note
 };

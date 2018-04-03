@@ -126,8 +126,8 @@ class Oscillator {
                 // adjust our ADSR envelope
                 this.attack = 0.1;
                 this.decay = 0.5;
-                this.sustain = 0.2;
-                this.release = 1.0;
+                this.sustain = 0.1;
+                this.release = 0.75;
                 break;
             default:
                 break;
@@ -192,12 +192,15 @@ class Oscillator {
         this.masterGainNode.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
         // take "attack" + "delay" to get volume to max
         this.masterGainNode.gain.linearRampToValueAtTime(adjustedCurrentMaxVolume, audioContext.currentTime + this.delay + this.attack);
+        //this.masterGainNode.gain.setValueAtTime(adjustedCurrentMaxVolume, audioContext.currentTime + this.delay + this.attack);
         // now "decay" the max volume down to the "sustain" level
         this.masterGainNode.gain.exponentialRampToValueAtTime(adjustedCurrentMaxVolume * this.sustain, audioContext.currentTime + this.delay + this.attack + this.decay);
+        //this.masterGainNode.gain.setValueAtTime(adjustedCurrentMaxVolume * this.sustain, audioContext.currentTime + this.delay + this.attack + this.decay);
         // and hold that until "time" + "release" are done
         this.masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
+        //this.masterGainNode.gain.setValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
         // Stop the oscillators & disconnect the master gain when we don't need them anymore
-        this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack + this.release + this.time);
+        this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack  + this.decay +  this.time + this.release);
     };
 }
 
@@ -223,8 +226,8 @@ const getChord = (baseTone: Note, tones = 3) => {
     let attemptedFrequency: number;
     for(var i = 1; i < tones; i++) {
         attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
-        // If we have the tone already in the code or the interval is more than 3 whole steps away...
-        while(chordTones.includes(attemptedFrequency) || Math.abs(baseTone.frequency - attemptedFrequency) > getFrequencyOfInterval(6)) {
+        // If we have the tone already in the code or the interval is more than 4 whole steps away...
+        while(chordTones.includes(attemptedFrequency) || Math.abs(baseTone.frequency - attemptedFrequency) > getFrequencyOfInterval(8)) {
             // get a new frequency and try again
             attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
         }
@@ -247,8 +250,8 @@ const getMelody = (baseTone: Note, tones = 3) => {
     let previousNote = baseTone;
     for(var i = 1; i < tones; i++) {
         attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
-        // if the next frequency is the same as the previous or more than 5 whole steps...
-        while(previousNote.frequency == attemptedFrequency || Math.abs(previousNote.frequency - attemptedFrequency) > getFrequencyOfInterval(10)) {
+        // if the next frequency is the same as the previous or more than 6 whole steps...
+        while(previousNote.frequency == attemptedFrequency || Math.abs(previousNote.frequency - attemptedFrequency) > getFrequencyOfInterval(12)) {
             // try to get a "closer" note instead so we don't have large interval steps
             attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
         }
@@ -275,7 +278,7 @@ const getHarmonicNoteFrequency = (interval = 0) =>
  */
 const getSecondsUntilNextPhrase = () => maybe(
     noteTimings[0], // whole note
-    maybe(noteTimings[0] * 2, noteTimings[0] * 3) // 2 or 3 bars
+    noteTimings[0] * 2 // 2 bars
 );
 
 /**
@@ -290,7 +293,7 @@ const getShortNoteDuration = () =>
  * should sound. Won't use extremely long or short notes.
  */
 const getMelodyNoteDuration = () =>
-    noteTimings[Math.floor(getRange(1, noteTimings.length - 2))];
+    noteTimings[Math.floor(getRange(2, noteTimings.length - 2))];
 
 
 // Non-Pure Functions
@@ -321,13 +324,6 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
 }
 
 /**
- * Will return a random note duration, in seconds.
- * Note: Isn't pure because it's random, and has no inputs.
- */
-const getRandomNoteDuration = () =>
-    getRandomArrayItem(noteTimings);
-
-/**
  * Will return an object containing properties
  * defining a "pad", or long, usually background note.
  */
@@ -340,7 +336,7 @@ function assemblePadNote(): Note {
         volume: getCurrentMasterVolume(),
         // pads have higher attack & release than normal notes
         attack: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10)),
-        decay: 1.0,
+        decay: getRange(0.1, 2.0),
         sustain: getRange(0.8, 1.0),
         release: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10) * 1.25),
         delay: 0,
@@ -356,12 +352,12 @@ function assembleNormalNote(): Note {
     return {
         type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
-        time: getRandomNoteDuration(),
+        time: maybe(getMelodyNoteDuration(), getShortNoteDuration()),
         volume: getCurrentMasterVolume(),
-        attack: getRange(getCurrentSoftness() * 0.8, getCurrentSoftness() * 1.2),
-        decay: getRange(0.1, 0.9),
-        sustain: getRange(0.5, 0.8),
-        release: getRange(getCurrentSoftness() * 1.2, getCurrentSoftness() * 2),
+        attack: getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.2),
+        decay: getRange(0.1, 0.5),
+        sustain: getRange(0.35, 0.8),
+        release: getRange(1.2, 2.5),
         delay: 0,
         instrument: maybe("piano")
     };
@@ -407,7 +403,6 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
     if (DEBUG) console.info("the arpeggio will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
     let previousDelay = getShortNoteDuration();
-    let attemptedDelay: number;
     note.time = previousDelay;
     // play the initial tone first...
     playAndShowNote(note, {event} as CustomMouseEvent);
@@ -416,10 +411,8 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
         chordNote = note;
         chordNote.frequency = chordTone;
         // compound delay
-        let attemptedDelay = getShortNoteDuration();
+        previousDelay += previousDelay;
         chordNote.delay = previousDelay;
-        previousDelay += attemptedDelay;
-        chordNote.time = attemptedDelay;
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
