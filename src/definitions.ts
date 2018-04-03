@@ -211,8 +211,8 @@ const controls:HTMLControlList = {
     },
     "softness" : {
         htmlInput: (<HTMLInputElement>document.getElementById("Softness")),
-        min: .5,
-        max: 40
+        min: 3,
+        max: 30
     },
     "mood": {
         htmlInput: (<HTMLInputElement>document.getElementById("Mood")),
