@@ -242,9 +242,7 @@ const getChord = (baseTone: Note, tones = 3) => {
  * @param tones 
  */
 const getMelody = (baseTone: Note, tones = 3) => {
-    let chordTones:number[] = [
-        baseTone.frequency // we already have 1 tone in the melody
-    ];
+    let chordTones:number[] = [];
     let attemptedFrequency: number;
     let previousNote = baseTone;
     for(var i = 1; i < tones; i++) {
@@ -376,7 +374,7 @@ function buildChordFromNote(note: Note, event: MouseEvent) {
     const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 4 ? 4 : shortestScaleLength));
     if (DEBUG) console.info("the chord will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
-    // for every frequency in our chord...
+    // then for every other frequency in our chord...
     getChord(note, additionalChordTones).forEach((chordTone) => {
         chordNote = note;
         chordNote.frequency = chordTone;
@@ -401,10 +399,8 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
     const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 5 ? 5 : shortestScaleLength));
     if (DEBUG) console.info("the arpeggio will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
-    let previousDelay = getShortNoteDuration();
-    note.time = previousDelay;
-    // play the initial tone first...
-    playAndShowNote(note, {event} as CustomMouseEvent);
+    note.time = getShortNoteDuration();
+    let previousDelay = note.time;
     // for every frequency in our arpeggio...
     getChord(note, additionalChordTones).forEach((chordTone) => {
         chordNote = note;
@@ -433,23 +429,22 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
     const additionalMelodyTones = Math.floor(getRange(3, shortestScaleLength > 6 ? 6 : shortestScaleLength));
     if (DEBUG) console.info("the melody will be " + additionalMelodyTones + " notes");
     if (DEBUG) console.info("========================================");
-    // get more "normal" values since we're an arpeggio
-    let currentNoteLength = note.time;
+    let currentNoteDelay = note.time;
     // play the initial tone first...
     playAndShowNote(note, {event} as CustomMouseEvent);
     // for every frequency in our melody...
-    getMelody(note, additionalMelodyTones).forEach((chordTone) => {4
+    getMelody(note, additionalMelodyTones).forEach((chordTone) => {
         // get a new note length
-        let nextDelay = getMelodyNoteDuration();
+        let currentNoteLength = getMelodyNoteDuration();
         // copy the "base note"
         chordNote = note;
         // use our new note length
-        chordNote.time = nextDelay;
+        chordNote.time = currentNoteLength;
         // set the frequency to what getMelody() advises
         chordNote.frequency = chordTone;
         // apply then compound the delay to ensure space between notes
-        chordNote.delay = currentNoteLength;
-        currentNoteLength += nextDelay;
+        chordNote.delay = currentNoteDelay;
+        currentNoteDelay += currentNoteLength;
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
