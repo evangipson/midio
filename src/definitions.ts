@@ -324,5 +324,4 @@ function setNoteTimings() {
     noteTimings[2] = 60 / getCurrentTempo(); // quarter note
     noteTimings[3] = 30 / getCurrentTempo(); // eighth note
     //noteTimings[4] = 15 / getCurrentTempo(); // sixteenth note
-    if (DEBUG) console.info(noteTimings);
 };
