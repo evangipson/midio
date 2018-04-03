@@ -26,8 +26,9 @@ function setInitialControlValues() {
         currentHTMLInput.max = ""+controls[control].max;
         // Set initial values
         if(controls[control].max > 1) {
+            // no lfo at all off the bat
             if(control === "lfoRate" || control === "lfoDepth") {
-                controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max / 4);
+                controlValue = 0;
             }
             else{
                 controlValue = getRange(+currentHTMLInput.min, +currentHTMLInput.max);
