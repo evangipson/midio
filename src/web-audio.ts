@@ -462,6 +462,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
  */
 function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     let note = maybe(assembleNormalNote(), assemblePadNote(), 85);
+    let userNote = false; // we'll assume autoplay is firing this note unless told otherwise
     // If we've called this function from the autoplay loop
     if(!event.clientX) {
         if (DEBUG) console.info("COMPOSER composing...");
@@ -476,24 +477,28 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     }
     // If we've called this function from a user click
     else {
+        userNote = true;
         if (DEBUG) console.info("user input a note.");
         note.time = clickedNoteLength;
     }
     // note frequency is driven by our (maybe fake) event
     note.frequency = setNoteFrequencyFromClick(note, event);
-    // small chance to get a chord
-    if(maybe(true, false, 33)) {
-        buildChordFromNote(note, event); // we mutate the note in buildChordFromNote()
+    // If we autoplayed the note, create a musical phrase of some kind
+    if(!userNote) {
+        // small chance to generate a chord
+        if(maybe(true, false, 33)) {
+            buildChordFromNote(note, event);
+        }
+        // we will rarely generate arpeggios
+        else if(maybe(true, false, 15)) {
+            buildArpeggioFromNote(note, event);
+        }
+        // default case, large chance to generate a melody
+        else {
+            buildMelodyFromNote(note, event);
+        }
     }
-    // chance to play a melody
-    else if(maybe(true, false, 75)) {
-        buildMelodyFromNote(note, event); // we mutate the note in buildMelodyFromNote()
-    }
-    // we will rarely play arpeggios
-    else if(maybe(true, false, 15)) {
-        buildArpeggioFromNote(note, event); // we mutate the note in buildArpeggioFromNote()
-    }
-    // or we'll just play the boring single tone if no "special" notes happen
+    // If the user input a note, we'll just play the single tone
     else {
         playAndShowNote(note, {event} as CustomMouseEvent);
     }
