@@ -9,7 +9,8 @@ midio started as a randomly generated sequence of MIDI notes based on a scale, t
 |---|
 | [Built With](#built-with) |
 | [Compiling](#compiling) |
-| [TODO](#todo) |
+| [Contributing](#contributing) |
+| [License](#license) |
 
 # Built With
 * [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
@@ -33,5 +34,10 @@ To compile the TypeScript in the project:
 * Save any file, and you will now have a **src/main.js**, which is referenced by the main **index.html** file.
     * Note: This is due to the [tsconfig.json](https://github.com/evangipson/midio/blob/master/tsconfig.json) file.
 
-# TODO
-If you'd like to see what I have planned for midio, you can get an idea from the [issues page](https://github.com/evangipson/midio/issues). Feel free to help me by contributing pull requests which I will approve and merge.
+# Contributing
+Thank you so much for your interest in contributing to midio! You should read and follow the [contribution guidelines](https://github.com/evangipson/midio/blob/master/CONTRIBUTING.md).
+
+If you find a bug - then check out any [open issues](https://github.com/evangipson/midio/issues) to see if your bug is already reported. If not, [create a new issue](https://github.com/evangipson/midio/issues/new), please!
+
+# License
+midio is licensed under [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html). If you are interested, [take a look at midio's license](https://github.com/evangipson/midio/blob/master/LICENSE).
