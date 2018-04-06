@@ -321,6 +321,40 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
 }
 
 /**
+ * Will search the shortTermMemory for a musical
+ * phrase, and play that phrase, then maybe remove
+ * that phrase from shortTermMemory.
+ */
+function searchMemoryForPhrase(event: MouseEvent) {
+    if (DEBUG) console.info("searching short term memory for a phrase");
+    if (DEBUG) console.info("========================================");
+    // get a note array from 
+    const memoryIndex = Math.floor(getRange(0, shortTermMemory.length - 1));
+    const rememberedPhrase = shortTermMemory[memoryIndex];
+    rememberedPhrase.forEach((note) => {
+        playAndShowNote(note, {event} as CustomMouseEvent);
+    });
+    if(maybe(true)) {
+        if (DEBUG) console.info("COMPOSER removing the phrase from memory");
+        shortTermMemory.splice(memoryIndex, 1);
+        if (DEBUG) console.info(shortTermMemory);
+    }
+}
+
+/**
+ * Will attempt to remember a phrase, as long as
+ * shortTermMemory isn't full.
+ * @param phrase 
+ */
+function attemptToRememberPhrase(phrase: Note[]) {
+    if(shortTermMemory.length < 5) {
+        if (DEBUG) console.info("COMPOSER remembering the last phrase");
+        shortTermMemory.push(phrase);
+        if (DEBUG) console.info(shortTermMemory);
+    }
+}
+
+/**
  * Will return an object containing properties
  * defining a "pad", or long, usually background note.
  */
@@ -369,20 +403,24 @@ function buildChordFromNote(note: Note, event: MouseEvent) {
     if (DEBUG) console.info("creating a chord");
     let chordNote: Note;
     let overrideX: number;
+    let rememberedPhrase: Note[] = [];
     /* Our chord should have at last 2 tones, and at maximum 4 tones, unless
      * our scale doesn't have 4 tones, then just use as many as possible. */
     const additionalChordTones = Math.floor(getRange(2, shortestScaleLength > 4 ? 4 : shortestScaleLength));
     if (DEBUG) console.info("the chord will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
     // then for every other frequency in our chord...
-    getChord(note, additionalChordTones).forEach((chordTone) => {
+    const chordIntervals = getChord(note, additionalChordTones);
+    for(let chordIndex = 0; chordIndex < chordIntervals.length; chordIndex++) {
         chordNote = note;
-        chordNote.frequency = chordTone;
+        chordNote.frequency = chordIntervals[chordIndex];
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
+        rememberedPhrase.push(chordNote);
         playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-    });
+    }
+    attemptToRememberPhrase(rememberedPhrase);
 }
 
 /**
@@ -424,6 +462,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
     if (DEBUG) console.info("creating a melody");
     let chordNote: Note;
     let overrideX: number;
+    let rememberedPhrase: Note[] = [note];
     /* Our melody should have at last 3 tones, and at maximum 6 tones, unless
      * our scale doesn't have 6 tones, then just use as many as possible. */
     const additionalMelodyTones = Math.floor(getRange(3, shortestScaleLength > 6 ? 6 : shortestScaleLength));
@@ -433,7 +472,8 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
     // play the initial tone first...
     playAndShowNote(note, {event} as CustomMouseEvent);
     // for every frequency in our melody...
-    getMelody(note, additionalMelodyTones).forEach((chordTone) => {
+    const melodyIntervals = getMelody(note, additionalMelodyTones);
+    for(let melodyIndex = 0; melodyIndex < melodyIntervals.length; melodyIndex++) {
         // get a new note length
         let currentNoteLength = getMelodyNoteDuration();
         // copy the "base note"
@@ -441,15 +481,17 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
         // use our new note length
         chordNote.time = currentNoteLength;
         // set the frequency to what getMelody() advises
-        chordNote.frequency = chordTone;
+        chordNote.frequency = melodyIntervals[melodyIndex];
         // apply then compound the delay to ensure space between notes
         chordNote.delay = currentNoteDelay;
         currentNoteDelay += currentNoteLength;
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
+        rememberedPhrase.push(chordNote);
         playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-    });
+    }
+    attemptToRememberPhrase(rememberedPhrase);
 }
 
 /**
@@ -485,8 +527,12 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
     note.frequency = setNoteFrequencyFromClick(note, event);
     // If we autoplayed the note, create a musical phrase of some kind
     if(!userNote) {
-        // small chance to generate a chord
-        if(maybe(true, false, 33)) {
+        // large chance to pull stuff from memory if we can
+        if(shortTermMemory.length > 0 && maybe(true, false, 75)) {
+            searchMemoryForPhrase(event);
+        }
+        // if we don't have any memory, small chance to generate a chord
+        else if(maybe(true, false, 33)) {
             buildChordFromNote(note, event);
         }
         // we will rarely generate arpeggios

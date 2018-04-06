@@ -25,6 +25,8 @@ const lfoWaveTypes:string[] = [
 
 // used to keep track of circles which represent notes
 let circles:HTMLSpanElement[] = [];
+// used to keep track of recently played melodies and chords
+let shortTermMemory:Note[][] = [];
 
 const twelfthRootOfTwo:number = Math.pow(2, 1/12); // need this to calculate Hz based on interval & scale
 
