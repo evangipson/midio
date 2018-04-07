@@ -410,16 +410,15 @@ function buildChordFromNote(note: Note, event: MouseEvent) {
     if (DEBUG) console.info("the chord will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
     // then for every other frequency in our chord...
-    const chordIntervals = getChord(note, additionalChordTones);
-    for(let chordIndex = 0; chordIndex < chordIntervals.length; chordIndex++) {
+    getChord(note, additionalChordTones).forEach((chordTone) => {
         chordNote = note;
-        chordNote.frequency = chordIntervals[chordIndex];
+        chordNote.frequency = chordTone;
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
-        rememberedPhrase.push(chordNote);
+        rememberedPhrase.push({...chordNote}); // push a new copy of chordNote so it doesn't get overwritten
         playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-    }
+    });
     attemptToRememberPhrase(rememberedPhrase);
 }
 
@@ -472,8 +471,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
     // play the initial tone first...
     playAndShowNote(note, {event} as CustomMouseEvent);
     // for every frequency in our melody...
-    const melodyIntervals = getMelody(note, additionalMelodyTones);
-    for(let melodyIndex = 0; melodyIndex < melodyIntervals.length; melodyIndex++) {
+    getMelody(note, additionalMelodyTones).forEach((chordTone) => {
         // get a new note length
         let currentNoteLength = getMelodyNoteDuration();
         // copy the "base note"
@@ -481,16 +479,16 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
         // use our new note length
         chordNote.time = currentNoteLength;
         // set the frequency to what getMelody() advises
-        chordNote.frequency = melodyIntervals[melodyIndex];
+        chordNote.frequency = chordTone;
         // apply then compound the delay to ensure space between notes
         chordNote.delay = currentNoteDelay;
         currentNoteDelay += currentNoteLength;
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
-        rememberedPhrase.push(chordNote);
+        rememberedPhrase.push({...chordNote}); // push a new copy of chordNote so it doesn't get overwritten
         playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-    }
+    });
     attemptToRememberPhrase(rememberedPhrase);
 }
 
