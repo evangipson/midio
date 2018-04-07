@@ -25,7 +25,8 @@ const lfoWaveTypes:string[] = [
 
 // used to keep track of circles which represent notes
 let circles:HTMLSpanElement[] = [];
-
+// used to keep track of recently played melodies and chords
+let shortTermMemory:Note[][] = [];
 const twelfthRootOfTwo:number = Math.pow(2, 1/12); // need this to calculate Hz based on interval & scale
 
 /* array representing intervals from the root tone.
@@ -221,8 +222,8 @@ const controls:HTMLControlList = {
     },
     "tempo": {
         htmlInput: (<HTMLInputElement>document.getElementById("Tempo")),
-        min: 40,
-        max: 80
+        min: 20,
+        max: 180
     },
     // "Toggles"
     "autoplay": {
