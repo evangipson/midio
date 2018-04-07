@@ -330,13 +330,13 @@ function searchMemoryForPhrase(event: MouseEvent) {
     if (DEBUG) console.info("========================================");
     let overrideX: number;
     // get a note array from 
-    const memoryIndex = Math.floor(getRange(0, shortTermMemory.length - 1));
+    const memoryIndex = Math.round(getRange(0, shortTermMemory.length - 1));
     const rememberedPhrase = shortTermMemory[memoryIndex];
     rememberedPhrase.forEach((note) => {
         overrideX = setClickPositionFromNoteFrequency(note, event);
         playAndShowNote(note, {event, overrideX} as CustomMouseEvent);
     });
-    if(maybe(true)) {
+    if(maybe(true, false, 66)) {
         if (DEBUG) console.info("COMPOSER removing the phrase from memory");
         shortTermMemory.splice(memoryIndex, 1);
         if (DEBUG) console.info(shortTermMemory);

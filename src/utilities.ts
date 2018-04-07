@@ -63,7 +63,7 @@ const maybe = (condition: any, defaultCondition: any = null, weight = 50) => {
  * the array.
  * @param array
  */
-const getRandomArrayItem = (array:any[]) => array[Math.floor(Math.random()*array.length)];
+const getRandomArrayItem = (array:any[]) => array[Math.round(getRange(0, array.length - 1))];
 
 /**
  * Gives back a number in the range provided.
