@@ -328,11 +328,13 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
 function searchMemoryForPhrase(event: MouseEvent) {
     if (DEBUG) console.info("searching short term memory for a phrase");
     if (DEBUG) console.info("========================================");
+    let overrideX: number;
     // get a note array from 
     const memoryIndex = Math.floor(getRange(0, shortTermMemory.length - 1));
     const rememberedPhrase = shortTermMemory[memoryIndex];
     rememberedPhrase.forEach((note) => {
-        playAndShowNote(note, {event} as CustomMouseEvent);
+        overrideX = setClickPositionFromNoteFrequency(note, event);
+        playAndShowNote(note, {event, overrideX} as CustomMouseEvent);
     });
     if(maybe(true)) {
         if (DEBUG) console.info("COMPOSER removing the phrase from memory");
@@ -356,30 +358,9 @@ function attemptToRememberPhrase(phrase: Note[]) {
 
 /**
  * Will return an object containing properties
- * defining a "pad", or long, usually background note.
- */
-function assemblePadNote(): Note {
-    return {
-        type: getRandomArrayItem(getActiveWaveTypes()),
-        frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
-        // either half, whole, or (rarely) double whole note
-        time: maybe(noteTimings[0], maybe(noteTimings[1], noteTimings[0] * 2)),
-        volume: getCurrentMasterVolume(),
-        // pads have higher attack & release than normal notes
-        attack: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10)),
-        decay: getRange(0.1, 2.0),
-        sustain: getRange(0.8, 1.0),
-        release: getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10) * 1.25),
-        delay: 0,
-        instrument: "choir"
-    };
-}
-
-/**
- * Will return an object containing properties
  * defining a "normal" note.
  */
-function assembleNormalNote(): Note {
+function assembleNote(): Note {
     return {
         type: getRandomArrayItem(getActiveWaveTypes()),
         frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
@@ -462,9 +443,9 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
     let chordNote: Note;
     let overrideX: number;
     let rememberedPhrase: Note[] = [note];
-    /* Our melody should have at last 3 tones, and at maximum 6 tones, unless
-     * our scale doesn't have 6 tones, then just use as many as possible. */
-    const additionalMelodyTones = Math.floor(getRange(3, shortestScaleLength > 6 ? 6 : shortestScaleLength));
+    /* Our melody should have at last 4 tones, and at maximum 8 tones, unless
+     * our scale doesn't have 8 tones, then just use as many as possible. */
+    const additionalMelodyTones = Math.floor(getRange(4, shortestScaleLength > 8 ? 8 : shortestScaleLength));
     if (DEBUG) console.info("the melody will be " + additionalMelodyTones + " notes");
     if (DEBUG) console.info("========================================");
     let currentNoteDelay = note.time;
@@ -475,7 +456,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
         // get a new note length
         let currentNoteLength = getMelodyNoteDuration();
         // copy the "base note"
-        chordNote = note;
+        chordNote = {...note}; // push a new copy of chordNote so it doesn't get overwritten
         // use our new note length
         chordNote.time = currentNoteLength;
         // set the frequency to what getMelody() advises
@@ -486,7 +467,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
         // handle x & y seperately for chord notes, because
         // the x-axis will need to be calculated
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
-        rememberedPhrase.push({...chordNote}); // push a new copy of chordNote so it doesn't get overwritten
+        rememberedPhrase.push(chordNote);
         playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
     });
     attemptToRememberPhrase(rememberedPhrase);
@@ -501,7 +482,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
  * @param event
  */
 function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
-    let note = maybe(assembleNormalNote(), assemblePadNote(), 85);
+    let note = assembleNote();
     let userNote = false; // we'll assume autoplay is firing this note unless told otherwise
     // If we've called this function from the autoplay loop
     if(!event.clientX) {
@@ -531,6 +512,15 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
         }
         // if we don't have any memory, small chance to generate a chord
         else if(maybe(true, false, 33)) {
+            // if we are autoplaying a note, if it's a chord, draw it out
+            if(!userNote) {
+                note.time = maybe(noteTimings[0], maybe(noteTimings[1], noteTimings[0] * 2));
+            }
+            // soften up the edges of the chord sometimes
+            if(maybe(true)) {
+                note.attack = getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10));
+                note.release = getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10) * 1.25);
+            }
             buildChordFromNote(note, event);
         }
         // we will rarely generate arpeggios

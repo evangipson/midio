@@ -222,8 +222,8 @@ const controls:HTMLControlList = {
     },
     "tempo": {
         htmlInput: (<HTMLInputElement>document.getElementById("Tempo")),
-        min: 40,
-        max: 80
+        min: 20,
+        max: 180
     },
     // "Toggles"
     "autoplay": {
