@@ -347,6 +347,11 @@ interface Note {
     instrument?: string; // optional, if used will set an instrument
 }
 
+// Create only one reverb node for performance reasons
+const reverbNode: ConvolverNode = audioContext.createConvolver();
+reverbNode.connect(audioContext.destination);
+const reverbLength = 8; // how long the reverb is, in seconds
+
 /**
  * Contains many methods for operating and
  * dealing with Oscillators.
@@ -357,7 +362,6 @@ class Oscillator {
     gainNodes: GainNode[] = [];
     masterFilterNode: BiquadFilterNode;
     filterNodes: BiquadFilterNode[] = [];
-    reverbNode: ConvolverNode;
     attack: number; // in seconds
     decay: number; // from 0 - 1
     sustain: number; // from 0 - 1
@@ -381,7 +385,6 @@ class Oscillator {
         this.mainOsc = audioContext.createOscillator();
         this.masterGainNode = audioContext.createGain();
         this.lfoNode = audioContext.createOscillator();
-        this.reverbNode = audioContext.createConvolver();
         this.lfoGain = audioContext.createGain();
         this.masterFilterNode = audioContext.createBiquadFilter();
         this.attack = attack;
@@ -403,20 +406,6 @@ class Oscillator {
         this.filterNodes.push(audioContext.createBiquadFilter());
         this.filterNodes[0].type = "lowpass";
         this.filterNodes[0].frequency.setValueAtTime(4000, audioContext.currentTime + this.delay);
-        // set the reverb
-        if(this.reverbNode.buffer) { // typescript doesn't like variables that may be null
-            // Fill the buffer with white noise;
-            // just random values between -1.0 and 1.0
-            /*for (let channel = 0; channel < this.reverbNode.buffer.numberOfChannels; channel++) {
-                // This gives us the actual array that contains the data
-                let nowBuffering = this.reverbNode.buffer.getChannelData(channel);
-                for (let i = 0; i < this.reverbNode.buffer.length; i++) {
-                    // Math.random() is in [0; 1.0]
-                    // audio needs to be in [-1.0; 1.0]
-                    nowBuffering[i] = Math.random() * 2 - 1;
-                }
-            }*/
-        }
         if(type === "whiteNoise" || type === "pinkNoise" || type === "brownNoise") {
             let whiteNoise = audioContext.createBufferSource();
             let buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
@@ -506,8 +495,7 @@ class Oscillator {
             this.gainNodes[filterNode].connect(this.masterGainNode);
         }
         this.mainOsc.connect(this.masterFilterNode);
-        this.masterFilterNode.connect(this.reverbNode);
-        this.masterGainNode.connect(audioContext.destination);
+        this.masterGainNode.connect(reverbNode);
         return this; // allow chaining
     };
     /**
@@ -526,7 +514,7 @@ class Oscillator {
             this.lfoGain.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
             this.lfoGain.gain.linearRampToValueAtTime(getRelativeValue(gain, 100, 0, this.volume) / 100, audioContext.currentTime + this.delay + this.attack);
             this.lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
-            this.lfoNode.stop(audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
+            this.lfoNode.stop(audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release + reverbLength);
         }
         return this; // allow chaining
     };
@@ -541,15 +529,15 @@ class Oscillator {
             // Start necessary Oscillators
             this.mainOsc.start(audioContext.currentTime + this.delay);
             // Model the ADSR Envelope
-            this.masterGainNode.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
+            this.masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.01);
             // take "attack" + "delay" to get volume to max
             this.masterGainNode.gain.linearRampToValueAtTime(adjustedCurrentMaxVolume, audioContext.currentTime + this.delay + this.attack);
             // now "decay" the max volume down to the "sustain" level
             this.masterGainNode.gain.exponentialRampToValueAtTime(adjustedCurrentMaxVolume * this.sustain, audioContext.currentTime + this.delay + this.attack + this.decay);
             // and hold that until "time" + "release" are done
             this.masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
-            // Stop the oscillators & disconnect the master gain when we don't need them anymore
-            this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack  + this.decay +  this.time + this.release);
         }
+        // garbage collect? TODO: make sure this does something
+        this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release + reverbLength);
     };
 }
