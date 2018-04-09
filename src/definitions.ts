@@ -527,7 +527,7 @@ class Oscillator {
      */
     play() {
         if(this.volume > 0) {
-            const adjustedCurrentMaxVolume = this.volume / 200;
+            const adjustedCurrentMaxVolume = this.volume * 0.005;
             // Start necessary Oscillators
             this.mainOsc.start(audioContext.currentTime + this.delay);
             // Model the ADSR Envelope

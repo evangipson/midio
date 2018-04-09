@@ -21,7 +21,6 @@ function setUpFrontEnd() {
  * Will start up midio.
  */
 const impulseResponseFileRead = new XMLHttpRequest();
-//const soundSource:AudioBufferSourceNode = audioContext.createBufferSource();
 impulseResponseFileRead.open('GET', 'audio/1st_baptist_nashville_far_wide.wav', true);
 impulseResponseFileRead.responseType = 'arraybuffer';
 impulseResponseFileRead.onload = () => {

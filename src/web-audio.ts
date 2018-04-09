@@ -323,8 +323,8 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
         else {
             buildMelodyFromNote(note, event);
             // play an accompanying chord/arpeggio as well sometimes
-            if(maybe(true)) {
-                maybe(true) ? buildChordFromNote(note, event) : buildArpeggioFromNote(note, event);
+            if(maybe(true, false, 66)) {
+                maybe(true, false, 66) ? buildChordFromNote(note, event) : buildArpeggioFromNote(note, event);
             }
         }
     }
