@@ -322,6 +322,10 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
         // default case, large chance to generate a melody
         else {
             buildMelodyFromNote(note, event);
+            // play an accompanying chord/arpeggio as well sometimes
+            if(maybe(true)) {
+                maybe(true) ? buildChordFromNote(note, event) : buildArpeggioFromNote(note, event);
+            }
         }
     }
     // If the user input a note, we'll just play the single tone
