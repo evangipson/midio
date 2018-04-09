@@ -17,10 +17,10 @@ let clickedNoteLength: number = 0;
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
 const lfoWaveTypes:string[] = [
-    "sine",
     "triangle",
-    "sawtooth",
-    "square"
+    // "sine",
+    // "square",
+    // "sawtooth",
 ];
 
 // used to keep track of circles which represent notes
@@ -197,13 +197,13 @@ const controls:HTMLControlList = {
     },
     "lfoRate" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFORate")),
-        min: 0,
-        max: 13
+        min: -10,
+        max: 10
     },
     "lfoDepth" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFODepth")),
-        min: 0,
-        max: 20
+        min: -15,
+        max: 15
     },
     "baseNote" : {
         htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
@@ -465,7 +465,7 @@ class Oscillator {
                 this.attack = 0.1;
                 this.decay = 0.5;
                 this.sustain = 0.1;
-                //this.release = 0.75;
+                this.release = 0.75;
                 break;
             default:
                 break;
@@ -478,9 +478,12 @@ class Oscillator {
      * "speaker" (or audioContext.destination).
      */
     hookUpFilters() {
-        // hook up the LFO to master gain
-        this.lfoNode.connect(this.lfoGain);
-        this.lfoGain.connect(this.masterGainNode.gain); // experiment with hooking up LFO to other stuff
+        // hook up the LFO to master gain if we don't have a noise wave
+        if(this.mainOsc.frequency != undefined) {
+            this.lfoNode.connect(this.mainOsc.frequency); // experiment with hooking up LFO to other stuff
+        }
+        this.lfoNode.connect(this.lfoGain); // experiment with hooking up LFO to other stuff
+        this.lfoGain.connect(this.masterGainNode.gain);
         // for every biquad node we have (in case of formant filters)
         for(let filterNode in this.filterNodes) {
             // connect it to the master filter
@@ -511,9 +514,8 @@ class Oscillator {
             this.lfoNode.start(audioContext.currentTime + this.delay);
             this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime);
             // don't allow the gain of the LFO to surpass the current master volume
-            this.lfoGain.gain.setValueAtTime(0, audioContext.currentTime + this.delay);
-            this.lfoGain.gain.linearRampToValueAtTime(getRelativeValue(gain, 100, 0, this.volume) / 100, audioContext.currentTime + this.delay + this.attack);
-            this.lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
+            this.lfoGain.gain.linearRampToValueAtTime(getCurrentLFODepth() / 100, audioContext.currentTime);
+            this.lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release + reverbLength);
             this.lfoNode.stop(audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release + reverbLength);
         }
         return this; // allow chaining

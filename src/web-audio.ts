@@ -311,7 +311,7 @@ function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
             // soften up the edges of the chord sometimes
             if(maybe(true)) {
                 note.attack = getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10));
-                //note.release = getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10) * 1.25);
+                note.release = getRange((controls.softness.max/10) * 0.75, (controls.softness.max/10) * 1.25);
             }
             buildChordFromNote(note, event);
         }
