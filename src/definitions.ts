@@ -17,10 +17,10 @@ let clickedNoteLength: number = 0;
 
 // all possible wave types- used for LFO, otherwise use getActiveWaveTypes()
 const lfoWaveTypes:string[] = [
-    "sine",
     "triangle",
-    "sawtooth",
-    "square"
+    // "sine",
+    // "square",
+    // "sawtooth",
 ];
 
 // used to keep track of circles which represent notes
@@ -178,14 +178,14 @@ interface HTMLControl {
     htmlInput: HTMLInputElement,
     min: number,
     max: number
-};
+}
 interface HTMLControlList {
     [key: string]: HTMLControl
-};
+}
 interface CustomMouseEvent extends MouseEvent {
     event: MouseEvent,
     overrideX: number
-};
+}
 /* List of controls used in the control panel.
  * Implemented in control-panel.ts.
  * htmlInput lines up with the ID of the control in HTML. */
@@ -197,13 +197,13 @@ const controls:HTMLControlList = {
     },
     "lfoRate" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFORate")),
-        min: 0,
-        max: 13
+        min: -10,
+        max: 10
     },
     "lfoDepth" : {
         htmlInput: (<HTMLInputElement>document.getElementById("LFODepth")),
-        min: 0,
-        max: 20
+        min: -15,
+        max: 15
     },
     "baseNote" : {
         htmlInput: (<HTMLInputElement>document.getElementById("BaseNote")),
@@ -331,4 +331,215 @@ function setNoteTimings() {
     noteTimings[5] = 30 / getCurrentTempo(); // eighth note
     noteTimings[6] = 22.5 / getCurrentTempo(); // dotted sixteenth note
     noteTimings[7] = 15 / getCurrentTempo(); // sixteenth note
-};
+}
+
+// Define what a note is made up of
+interface Note {
+    type: string;
+    frequency: number; // in Hz
+    time: number; // in seconds
+    volume: number; // from 0 - 100
+    attack: number; // in seconds
+    sustain: number; // from 0 - 1
+    decay: number; // from 0 - 1
+    release: number; // in seconds
+    delay: number;
+    instrument?: string; // optional, if used will set an instrument
+}
+
+// Create only one reverb node for performance reasons
+const reverbNode: ConvolverNode = audioContext.createConvolver();
+reverbNode.connect(audioContext.destination);
+const reverbLength = 8; // how long the reverb is, in seconds
+
+/**
+ * Contains many methods for operating and
+ * dealing with Oscillators.
+ */
+class Oscillator {
+    mainOsc: OscillatorNode;
+    masterGainNode: GainNode;
+    gainNodes: GainNode[] = [];
+    masterFilterNode: BiquadFilterNode;
+    filterNodes: BiquadFilterNode[] = [];
+    attack: number; // in seconds
+    decay: number; // from 0 - 1
+    sustain: number; // from 0 - 1
+    release: number; // in seconds
+    delay: number; // in seconds
+    time: number; // in seconds
+    volume: number; // out of 100
+    lfoNode: OscillatorNode;
+    lfoGain: GainNode; // how loud the LFO will be
+    /**
+     * Will create an oscillator given ADSR values.
+     * @param attack how long it takes the note to fade in, in seconds.
+     * @param decay how long it takes the note to get to the sustain volume, in seconds.
+     * @param sustain how loud the note is while the key is pressed, in seconds.
+     * @param release how long the note takes to fade out complete after key is released, in seconds.
+     * @param delay how long to wait before playing the note, in seconds.
+     * @param time how long to play the note, in seconds. 
+     * @param volume how loud to make the note, out of 100.
+     */
+    constructor(attack: number, decay: number, sustain: number, release: number, delay: number, time: number, volume: number) {
+        this.mainOsc = audioContext.createOscillator();
+        this.masterGainNode = audioContext.createGain();
+        this.lfoNode = audioContext.createOscillator();
+        this.lfoGain = audioContext.createGain();
+        this.masterFilterNode = audioContext.createBiquadFilter();
+        this.attack = attack;
+        this.decay = decay;
+        this.sustain = sustain;
+        this.release = release;
+        this.time = time;
+        this.delay = delay;
+        this.volume = volume;
+    };
+    /**
+     * Sets the mainOsc's type and frequency.
+     * Relies on audioContext.
+     * @param type
+     * @param frequency in Hz
+     */
+    setProperties(type: string, frequency: number) {
+        // don't play any super high frequencies ever by using a lowpass filter
+        this.filterNodes.push(audioContext.createBiquadFilter());
+        this.filterNodes[0].type = "lowpass";
+        this.filterNodes[0].frequency.setValueAtTime(4000, audioContext.currentTime + this.delay);
+        if(type === "whiteNoise" || type === "pinkNoise" || type === "brownNoise") {
+            let whiteNoise = audioContext.createBufferSource();
+            let buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
+            let data = buffer.getChannelData(0);
+            for (var i = 0; i < audioContext.sampleRate; i++) {
+                data[i] = Math.random();
+            }
+            whiteNoise.buffer = buffer;
+            whiteNoise.loop = true;
+            if(type === "pinkNoise") {
+                this.filterNodes[0].frequency.setValueAtTime(1000, audioContext.currentTime + this.delay);
+            }
+            else if(type === "brownNoise") {
+                this.filterNodes[0].frequency.setValueAtTime(650, audioContext.currentTime + this.delay);
+            }
+            this.mainOsc = whiteNoise;
+        }
+        else {
+            this.mainOsc.type = <OscillatorType>type;
+            this.mainOsc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        }
+        return this; // allow chaining
+    };
+    /**
+     * Sets the instrument. Should happen after
+     * setting properties, because the filters applied
+     * in this function are more important.
+     * @param instrument
+     */
+    setInstrument(instrument?: string) {
+        switch(instrument) {
+            case "choir":
+                // create two more biquad filter nodes
+                this.filterNodes.push(audioContext.createBiquadFilter());
+                this.filterNodes.push(audioContext.createBiquadFilter());
+                for(let filterNode in this.filterNodes) {
+                    this.filterNodes[filterNode].type = "bandpass";
+                }
+                this.filterNodes[0].frequency.setValueAtTime(207, audioContext.currentTime + this.delay);
+                this.filterNodes[0].gain.setValueAtTime(100, audioContext.currentTime + this.delay);
+                this.filterNodes[0].Q.setValueAtTime(5, audioContext.currentTime + this.delay);
+                this.filterNodes[1].frequency.setValueAtTime(2300, audioContext.currentTime + this.delay);
+                this.filterNodes[1].gain.setValueAtTime(75, audioContext.currentTime + this.delay);
+                this.filterNodes[1].Q.setValueAtTime(20, audioContext.currentTime + this.delay);
+                this.filterNodes[2].frequency.setValueAtTime(3000, audioContext.currentTime + this.delay);
+                this.filterNodes[2].gain.setValueAtTime(91, audioContext.currentTime + this.delay);
+                this.filterNodes[2].Q.setValueAtTime(50, audioContext.currentTime + this.delay);
+                break;
+            case "piano":
+                // create a lowpass filter for a cool sounding piano
+                this.filterNodes.push(audioContext.createBiquadFilter());
+                this.filterNodes[1].type = "lowpass";
+                this.filterNodes[1].frequency.setValueAtTime(1000, audioContext.currentTime + this.delay);
+                this.filterNodes[1].gain.setValueAtTime(100, audioContext.currentTime + this.delay);
+                this.filterNodes[1].Q.setValueAtTime(10, audioContext.currentTime + this.delay);
+                // adjust our ADSR envelope
+                this.attack = 0.1;
+                this.decay = 0.5;
+                this.sustain = 0.1;
+                this.release = 0.75;
+                break;
+            default:
+                break;
+        }
+        return this; // allow chaining
+    }
+    /**
+     * Connects the LFO and main oscillator to the
+     * gainNode, then connects the gainNode to the
+     * "speaker" (or audioContext.destination).
+     */
+    hookUpFilters() {
+        // hook up the LFO to master gain if we don't have a noise wave
+        if(this.mainOsc.frequency != undefined) {
+            this.lfoNode.connect(this.mainOsc.frequency); // experiment with hooking up LFO to other stuff
+        }
+        this.lfoNode.connect(this.lfoGain); // experiment with hooking up LFO to other stuff
+        this.lfoGain.connect(this.masterGainNode.gain);
+        // for every biquad node we have (in case of formant filters)
+        for(let filterNode in this.filterNodes) {
+            // connect it to the master filter
+            this.masterFilterNode.connect(this.filterNodes[filterNode]);
+            // make a new gain node
+            this.gainNodes[filterNode] = audioContext.createGain();
+            // add it to our gainNodes array
+            this.gainNodes.push(this.gainNodes[filterNode]);
+            // hook it up to it's own gain node
+            this.filterNodes[filterNode].connect(this.gainNodes[filterNode]);
+            // finally, hook the gain node up to the master gain node
+            this.gainNodes[filterNode].connect(this.masterGainNode);
+        }
+        this.mainOsc.connect(this.masterFilterNode);
+        this.masterGainNode.connect(reverbNode);
+        return this; // allow chaining
+    };
+    /**
+     * Sets the LFO's frequency, gain, and type.
+     * @param frequency how fast the LFO modulates
+     * @param gain out of 100. How strong the LFO
+     * will sound.
+     * @param type wave shape for the LFO
+     */
+    setLFO(frequency: number = 5, gain: number, type: string) {
+        this.lfoNode.type = <OscillatorType>type;
+        if(frequency && gain) {
+            this.lfoNode.start(audioContext.currentTime + this.delay);
+            this.lfoNode.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            // don't allow the gain of the LFO to surpass the current master volume
+            this.lfoGain.gain.linearRampToValueAtTime(getCurrentLFODepth() / 100, audioContext.currentTime);
+            this.lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release + reverbLength);
+            this.lfoNode.stop(audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release + reverbLength);
+        }
+        return this; // allow chaining
+    };
+    /**
+     * Starts the mainOsc, then stops it in the
+     * time provided, in seconds.
+     * Relies on audioContext.
+     */
+    play() {
+        if(this.volume > 0) {
+            const adjustedCurrentMaxVolume = this.volume * 0.005;
+            // Start necessary Oscillators
+            this.mainOsc.start(audioContext.currentTime + this.delay);
+            // Model the ADSR Envelope
+            this.masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.01);
+            // take "attack" + "delay" to get volume to max
+            this.masterGainNode.gain.linearRampToValueAtTime(adjustedCurrentMaxVolume, audioContext.currentTime + this.delay + this.attack);
+            // now "decay" the max volume down to the "sustain" level
+            this.masterGainNode.gain.exponentialRampToValueAtTime(adjustedCurrentMaxVolume * this.sustain, audioContext.currentTime + this.delay + this.attack + this.decay);
+            // and hold that until "time" + "release" are done
+            this.masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release);
+        }
+        // garbage collect? TODO: make sure this does something
+        this.mainOsc.stop(audioContext.currentTime + this.delay + this.attack + this.decay + this.time + this.release + reverbLength);
+    };
+}
