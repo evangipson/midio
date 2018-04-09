@@ -95,12 +95,12 @@ function drawNoteCircle(x: number, y: number, opacity = controls.volume.max) {
         newCircle.style.opacity = ""+(opacity / controls.volume.max);
         visualizer.appendChild(newCircle);
         circles.push(newCircle);
-        window.setTimeout(function() {
+        circleActiveEventLoop = window.setTimeout(function() {
             newCircle.classList.add("active"); // "turn on" the animation in a sec
         }, 100);
-        window.setTimeout(function() {
+        circleEventLoop = window.setTimeout(function() {
             // remove the first circle
-            const removedCircle = circles.shift();
+            let removedCircle:any = circles.shift();
             if(removedCircle) {
                 visualizer.removeChild(removedCircle);
             }
