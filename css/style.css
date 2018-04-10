@@ -38,11 +38,11 @@ section {
 
 .note-circle {
     position: absolute;
-    border-radius: 50%;
     width: 0;
     height: 0;
     margin: 0;
-    background-color: rgba(255, 255, 255, 0.6);
+    top: 0;
+    background-color: rgba(255, 255, 255, 1.0);
     transition: width var(--animation-time) ease,
                 height var(--animation-time) ease,
                 margin var(--animation-time) ease,
@@ -50,10 +50,9 @@ section {
 }
 .note-circle.active {
     width: 6rem;
-    height: 6rem;
+    height: 100%;
     margin-left: -3rem;
-    margin-top: -3rem;
-    background-color: rgba(255, 255, 255, 0.0);
+    background-color: rgba(255, 255, 255, 0);
 }
 /* Information in controls hidden by default */
 .control-panel-wrapper {

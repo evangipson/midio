@@ -48,7 +48,7 @@ const getNotePosition = (event: CustomMouseEvent) => {
     const visualizer = document.getElementById("Visualizer");
     if(event.event && visualizer) {
         xPosition = event.overrideX ? event.overrideX : event.event.clientX;
-        yPosition = event.overrideX ? getRange(200, visualizer.clientHeight - 200) : event.event.clientY;
+        yPosition = event.overrideX ? 0 : event.event.clientY;
     }
     return {
         x: event.event ? xPosition : 0,
@@ -69,7 +69,7 @@ function drawNoteWithVolumeBasedOpacity(event: CustomMouseEvent, volume: number,
     const coords = getNotePosition(event);
     if(delay) {
         setTimeout(function() {
-            drawNoteCircle(coords.x, coords.y, volume);
+            drawNoteCircle(coords.x, coords.y);
         }, delay * 1000);
     }
     else {
@@ -82,17 +82,13 @@ function drawNoteWithVolumeBasedOpacity(event: CustomMouseEvent, volume: number,
  * Intended to be called by playAndShowNote(), shouldn't be called directly.
  * @param x
  * @param y
- * @param opacity
  */
-function drawNoteCircle(x: number, y: number, opacity = controls.volume.max) {
+function drawNoteCircle(x: number, y: number) {
     let newCircle = document.createElement("span");
     const visualizer = document.getElementById("Visualizer");
     if(visualizer) {
         newCircle.classList.add("note-circle");
         newCircle.style.left = x + "px";
-        newCircle.style.top = y + "px";
-        // ""+var is a string cast
-        newCircle.style.opacity = ""+(opacity / controls.volume.max);
         visualizer.appendChild(newCircle);
         circles.push(newCircle);
         circleActiveEventLoop = window.setTimeout(function() {
