@@ -78,8 +78,11 @@ section {
 #ShowControls.active:after {
     content: "Hide Controls";
 }
-.footer-copy p, .footer-copy button {
+.footer-copy h1, .footer-copy button {
     display: inline-block;
+}
+.footer-copy h1 {
+    font-size: 1.2rem;
 }
 button {
     border: none;
