@@ -25,22 +25,14 @@ function drawNoteWithVolumeBasedOpacity(event: CustomMouseEvent, volume: number,
  * @param y
  */
 function drawNoteCircle(x: number, y: number) {
-    let newCircle = document.createElement("span");
-    const visualizer = document.getElementById("Visualizer");
-    if(visualizer) {
-        newCircle.classList.add("note-circle");
-        newCircle.style.left = x + "px";
-        visualizer.appendChild(newCircle);
-        circles.push(newCircle);
-        circleActiveEventLoop = window.setTimeout(function() {
-            newCircle.classList.add("active"); // "turn on" the animation in a sec
-        }, 100);
-        circleEventLoop = window.setTimeout(function() {
-            // remove the first circle
-            let removedCircle:any = circles.shift();
-            if(removedCircle) {
-                visualizer.removeChild(removedCircle);
-            }
-        }, 2000); // keep the delay consistent with the CSS
-    }
+    let newCircle = circles[noteAnimationIndex];
+    newCircle.classList.add("note-circle");
+    newCircle.style.left = x + "px";
+    noteAnimationIndex = (noteAnimationIndex + 1) <= 10 ? (noteAnimationIndex + 1) : 0; // gotta animate the next note, with wrap
+    circleActiveEventLoop = window.setTimeout(function() {
+        newCircle.classList.add("active"); // "turn on" the animation in a sec
+    }, 100);
+    circleEventLoop = window.setTimeout(function() {
+        noteAnimationIndex = (noteAnimationIndex - 1) >= 0 ? (noteAnimationIndex - 1) : 0; // gotta animate the next note, with wrap
+    }, 2000); // keep the delay consistent with the CSS
 }

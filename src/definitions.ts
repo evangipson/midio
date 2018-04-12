@@ -25,6 +25,16 @@ const lfoWaveTypes:string[] = [
 
 // used to keep track of circles which represent notes
 let circles:HTMLSpanElement[] = [];
+// pre-fill our visualizer with spans to prevent memory leaks
+for(let i = 0; i < 10; i++) {
+    let visualizer = document.getElementById("Visualizer");
+    circles.push(document.createElement("span"));
+    if(visualizer) {
+        visualizer.appendChild(circles[i]);
+    }
+}
+// keep track of which note we can use
+let noteAnimationIndex = 0;
 // keeps track of the events used to active & remove circles from the visualizer
 let circleEventLoop:number;
 let circleActiveEventLoop:number;
