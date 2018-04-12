@@ -22,20 +22,6 @@ section {
     height: 100vh;
     z-index: 0;
 }
-.controls {
-    z-index: 1;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    padding: 0.5rem 2rem;
-    box-sizing: border-box;
-    text-align: center;
-}
-.controls.active {
-    max-height: 100vh;
-    overflow-y: scroll;
-}
-
 .note-circle {
     position: absolute;
     width: 6rem;
@@ -50,26 +36,37 @@ section {
     background-color: rgba(255, 255, 255, 0);
 }
 /* Information in controls hidden by default */
-.control-panel-wrapper {
+.controls {
+    z-index: 1;
+    position: fixed;
+    bottom: 0;
     height: 0;
+    left: 0;
+    box-sizing: border-box;
+    text-align: center;
     transition: height var(--snappy-animation-time) ease-out;
 }
-.control-panel-wrapper input {
+.controls.active {
+    max-height: 100vh;
+    padding: 0.5rem 2rem;
+    overflow-y: scroll;
+}
+.controls input {
     margin: 1rem auto;
 }
-.control-panel-wrapper .panel {
+.controls .panel {
     padding: 0;
     margin: 0 2rem 0 0;
     width: calc(50% - 4rem);
     display: inline-block;
 }
-.control-panel-wrapper .panel:first-child() {
+.controls .panel:first-child() {
     margin: 0 0 0 2rem;
 }
-.control-panel-wrapper.active {
+.controls.active {
     height: 40rem;
 }
-.control-panel-wrapper input {
+.controls input {
     width: 90%;
 }
 #ShowControls:after {
@@ -78,10 +75,10 @@ section {
 #ShowControls.active:after {
     content: "Hide Controls";
 }
-.footer-copy h1, .footer-copy button {
+h1, button {
     display: inline-block;
 }
-.footer-copy h1 {
+h1 {
     font-size: 1.2rem;
 }
 button {
@@ -100,26 +97,26 @@ button {
 
 /* Desktop Styles */
 @media screen and (min-width: 960px) {
-    .control-panel-wrapper.active {
+    .controls.active {
         height: 10rem;
     }
-    .control-panel-wrapper .panel {
+    .controls .panel {
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    .control-panel-wrapper label {
+    .controls label {
         margin-top: 1rem;
     }
-    .control-panel-wrapper .panel, .control-panel-wrapper .panel:first-child() {
+    .controls .panel, .controls .panel:first-child() {
         padding: 0;
         margin: 0;
     }
-    .footer-copy button {
+    button {
         margin-left: 2rem;
     }
-    .control-panel-wrapper h2 {
+    .controls h2 {
         padding: 0 1rem;
         margin: 2rem 1rem 0;
         border-right: 2px var(--p1-font) solid;

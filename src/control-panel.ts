@@ -1,37 +1,3 @@
-// Pure Functions
-/**
- * Will prevent the last wave from being turned off.
- * @param attemptedValue 
- */
-const ensureLastWaveStaysOn = (attemptedValue: string) => {
-    if(getActiveWaveTypes().length !== 0) {
-        return attemptedValue;
-    }
-    return "1";
-};
-
-/**
- * Will take care of ensuring at least one wave is turned on.
- * Meant to be called anytime an input that has potential
- * to be a wave input changes.
- * @param inputKey 
- * @param attemptedValue 
- */
-const ensureOneWaveIsOn = (inputKey: string, attemptedValue: string) => {
-    let returnValue = attemptedValue;
-    if(inputKey === "triangle" ||
-    inputKey === "sine" ||
-    inputKey === "sawtooth" ||
-    inputKey === "square" ||
-    inputKey === "whiteNoise" ||
-    inputKey === "pinkNoise" ||
-    inputKey === "brownNoise") {
-        returnValue = ensureLastWaveStaysOn(attemptedValue); // counts on the HTMLInput already being toggled
-    }
-    return returnValue;
-};
-
-// Non-Pure Functions
 /**
  * Runs through our list of controls, defined in
  * definitions.ts, and populates their minimum
@@ -215,18 +181,15 @@ function addButtonEventListeners() {
     }
     if(showControlsButton) {
         showControlsButton.addEventListener("click", function() {
-            let content = document.getElementById("ControlList");
-            const controlsDiv = document.getElementsByClassName("controls")[0];
+            const controlList = document.getElementById("ControlList");
             // relies on the max height being set on the content
-            if(content && this.classList.contains("active")) {
+            if(controlList && this.classList.contains("active")) {
                 this.classList.remove("active");
-                content.classList.remove("active");
-                controlsDiv.classList.remove("active");
+                controlList.classList.remove("active");
             }
-            else if(content) {
+            else if(controlList) {
                 this.classList.add("active");
-                content.classList.add("active");
-                controlsDiv.classList.add("active");
+                controlList.classList.add("active");
             }
         });
     }

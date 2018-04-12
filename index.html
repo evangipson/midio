@@ -14,40 +14,37 @@
 </head>
 
 <body>
-	<section id="Visualizer" class="visualizer"></section>
-	<section class="controls">
-		<div class="footer-copy">
-			<h1>midio <span class="light-font">generative synthetic radio</span></h1>
-			<button id="ShowControls"></button>
-			<button id="RandomizeControls">Randomize Inputs</button>
-		</div>
-		<div class="control-panel-wrapper" id="ControlList">
-			<section class="panel">
-				<h2>LFO</h2>
-				<label for="rate">Rate<input name="rate" id="LFORate" type="range"></label>
-				<label for="depth">Depth<input name="depth" id="LFODepth" type="range"></label>
-				<h2>Noise</h2>
-				<label for="whiteNoise">White<input name="whiteNoise" id="WhiteNoise" type="range"></label>
-				<label for="pinkNoise">Pink<input name="pinkNoise" id="PinkNoise" type="range"></label>
-				<label for="brownNoise">Brown<input name="brownNoise" id="BrownNoise" type="range"></label>
-				<h2>Waves</h2>
-				<label for="sine">Sine<input name="sine" id="Sine" type="range"></label>
-				<label for="square">Square<input name="square" id="Square" type="range"></label>
-				<label for="triangle">Triangle<input name="triangle" id="Triangle" type="range"></label>
-				<label for="saw">Sawtooth<input name="saw" id="Saw" type="range"></label>
-			</section>
-			<section class="panel">
-				<h2>Main</h2>
-				<label for="volume">Volume<input name="volume" id="MasterVolume" type="range"></label>
-				<label for="mood">Mood<input name="mood" id="Mood" type="range"></label>
-				<label for="baseNote">Pitch<input name="baseNote" id="BaseNote" type="range"></label>
-				<label for="softness">Softness<input name="softness" id="Softness" type="range"></label>
-				<label for="tempo">Tempo<input name="tempo" id="Tempo" type="range"></label>
-				<h2>Toggles</h2>
-				<label for="autoplay">Autoplay<input name="autoplay" id="Autoplay" type="range"></label>
-				<label for="evolve">Evolve<input name="evolve" id="Evolve" type="range"></label>
-			</section>
-		</div>
+	<section id="Visualizer" class="visualizer">
+		<h1>midio <span class="light-font">generative synthetic radio</span></h1>
+		<button id="ShowControls"></button>
+		<button id="RandomizeControls">Randomize Inputs</button>
+	</section>
+	<section class="controls" id="ControlList">
+		<section class="panel">
+			<h2>LFO</h2>
+			<label for="rate">Rate<input name="rate" id="LFORate" type="range"></label>
+			<label for="depth">Depth<input name="depth" id="LFODepth" type="range"></label>
+			<h2>Noise</h2>
+			<label for="whiteNoise">White<input name="whiteNoise" id="WhiteNoise" type="range"></label>
+			<label for="pinkNoise">Pink<input name="pinkNoise" id="PinkNoise" type="range"></label>
+			<label for="brownNoise">Brown<input name="brownNoise" id="BrownNoise" type="range"></label>
+			<h2>Waves</h2>
+			<label for="sine">Sine<input name="sine" id="Sine" type="range"></label>
+			<label for="square">Square<input name="square" id="Square" type="range"></label>
+			<label for="triangle">Triangle<input name="triangle" id="Triangle" type="range"></label>
+			<label for="saw">Sawtooth<input name="saw" id="Saw" type="range"></label>
+		</section>
+		<section class="panel">
+			<h2>Main</h2>
+			<label for="volume">Volume<input name="volume" id="MasterVolume" type="range"></label>
+			<label for="mood">Mood<input name="mood" id="Mood" type="range"></label>
+			<label for="baseNote">Pitch<input name="baseNote" id="BaseNote" type="range"></label>
+			<label for="softness">Softness<input name="softness" id="Softness" type="range"></label>
+			<label for="tempo">Tempo<input name="tempo" id="Tempo" type="range"></label>
+			<h2>Toggles</h2>
+			<label for="autoplay">Autoplay<input name="autoplay" id="Autoplay" type="range"></label>
+			<label for="evolve">Evolve<input name="evolve" id="Evolve" type="range"></label>
+		</section>
 	</section>
 	<script type="text/javascript" src="src/main.js"></script>
 </body>
