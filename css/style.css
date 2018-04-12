@@ -14,13 +14,24 @@ button {
     cursor: pointer;
 }
 
+/* Z-levels */
+.note-circle, .visualizer {
+    z-index: 0;
+}
+.visualizer h1, .visualizer button {
+    z-index: 1;
+}
+.controls {
+    z-index: 2;
+}
+
 /* Layout */
 section {
     width: 100%;
 }
 .visualizer {
     height: 100vh;
-    z-index: 0;
+    text-align: center;
 }
 .note-circle {
     position: absolute;
@@ -37,7 +48,6 @@ section {
 }
 /* Information in controls hidden by default */
 .controls {
-    z-index: 1;
     position: fixed;
     bottom: 0;
     height: 0;
@@ -97,6 +107,11 @@ button {
 
 /* Desktop Styles */
 @media screen and (min-width: 960px) {
+    .visualizer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     .controls.active {
         height: 10rem;
     }
