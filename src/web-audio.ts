@@ -18,9 +18,9 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
         .play();
     if (DEBUG) console.info(note); 
 
-    // draw those pretty circles on the canvas
+    // draw those pretty notes in the visualizer
     if(event.event) {
-        drawNoteWithVolumeBasedOpacity(event, note.volume, note.delay); // volume is out of 100
+        drawNoteOnVisualizer(event, note.delay);
     }
 }
 

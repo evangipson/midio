@@ -20,6 +20,7 @@ button {
 }
 .visualizer h1, .visualizer button {
     z-index: 1;
+    position: relative; /* needed for the z-index to take effect */
 }
 .controls {
     z-index: 2;
@@ -39,12 +40,13 @@ section {
     height: 0;
     top: 0;
     background-color: rgba(255, 255, 255, 1.0);
-    transition: height var(--animation-time) ease,
-                background-color var(--animation-time) ease;
+    transition: none; /* don't need a transition back to initial state */
 }
 .note-circle.active {
     height: 100%;
     background-color: rgba(255, 255, 255, 0);
+    transition: height var(--animation-time) ease,
+                background-color var(--animation-time) ease;
 }
 /* Information in controls hidden by default */
 .controls {
