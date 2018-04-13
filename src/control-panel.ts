@@ -39,10 +39,12 @@ function setInitialControlValues() {
 
 /**
  * Will adjust the nextInput's value by just a little amount, maybe.
- * Note: Doesn't effect volume, autoplay, or triangle.
+ * Note: Doesn't effect volume, evolve, or autoplay.
  * @param nextInput string value which will act as an index on controls.
+ * @param singleEvolve defaults to false. set to true if you don't
+ * want this function to call itself again in a little while.
  */
-function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
+function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls)), singleEvolve = false) {
     if (DEBUG) console.info("COMPOSER evolving " + nextInput + " paramater");
     if(nextInput && controls[nextInput]) {
         let newValue;
@@ -68,11 +70,13 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls))) {
         if (DEBUG) console.info("the value was " + oldValue + " but now it's " + nextHTMLInput.value);
         /* in an amount of time, call itself again, because
          * we want to make the radio interesting over time. */
-        nextInput = getRandomArrayItem(Object.keys(controls));
-        const msUntilNextControlChange = Math.floor(getRange(10000, 60000)); // in ms
-        composerEventLoop = window.setTimeout(function() {
-            evolveSound(nextInput);
-        }, msUntilNextControlChange);
+        if(!singleEvolve) {
+            nextInput = getRandomArrayItem(Object.keys(controls));
+            const msUntilNextControlChange = Math.floor(getRange(10000, 60000)); // in ms
+            composerEventLoop = window.setTimeout(function() {
+                evolveSound(nextInput);
+            }, msUntilNextControlChange);
+        }
     }
 }
 
@@ -121,7 +125,7 @@ function randomizeControlValues() {
     let currentInput;
     for(let control in controls) {
         currentInput = controls[control];
-        evolveSound(control);
+        evolveSound(control, true);
     }
 }
 
@@ -175,8 +179,6 @@ function addButtonEventListeners() {
     if(randomizeControlsButton) {
         randomizeControlsButton.addEventListener("click", function() {
             randomizeControlValues();
-            toggleAutoplay();
-            toggleEvolve();
         });
     }
     if(showControlsButton) {
