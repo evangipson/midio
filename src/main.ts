@@ -22,7 +22,7 @@ function setUpFrontEnd() {
  */
 (function initReverbAndMidio() {
     const impulseResponseFileRead = new XMLHttpRequest();
-    impulseResponseFileRead.open('GET', 'http://evangipson.com/midio/audio/1st_baptist_nashville_far_wide.wav', true);
+    impulseResponseFileRead.open('GET', './audio/1st_baptist_nashville_far_wide.wav', true);
     impulseResponseFileRead.responseType = 'arraybuffer';
     impulseResponseFileRead.onload = () => {
         const audioData = impulseResponseFileRead.response;
