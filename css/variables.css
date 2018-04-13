@@ -5,7 +5,7 @@
     --p1-secondary: #71c;
         --p1-secondary-light: rgb(110, 58, 158);
     --p1-tertiary: #55a;
-    --p1-font: rgb(183, 209, 223);
+    --p1-font: rgb(221, 221, 221);
     /* Color Palette 2 */
     --p2-secondary: rgb(43, 170, 26);
     --p2-tertiary: rgb(17, 110, 197);
@@ -22,7 +22,7 @@
     --p6-secondary: rgb(17, 110, 197);
     --p6-tertiary: rgb(43, 170, 26);
     /* Color Palette 7 */
-    --p7-secondary: rgb(159, 255, 134);
+    --p7-secondary: rgb(235, 87, 255);
     --p7-tertiary: rgb(25, 146, 79);
     /* Color Palette 8 */
     --p8-secondary: rgb(69, 51, 177);

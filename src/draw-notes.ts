@@ -1,105 +1,36 @@
-// Pure Functions
 /**
- * Will return a note's frequency given a MouseEvent.
- * If no visualizer is present, will return the same frequency.
- * @param note
- * @param event 
- */
-const setNoteFrequencyFromClick = (note: Note, event: MouseEvent) => {
-    const visualizer = document.getElementById("Visualizer");
-    if(visualizer) {
-        // "snap" our targetFrequency to currentScale
-        const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * getCurrentScale().length);
-        note.frequency = getHarmonicNoteFrequency(getCurrentScale()[intervalGuess]);
-    }
-    return note.frequency;
-};
-
-/**
- * Will set a click's X position given a frequency based on
- * the current scale. If no visualizer is present, will return
- * 0.
- * @param note 
- * @param event 
- */
-const setClickPositionFromNoteFrequency = (note: Note, event: MouseEvent) => {
-    const visualizer = document.getElementById("Visualizer");
-    let clickXPosition = 0;
-    if(visualizer) {
-        clickXPosition = getRelativeValue(
-            note.frequency,
-            getHarmonicNoteFrequency(getCurrentScale()[getCurrentScale().length - 1]),
-            0,
-            visualizer.clientWidth
-        );
-    }
-    return clickXPosition;
-};
-
-/**
- * Will get an x & y position given a click event.
- * Will return null if provided no event. If no
- * event or visualizer is given, will return {x:0, y:0}.
+ * Will draw the note on the visualizer, also
+ * handles getting the note position from the event
+ * provided.
  * @param event
- */
-const getNotePosition = (event: CustomMouseEvent) => {
-    let xPosition = 0;
-    let yPosition = 0;
-    const visualizer = document.getElementById("Visualizer");
-    if(event.event && visualizer) {
-        xPosition = event.overrideX ? event.overrideX : event.event.clientX;
-        yPosition = event.overrideX ? 0 : event.event.clientY;
-    }
-    return {
-        x: event.event ? xPosition : 0,
-        y: event.event ? yPosition : 0
-    };
-};
-
-// Non-Pure Functions
-/**
- * Will draw the expanding circle factoring in volume
- * as opacity (out of 1.0). Also handles getting the note
- * position from the event.
- * @param event
- * @param volume
  * @param delay
  */
-function drawNoteWithVolumeBasedOpacity(event: CustomMouseEvent, volume: number, delay: number) {
+function drawNoteOnVisualizer(event: CustomMouseEvent, delay: number) {
     const coords = getNotePosition(event);
     if(delay) {
         setTimeout(function() {
-            drawNoteCircle(coords.x, coords.y);
+            animateNextActiveNote(visualNotes[noteAnimationIndex], coords.x, coords.y);
         }, delay * 1000);
     }
     else {
-        drawNoteCircle(coords.x, coords.y);
+        animateNextActiveNote(visualNotes[noteAnimationIndex], coords.x, coords.y);
     }
 }
 
 /**
- * Takes care of drawing the expanding notes on screen.
- * Intended to be called by playAndShowNote(), shouldn't be called directly.
+ * Takes care of drawing the notes on screen. Originally
+ * intended to be called by playAndShowNote().
  * @param x
  * @param y
  */
-function drawNoteCircle(x: number, y: number) {
-    let newCircle = document.createElement("span");
-    const visualizer = document.getElementById("Visualizer");
-    if(visualizer) {
-        newCircle.classList.add("note-circle");
-        newCircle.style.left = x + "px";
-        visualizer.appendChild(newCircle);
-        circles.push(newCircle);
-        circleActiveEventLoop = window.setTimeout(function() {
-            newCircle.classList.add("active"); // "turn on" the animation in a sec
-        }, 100);
-        circleEventLoop = window.setTimeout(function() {
-            // remove the first circle
-            let removedCircle:any = circles.shift();
-            if(removedCircle) {
-                visualizer.removeChild(removedCircle);
-            }
-        }, 2000); // keep the delay consistent with the CSS
-    }
+function animateNextActiveNote(noteSpan: HTMLSpanElement, x: number, y: number) {
+    noteSpan.style.left = x + "px";
+    circleActiveEventLoop = window.setTimeout(function() {
+        noteSpan.classList.add("active"); // "turn on" the animation in a sec
+    }, 100);
+    circleEventLoop = window.setTimeout(function() {
+        noteSpan.classList.remove("active"); // "turn off" the animation when complete
+    }, 2000); // keep the delay consistent with the CSS*/
+    // ensure we'll animate the next note next time
+    noteAnimationIndex = (noteAnimationIndex + 1) < ACTIVE_NOTES ? (noteAnimationIndex + 1) : 0;
 }

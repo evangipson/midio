@@ -11,6 +11,7 @@
         "strict": true
     },
     "include": [
+        "src/utilities.ts", // attempt to get utilities compiled in first
         "src/*.ts"
     ],
     "compileOnSave": true

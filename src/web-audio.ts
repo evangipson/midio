@@ -1,94 +1,3 @@
-// Pure Functions
-/**
- * Will tell you the frequency of an interval in half
- * steps from the current base note. Used originally
- * for building melodies.
- */
-const getFrequencyOfInterval = (interval: number) =>
-    getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval) - getCurrentBaseNote();
-
-/**
- * Will generate a chord, returned as an array filled with
- * unique freqencies based on the currentScale. Needs a base
- * tone to ensure we aren't returning two of the same note.
- * @param tones how many notes you want in the chord
- */
-const getChord = (baseTone: Note, tones = 3) => {
-    let chordTones:number[] = [
-        baseTone.frequency // we already have 1 tone in the chord
-    ];
-    let attemptedFrequency: number;
-    for(var i = 1; i < tones; i++) {
-        attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
-        // If we have the tone already in the code or the interval is more than 4 whole steps away...
-        while(chordTones.includes(attemptedFrequency) || Math.abs(baseTone.frequency - attemptedFrequency) > getFrequencyOfInterval(8)) {
-            // get a new frequency and try again
-            attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
-        }
-        chordTones.push(attemptedFrequency);
-    }
-    return chordTones;
-};
-
-/**
- * Will assemble an array of numbers that will
- * contain frequencies for a melody.
- * @param baseTone
- * @param tones 
- */
-const getMelody = (baseTone: Note, tones = 3) => {
-    let chordTones:number[] = [];
-    let attemptedFrequency: number;
-    let previousNote = baseTone;
-    for(var i = 1; i < tones; i++) {
-        attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
-        // if the next frequency is the same as the previous or more than 6 whole steps...
-        while(previousNote.frequency == attemptedFrequency || Math.abs(previousNote.frequency - attemptedFrequency) > getFrequencyOfInterval(12)) {
-            // try to get a "closer" note instead so we don't have large interval steps
-            attemptedFrequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
-        }
-        previousNote.frequency = attemptedFrequency;
-        chordTones.push(attemptedFrequency);
-    }
-    return chordTones;
-};
-
-/**
- * Will generate a frequency based on a scale.
- * Relies on twelfthRootOfTwo. Will return the
- * frequency for the base tone, set by the pitch slider,
- * by default.
- * @param interval how far away from baseTone the note is
- */
-const getHarmonicNoteFrequency = (interval = 0) =>
-    getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval);
-
-/**
- * Will return a suitable value for seconds
- * until the next musical phrase.
- * To be called by generateSound().
- */
-const getSecondsUntilNextPhrase = () => maybe(
-    noteTimings[0], // whole note
-    noteTimings[0] * 2 // 2 bars
-);
-
-/**
- * Will return, in seconds, how long a "short note"
- * should sound. Won't use whole or half notes.
- */
-const getShortNoteDuration = () =>
-    noteTimings[Math.floor(getRange(2, noteTimings.length - 1))];
-
-/**
- * Will return, in seconds, how long a "melody note"
- * should sound. Won't use extremely long or short notes.
- */
-const getMelodyNoteDuration = () =>
-    noteTimings[Math.floor(getRange(2, noteTimings.length - 2))];
-
-
-// Non-Pure Functions
 /**
  * Will play the note passed in.
  * @param note Note interface containing multiple properties
@@ -109,9 +18,9 @@ function playAndShowNote(note: Note, event: CustomMouseEvent) {
         .play();
     if (DEBUG) console.info(note); 
 
-    // draw those pretty circles on the canvas
+    // draw those pretty notes in the visualizer
     if(event.event) {
-        drawNoteWithVolumeBasedOpacity(event, note.volume, note.delay); // volume is out of 100
+        drawNoteOnVisualizer(event, note.delay);
     }
 }
 

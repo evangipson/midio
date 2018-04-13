@@ -20,14 +20,16 @@ function setUpFrontEnd() {
  * and setting up the buffer of audioContext to be reverberated.
  * Will start up midio.
  */
-const impulseResponseFileRead = new XMLHttpRequest();
-impulseResponseFileRead.open('GET', 'audio/1st_baptist_nashville_far_wide.wav', true);
-impulseResponseFileRead.responseType = 'arraybuffer';
-impulseResponseFileRead.onload = () => {
-    const audioData = impulseResponseFileRead.response;
-    audioContext.decodeAudioData(audioData, (buffer: AudioBuffer) => {
-        reverbNode.buffer = buffer;
-    }, function(e: any){"Error with decoding audio data" + e.err});
-    setUpFrontEnd(); // set up visualizer and control panel after we load the impulse response
-};
-impulseResponseFileRead.send();
+(function initReverbAndMidio() {
+    const impulseResponseFileRead = new XMLHttpRequest();
+    impulseResponseFileRead.open('GET', 'http://evangipson.com/midio/audio/1st_baptist_nashville_far_wide.wav', true);
+    impulseResponseFileRead.responseType = 'arraybuffer';
+    impulseResponseFileRead.onload = () => {
+        const audioData = impulseResponseFileRead.response;
+        audioContext.decodeAudioData(audioData, (buffer: AudioBuffer) => {
+            reverbNode.buffer = buffer;
+        }, function(e: any){"Error with decoding audio data" + e.err});
+        setUpFrontEnd(); // set up visualizer and control panel after we load the impulse response
+    };
+    impulseResponseFileRead.send();
+})(); // immediately invoked - starting point for the application

@@ -14,63 +14,59 @@ button {
     cursor: pointer;
 }
 
+/* Z-levels */
+.note-circle, .visualizer {
+    z-index: 0;
+}
+.visualizer h1, .visualizer button {
+    z-index: 1;
+    position: relative; /* needed for the z-index to take effect */
+}
+.controls {
+    z-index: 2;
+}
+
 /* Layout */
 section {
     width: 100%;
 }
 .visualizer {
     height: 100vh;
-    z-index: 0;
-}
-.controls {
-    z-index: 1;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    padding: 0.5rem 2rem;
-    box-sizing: border-box;
     text-align: center;
 }
-.controls.active {
-    max-height: 100vh;
-    overflow-y: scroll;
-}
-
 .note-circle {
     position: absolute;
     width: 6rem;
     height: 0;
     top: 0;
     background-color: rgba(255, 255, 255, 1.0);
-    transition: height var(--animation-time) ease,
-                background-color var(--animation-time) ease;
+    transition: none; /* don't need a transition back to initial state */
 }
 .note-circle.active {
     height: 100%;
     background-color: rgba(255, 255, 255, 0);
+    transition: height var(--animation-time) ease,
+                background-color var(--animation-time) ease;
 }
 /* Information in controls hidden by default */
-.control-panel-wrapper {
+.controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
     height: 0;
+    padding: 0 2rem;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
     transition: height var(--snappy-animation-time) ease-out;
 }
-.control-panel-wrapper input {
-    margin: 1rem auto;
+.controls.active {
+    height: 60vh;
 }
-.control-panel-wrapper .panel {
-    padding: 0;
-    margin: 0 2rem 0 0;
-    width: calc(50% - 4rem);
-    display: inline-block;
-}
-.control-panel-wrapper .panel:first-child() {
-    margin: 0 0 0 2rem;
-}
-.control-panel-wrapper.active {
-    height: 40rem;
-}
-.control-panel-wrapper input {
-    width: 90%;
+.controls label {
+    margin: 0.5rem;
 }
 #ShowControls:after {
     content: "Show Controls";
@@ -78,18 +74,18 @@ section {
 #ShowControls.active:after {
     content: "Hide Controls";
 }
-.footer-copy h1, .footer-copy button {
-    display: inline-block;
-}
-.footer-copy h1 {
-    font-size: 1.2rem;
+h1 {
+    font-size: 5rem;
+    display: block;
+    margin: 0 auto;
 }
 button {
+    display: inline-block;
     border: none;
     outline: none;
     box-shadow: none;
     padding: 0.5rem 1rem;
-    margin-top: 1rem;
+    margin: 1rem;
     width: auto;
 }
 .light-font {
@@ -97,34 +93,38 @@ button {
     font-size: 0.9rem;
     letter-spacing: 2.5px;
 }
+.calls-to-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
 
 /* Desktop Styles */
 @media screen and (min-width: 960px) {
-    .control-panel-wrapper.active {
-        height: 10rem;
-    }
-    .control-panel-wrapper .panel {
-        width: 100%;
+    /* center the copy when we have room for the controls beneath */
+    .visualizer {
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
+        align-items: center;
     }
-    .control-panel-wrapper label {
+    .controls {
+        overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */
+    }
+    .controls.active {
+        height: 11rem;
+    }
+    .controls .panel {
+        display: flex;
+        flex-direction: row;
+    }
+    .controls label {
         margin-top: 1rem;
     }
-    .control-panel-wrapper .panel, .control-panel-wrapper .panel:first-child() {
-        padding: 0;
-        margin: 0;
-    }
-    .footer-copy button {
-        margin-left: 2rem;
-    }
-    .control-panel-wrapper h2 {
+    .controls h2 {
         padding: 0 1rem;
         margin: 2rem 1rem 0;
         border-right: 2px var(--p1-font) solid;
-    }
-    .controls.active {
-        overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */
     }
 }

@@ -65,11 +65,9 @@
     background: rgba(68, 68, 68, 0.75); /* var(--p1-primary) */
 }
 button {
-    background-color: var(--p1-secondary);
-    transition: background-color var(--snappy-animation-time) ease;
-}
-button:active, button:hover {
-    background-color: var(--p1-secondary-light);
+    background-color: transparent;
+    color: var(--p1-secondary-light);
+    text-decoration: underline;
 }
 /* Overriding colors set in ./range.css */
 .controls input[type=range]::-webkit-slider-runnable-track {
