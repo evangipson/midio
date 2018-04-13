@@ -52,34 +52,21 @@ section {
 .controls {
     position: fixed;
     bottom: 0;
-    height: 0;
     left: 0;
+    height: 0;
+    padding: 0 2rem;
     box-sizing: border-box;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
     transition: height var(--snappy-animation-time) ease-out;
 }
 .controls.active {
-    max-height: 100vh;
-    padding: 0.5rem 2rem;
-    overflow-y: scroll;
+    height: 60vh;
 }
-.controls input {
-    margin: 1rem auto;
-}
-.controls .panel {
-    padding: 0;
-    margin: 0 2rem 0 0;
-    width: calc(50% - 4rem);
-    display: inline-block;
-}
-.controls .panel:first-child() {
-    margin: 0 0 0 2rem;
-}
-.controls.active {
-    height: 40rem;
-}
-.controls input {
-    width: 90%;
+.controls label {
+    margin: 0.5rem;
 }
 #ShowControls:after {
     content: "Show Controls";
@@ -87,18 +74,18 @@ section {
 #ShowControls.active:after {
     content: "Hide Controls";
 }
-h1, button {
-    display: inline-block;
-}
 h1 {
-    font-size: 1.2rem;
+    font-size: 5rem;
+    display: block;
+    margin: 0 auto;
 }
 button {
+    display: inline-block;
     border: none;
     outline: none;
     box-shadow: none;
     padding: 0.5rem 1rem;
-    margin-top: 1rem;
+    margin: 1rem;
     width: auto;
 }
 .light-font {
@@ -106,39 +93,38 @@ button {
     font-size: 0.9rem;
     letter-spacing: 2.5px;
 }
+.calls-to-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
 
 /* Desktop Styles */
 @media screen and (min-width: 960px) {
+    /* center the copy when we have room for the controls beneath */
     .visualizer {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+    }
+    .controls {
+        overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */
     }
     .controls.active {
-        height: 10rem;
+        height: 11rem;
     }
     .controls .panel {
-        width: 100%;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: row;
     }
     .controls label {
         margin-top: 1rem;
-    }
-    .controls .panel, .controls .panel:first-child() {
-        padding: 0;
-        margin: 0;
-    }
-    button {
-        margin-left: 2rem;
     }
     .controls h2 {
         padding: 0 1rem;
         margin: 2rem 1rem 0;
         border-right: 2px var(--p1-font) solid;
-    }
-    .controls.active {
-        overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */
     }
 }
