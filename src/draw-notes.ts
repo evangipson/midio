@@ -9,11 +9,16 @@ function drawNoteOnVisualizer(event: CustomMouseEvent, delay: number) {
     const coords = getNotePosition(event);
     if(delay) {
         circleActiveEventLoop = window.setTimeout(function() {
-            animateNextActiveNote(visualNotes[noteAnimationIndex], coords.x, coords.y);
+            requestAnimationFrame(function(){
+                animateNextActiveNote(coords.x, coords.y);
+            });
         }, delay * 1000);
     }
     else {
-        animateNextActiveNote(visualNotes[noteAnimationIndex], coords.x, coords.y);
+        // "turn on" the animation in a sec, when the browser is ready
+        requestAnimationFrame(function() {
+            animateNextActiveNote(coords.x, coords.y);
+        });
     }
 }
 
@@ -23,15 +28,14 @@ function drawNoteOnVisualizer(event: CustomMouseEvent, delay: number) {
  * @param x
  * @param y
  */
-function animateNextActiveNote(noteSpan: HTMLSpanElement, x: number, y: number) {
+function animateNextActiveNote(x: number, y: number) {
+    // get the next non-active note span
+    let noteSpan = visualNotes[noteAnimationIndex];
+    noteSpan.classList.add("active");
     noteSpan.style.left = x + "px";
-    // "turn on" the animation in a sec
-    requestAnimationFrame(function() {
-        noteSpan.classList.add("active");
-        // ensure we'll animate the next note next time
-        noteAnimationIndex = (noteAnimationIndex + 1) < ACTIVE_NOTES ? (noteAnimationIndex + 1) : 0;
-        circleEventLoop = window.setTimeout(function() {
-            noteSpan.classList.remove("active"); // "turn off" the animation when complete
-        }, 2000); // keep the delay consistent with the CSS*/
-    });
+    noteAnimationIndex = (noteAnimationIndex + 1) < ACTIVE_NOTES ? (noteAnimationIndex + 1) : 0;
+    circleEventLoop = window.setTimeout(function() {
+        noteSpan.classList.remove("active"); // "turn off" the animation when complete
+        //noteAnimationIndex = (noteAnimationIndex - 1) > 0 ? (noteAnimationIndex - 1) : ACTIVE_NOTES - 1;
+    }, 2000); // keep the delay consistent with the CSS*/
 }
