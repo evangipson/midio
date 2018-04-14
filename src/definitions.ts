@@ -351,7 +351,7 @@ interface Note {
  * Will be used as an object containing properties
  * defining a "normal" note. Used in generateSound().
  */
-const normalNote:Note = {
+let normalNote:Note = {
     type: "sine",
     frequency: getCurrentBaseNote(),
     time: 0,
