@@ -13,6 +13,10 @@ html, body, button, a {
 button {
     cursor: pointer;
 }
+input[type=range] {
+    /* default background is white */
+    background: transparent;
+}
 
 /* Z-levels */
 .note-circle, .visualizer {
@@ -58,17 +62,18 @@ section {
     position: fixed;
     bottom: 0;
     left: 0;
-    height: 0;
-    padding: 0 2rem;
+    height: 60vh;
+    margin-bottom: calc(-60vh - 3rem); /* compensate for padding & height */
+    padding: 1rem 2rem 2rem;
     box-sizing: border-box;
     text-align: center;
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
-    transition: height var(--snappy-animation-time) ease-out;
+    transition: transform var(--snappy-animation-time) ease;
 }
 .controls.active {
-    height: 60vh;
+    transform: translateY(calc(-60vh - 3rem));
 }
 .controls label {
     margin: 0.5rem;
@@ -107,6 +112,11 @@ button {
 
 /* Desktop Styles */
 @media screen and (min-width: 960px) {
+    input[type=range] {
+        margin: 0;
+        /* make space for label */
+        padding-top: 1.5rem;
+    }
     /* center the copy when we have room for the controls beneath */
     .visualizer {
         display: flex;
@@ -115,14 +125,17 @@ button {
         align-items: center;
     }
     .controls {
+        height: 12rem;
+        margin-bottom: -15rem;
         overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */
     }
     .controls.active {
-        height: 11rem;
+        transform: translateY(-15rem);
     }
     .controls .panel {
         display: flex;
         flex-direction: row;
+        height: 50%;
     }
     .controls label {
         margin-top: 1rem;
