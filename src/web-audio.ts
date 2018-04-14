@@ -35,10 +35,10 @@ function searchMemoryForPhrase(event: MouseEvent) {
     let overrideX: number;
     const memoryIndex = Math.round(getRange(0, shortTermMemory.length - 1));
     const rememberedPhrase = shortTermMemory[memoryIndex];
-    rememberedPhrase.forEach((rememberedNote) => {
-        overrideX = setClickPositionFromNoteFrequency(rememberedNote, event);
-        playAndShowNote(rememberedNote, {event, overrideX} as CustomMouseEvent);
-    });
+    for(let i = 0; i < rememberedPhrase.length; i++) {
+        overrideX = setClickPositionFromNoteFrequency(rememberedPhrase[i], event);
+        playAndShowNote(rememberedPhrase[i], {event, overrideX} as CustomMouseEvent);
+    }
     if(maybe(true, false, 66)) {
         if (DEBUG) console.info("COMPOSER removing the phrase from memory");
         shortTermMemory.splice(memoryIndex, 1);
@@ -96,14 +96,15 @@ function buildChordFromNote(note: Note, event: MouseEvent) {
     if (DEBUG) console.info("the chord will be " + additionalChordTones + " notes");
     if (DEBUG) console.info("========================================");
     // then for every other frequency in our chord...
-    getChord(note, additionalChordTones).forEach((chordTone) => {
+    const chordToneArray = getChord(note, additionalChordTones);
+    for(let i = 0; i < chordToneArray.length; i++) {
         // copy the "base note"
         chordNote = {...note}; // push a new copy of chordNote so it doesn't get overwritten
-        chordNote.frequency = chordTone;
+        chordNote.frequency = chordToneArray[i];
         rememberedPhrase.push(chordNote);
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
         playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-    });
+    }
     attemptToRememberPhrase(rememberedPhrase);
 }
 
@@ -124,15 +125,16 @@ function buildArpeggioFromNote(note: Note, event: MouseEvent) {
     note.time = getShortNoteDuration();
     let previousDelay = note.time;
     // for every frequency in our arpeggio...
-    getChord(note, additionalChordTones).forEach((chordTone) => {
+    const arpToneArray = getChord(note, additionalChordTones);
+    for(let i = 0; i < arpToneArray.length; i++) {
         chordNote = note;
-        chordNote.frequency = chordTone;
+        chordNote.frequency = arpToneArray[i];
         // compound delay
         previousDelay += previousDelay;
         chordNote.delay = previousDelay;
         overrideX = setClickPositionFromNoteFrequency(chordNote, event);
         playAndShowNote(chordNote, {event, overrideX} as CustomMouseEvent);
-    });
+    }
 }
 
 /**
@@ -155,7 +157,8 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
     // play the initial tone first...
     playAndShowNote(note, {event} as CustomMouseEvent);
     // for every frequency in our melody...
-    getMelody(note, additionalMelodyTones).forEach((melodyTone) => {
+    const melodyToneArray = getChord(note, additionalMelodyTones);
+    for(let i = 0; i < melodyToneArray.length; i++) {
         // get a new note length
         let currentNoteLength = getMelodyNoteDuration();
         // copy the "base note"
@@ -163,14 +166,14 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
         // use our new note length
         melodyNote.time = currentNoteLength;
         // set the frequency to what getMelody() advises
-        melodyNote.frequency = melodyTone;
+        melodyNote.frequency = melodyToneArray[i];
         // apply then compound the delay to ensure space between notes
         melodyNote.delay = currentNoteDelay;
         currentNoteDelay += currentNoteLength;
         rememberedPhrase.push(melodyNote);
         overrideX = setClickPositionFromNoteFrequency(melodyNote, event);
         playAndShowNote(melodyNote, {event, overrideX} as CustomMouseEvent);
-    });
+    }
     attemptToRememberPhrase(rememberedPhrase);
 }
 

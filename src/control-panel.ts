@@ -159,13 +159,13 @@ function addInputEventListeners() {
     controls.tempo.htmlInput.addEventListener("change", function() {
         setNoteTimings(); // uses getCurrentTempo() to fetch value
     });
-    allWaveRanges.forEach((range) => {
-        range.addEventListener("change", function() {
+    for(let i = 0; i < allWaveRanges.length; i++) {
+        allWaveRanges[i].addEventListener("change", function() {
             if(+this.value === 0) {
                 this.value = ensureLastWaveStaysOn(this.value); // disallow this wave from being toggled off if it's the only one
             }
         });
-    });
+    }
 }
 
 /**
