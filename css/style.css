@@ -40,6 +40,8 @@ section {
     height: 1rem;
     top: -1rem;
     background-color: white;
+    /* let chrome, firefox, and safari know we plan to change parameters. not supported in edge. */
+    will-change: transform, opacity;
     opacity: 1.0;
     transition: none; /* don't need a transition back to initial state */
 }
