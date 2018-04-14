@@ -8,7 +8,7 @@
 function drawNoteOnVisualizer(event: CustomMouseEvent, delay: number) {
     const coords = getNotePosition(event);
     if(delay) {
-        setTimeout(function() {
+        circleActiveEventLoop = window.setTimeout(function() {
             animateNextActiveNote(visualNotes[noteAnimationIndex], coords.x, coords.y);
         }, delay * 1000);
     }
@@ -25,12 +25,13 @@ function drawNoteOnVisualizer(event: CustomMouseEvent, delay: number) {
  */
 function animateNextActiveNote(noteSpan: HTMLSpanElement, x: number, y: number) {
     noteSpan.style.left = x + "px";
-    circleActiveEventLoop = window.setTimeout(function() {
-        noteSpan.classList.add("active"); // "turn on" the animation in a sec
-    }, 100);
-    circleEventLoop = window.setTimeout(function() {
-        noteSpan.classList.remove("active"); // "turn off" the animation when complete
-    }, 2000); // keep the delay consistent with the CSS*/
-    // ensure we'll animate the next note next time
-    noteAnimationIndex = (noteAnimationIndex + 1) < ACTIVE_NOTES ? (noteAnimationIndex + 1) : 0;
+    // "turn on" the animation in a sec
+    requestAnimationFrame(function() {
+        noteSpan.classList.add("active");
+        // ensure we'll animate the next note next time
+        noteAnimationIndex = (noteAnimationIndex + 1) < ACTIVE_NOTES ? (noteAnimationIndex + 1) : 0;
+        circleEventLoop = window.setTimeout(function() {
+            noteSpan.classList.remove("active"); // "turn off" the animation when complete
+        }, 2000); // keep the delay consistent with the CSS*/
+    });
 }

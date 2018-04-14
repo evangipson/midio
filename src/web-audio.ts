@@ -185,11 +185,11 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
  * Note: Can generate either a tone, echo tone, or chord.
  * @param event
  */
-function generateSound(event:MouseEvent = new MouseEvent("", undefined)) {
+function generateSound(event:any = null) {
     let note = assembleNote();
     let userNote = false; // we'll assume autoplay is firing this note unless told otherwise
     // If we've called this function from the autoplay loop
-    if(!event.clientX) {
+    if(!event) {
         if (DEBUG) console.info("COMPOSER composing...");
         event = getFakeMouseClick();
         /* in an amount of time, call itself again, because

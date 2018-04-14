@@ -3,7 +3,7 @@
 'use strict';
 
 const DEBUG:boolean = true; // used to control console.log statements
-const ACTIVE_NOTES:number = 15; // how many notes on screen at any given time
+const ACTIVE_NOTES:number = 8; // how many notes on screen at any given time
 
 /* Immutable global variable, used to chain audio
  * "as any" will force an index signature so it's not implicit. */
@@ -24,17 +24,19 @@ const lfoWaveTypes:string[] = [
     // "sawtooth",
 ];
 
+// only grab the visualizer once so we don't query the document a lot
+const visualizerElement = document.getElementById("Visualizer");
+
 // used to keep track of spans which represent notes
 let visualNotes:HTMLSpanElement[] = [];
 // pre-fill our visualizer with spans to prevent memory leaks
-let spanElement;
+let spanElement: HTMLSpanElement;
 for(let i = 0; i < ACTIVE_NOTES; i++) {
-    let visualizer = document.getElementById("Visualizer");
     spanElement = document.createElement("span");
     spanElement.classList.add("note-circle");
     visualNotes.push(spanElement);
-    if(visualizer) {
-        visualizer.appendChild(spanElement);
+    if(visualizerElement) {
+        visualizerElement.appendChild(visualNotes[i]);
     }
 }
 // keep track of which note we can use

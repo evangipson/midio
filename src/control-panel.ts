@@ -110,7 +110,6 @@ function toggleEvolve() {
  */
 function changeBackgroundColor(mood = 1) {
     const updatedVisualizerClass = "mood" + mood;
-    const visualizerElement = document.getElementById("Visualizer");
     if(visualizerElement) {
         // wipe the old mood class if there is one
         visualizerElement.className = "visualizer";

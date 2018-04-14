@@ -36,17 +36,20 @@ section {
 }
 .note-circle {
     position: absolute;
-    width: 6rem;
-    height: 0;
-    top: 0;
-    background-color: rgba(255, 255, 255, 1.0);
+    width: 4rem;
+    height: 1rem;
+    top: -1rem;
+    background-color: white;
+    opacity: 1.0;
     transition: none; /* don't need a transition back to initial state */
 }
 .note-circle.active {
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0);
-    transition: height var(--animation-time) ease,
-                background-color var(--animation-time) ease;
+    transform: scale(1, 200);
+    opacity: 0;
+    /* browsers can transition transforms and opacity without layout and redraw updates 
+     * https://www.html5rocks.com/en/tutorials/speed/high-performance-animations/ */
+    transition: opacity var(--animation-time) ease,
+                transform var(--animation-time) ease;
 }
 /* Information in controls hidden by default */
 .controls {

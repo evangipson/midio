@@ -68,13 +68,12 @@ const getMelodyNoteDuration = () =>
  * Will return null if no visualizer div is present.
  * @param screenGutter how much edge of the screen to give, in px.
  */
+let fakeMouseEvent:MouseEvent;
 const getFakeMouseClick = (screenGutter = 300) => {
-    const visualizerElement = document.getElementById("Visualizer");
-    let click = new MouseEvent("", undefined);
     if(visualizerElement) {
         const bestGuessX = getRange(screenGutter, visualizerElement.offsetWidth - screenGutter);
         const bestGuessY = getRange(screenGutter, visualizerElement.offsetHeight - screenGutter);
-        click = new MouseEvent('click', {
+        fakeMouseEvent = new MouseEvent('click', {
             'view': window,
             'bubbles': true,
             'cancelable': true,
@@ -82,7 +81,7 @@ const getFakeMouseClick = (screenGutter = 300) => {
             'clientY': bestGuessY
         });
     }
-    return click;
+    return fakeMouseEvent;
 };
 
 /**
@@ -199,10 +198,9 @@ const ensureOneWaveIsOn = (inputKey: string, attemptedValue: string) => {
  * @param event 
  */
 const setNoteFrequencyFromClick = (note: Note, event: MouseEvent) => {
-    const visualizer = document.getElementById("Visualizer");
-    if(visualizer) {
+    if(visualizerElement) {
         // "snap" our targetFrequency to currentScale
-        const intervalGuess = Math.floor((event.clientX / visualizer.clientWidth) * getCurrentScale().length);
+        const intervalGuess = Math.floor((event.clientX / visualizerElement.clientWidth) * getCurrentScale().length);
         note.frequency = getHarmonicNoteFrequency(getCurrentScale()[intervalGuess]);
     }
     return note.frequency;
@@ -216,14 +214,13 @@ const setNoteFrequencyFromClick = (note: Note, event: MouseEvent) => {
  * @param event 
  */
 const setClickPositionFromNoteFrequency = (note: Note, event: MouseEvent) => {
-    const visualizer = document.getElementById("Visualizer");
     let clickXPosition = 0;
-    if(visualizer) {
+    if(visualizerElement) {
         clickXPosition = getRelativeValue(
             note.frequency,
             getHarmonicNoteFrequency(getCurrentScale()[getCurrentScale().length - 1]),
             0,
-            visualizer.clientWidth
+            visualizerElement.clientWidth
         );
     }
     return clickXPosition;
@@ -238,8 +235,7 @@ const setClickPositionFromNoteFrequency = (note: Note, event: MouseEvent) => {
 const getNotePosition = (event: CustomMouseEvent) => {
     let xPosition = 0;
     let yPosition = 0;
-    const visualizer = document.getElementById("Visualizer");
-    if(event.event && visualizer) {
+    if(event.event) {
         xPosition = event.overrideX ? event.overrideX : event.event.clientX;
         yPosition = event.overrideX ? 0 : event.event.clientY;
     }

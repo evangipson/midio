@@ -1,13 +1,12 @@
 function setUpFrontEnd() {
-    const visualizer = document.getElementById("Visualizer");
-    if(visualizer) {
+    if(visualizerElement) {
         initControlMenu(); // starts autoplay & evolve
-        visualizer.addEventListener("mousedown", function() {
+        visualizerElement.addEventListener("mousedown", function() {
             noteTimingEventHandler = setInterval(function(){
                 clickedNoteLength = clickedNoteLength + 0.01;
             }, 100);
         });
-        visualizer.addEventListener("click", function(event) {
+        visualizerElement.addEventListener("click", function(event) {
             clearInterval(noteTimingEventHandler);
             generateSound(event);
             clickedNoteLength = 0;
