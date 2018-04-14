@@ -60,26 +60,6 @@ function attemptToRememberPhrase(phrase: Note[]) {
 }
 
 /**
- * Will return an object containing properties
- * defining a "normal" note.
- */
-function assembleNote(): Note {
-    return {
-        type: getRandomArrayItem(getActiveWaveTypes()),
-        frequency: getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale())),
-        time: maybe(getMelodyNoteDuration(), getShortNoteDuration()),
-        volume: getCurrentMasterVolume(),
-        attack: getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.2),
-        decay: getRange(0.1, 0.5),
-        sustain: getRange(0.35, 0.8),
-        //release: getRange(1.2, 2.5),
-        release: 0,
-        delay: 0,
-        instrument: maybe("piano")
-    };
-}
-
-/**
  * Will build and play a chord given a Note and a MouseEvent.
  * @param note 
  * @param event 
@@ -186,8 +166,20 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
  * @param event
  */
 function generateSound(event:any = null) {
-    let note = assembleNote();
-    let userNote = false; // we'll assume autoplay is firing this note unless told otherwise
+    /* Modify the normal note's parameters to be interesting,
+     * instead of creating a whole new note object each time
+     * this function is called. */
+    let note = normalNote;
+    note.type = getRandomArrayItem(getActiveWaveTypes());
+    note.frequency = getHarmonicNoteFrequency(getRandomArrayItem(getCurrentScale()));
+    note.time = maybe(getMelodyNoteDuration(), getShortNoteDuration());
+    note.volume = getCurrentMasterVolume();
+    note.attack = getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.2);
+    note.decay = getRange(0.1, 0.5);
+    note.sustain = getRange(0.35, 0.8);
+    note.instrument = maybe("piano");
+    // we'll assume autoplay is firing this note unless told otherwise
+    let userNote = false;
     // If we've called this function from the autoplay loop
     if(!event) {
         if (DEBUG) console.info("COMPOSER composing...");

@@ -20,11 +20,11 @@ function setUpFrontEnd() {
  * Will start up midio.
  */
 (function initReverbAndMidio() {
-    const impulseResponseFileRead = new XMLHttpRequest();
+    let impulseResponseFileRead = new XMLHttpRequest();
     impulseResponseFileRead.open('GET', './audio/1st_baptist_nashville_far_wide.wav', true);
     impulseResponseFileRead.responseType = 'arraybuffer';
     impulseResponseFileRead.onload = () => {
-        const audioData = impulseResponseFileRead.response;
+        let audioData = impulseResponseFileRead.response;
         audioContext.decodeAudioData(audioData, (buffer: AudioBuffer) => {
             reverbNode.buffer = buffer;
         }, function(e: any){"Error with decoding audio data" + e.err});

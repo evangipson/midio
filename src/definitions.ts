@@ -7,7 +7,7 @@ const ACTIVE_NOTES:number = 8; // how many notes on screen at any given time
 
 /* Immutable global variable, used to chain audio
  * "as any" will force an index signature so it's not implicit. */
-const audioContext = new ((window as any)["AudioContext"] || (window as any)["webkitAudioContext"])();
+let audioContext = new ((window as any)["AudioContext"] || (window as any)["webkitAudioContext"])();
 
 // keeping track of autoplay & composer
 let autoplayEventLoop: number;
@@ -25,7 +25,7 @@ const lfoWaveTypes:string[] = [
 ];
 
 // only grab the visualizer once so we don't query the document a lot
-const visualizerElement = document.getElementById("Visualizer");
+let visualizerElement = document.getElementById("Visualizer");
 
 // used to keep track of spans which represent notes
 let visualNotes:HTMLSpanElement[] = [];
@@ -189,6 +189,11 @@ for(let scale in scales) {
     }
 }
 
+// Create only one reverb node for performance reasons
+const reverbNode: ConvolverNode = audioContext.createConvolver();
+reverbNode.connect(audioContext.destination);
+const reverbLength = 8; // how long the reverb is, in seconds
+
 // HTML Control Variables
 /**
  * Our interfaces used to instantiate HTML controls.
@@ -291,40 +296,16 @@ const controls:HTMLControlList = {
         max: 1
     }
 };
-const getCurrentLFORate = () => +controls.lfoRate.htmlInput.value;
-const getCurrentLFODepth = () => +controls.lfoDepth.htmlInput.value;
-const getCurrentMasterVolume = () => +controls.volume.htmlInput.value;
-const getCurrentBaseNote = () => +controls.baseNote.htmlInput.value;
-const getCurrentSoftness = () => +controls.softness.htmlInput.value / 10;
-const getCurrentTempo = () => +controls.tempo.htmlInput.value;
-const getCurrentScale = () => scales[+controls.mood.htmlInput.value];
-const isAutoplay = () => +controls.autoplay.htmlInput.value === 0 ? false : true;
-const isEvolve = () => +controls.evolve.htmlInput.value === 0 ? false : true;
-const getActiveWaveTypes = () => {
-    let activeWaveTypes:string[] = [];
-    if(+controls.sine.htmlInput.value === 1) {
-        activeWaveTypes.push("sine");
-    }
-    if(+controls.sawtooth.htmlInput.value === 1) {
-        activeWaveTypes.push("sawtooth");
-    }
-    if(+controls.triangle.htmlInput.value === 1) {
-        activeWaveTypes.push("triangle");
-    }
-    if(+controls.square.htmlInput.value === 1) {
-        activeWaveTypes.push("square");
-    }
-    if(+controls.whiteNoise.htmlInput.value === 1) {
-        activeWaveTypes.push("whiteNoise");
-    }
-    if(+controls.pinkNoise.htmlInput.value === 1) {
-        activeWaveTypes.push("pinkNoise");
-    }
-    if(+controls.brownNoise.htmlInput.value === 1) {
-        activeWaveTypes.push("brownNoise");
-    }
-    return activeWaveTypes;
-};
+// used in addInputEventListeners() in control-panel.ts
+const allWaveRanges = [
+    controls.triangle.htmlInput,
+    controls.sine.htmlInput,
+    controls.square.htmlInput,
+    controls.sawtooth.htmlInput,
+    controls.whiteNoise.htmlInput,
+    controls.pinkNoise.htmlInput,
+    controls.brownNoise.htmlInput
+];
 
 /**
  * Responsible for setting all of the timings for
@@ -366,10 +347,23 @@ interface Note {
     instrument?: string; // optional, if used will set an instrument
 }
 
-// Create only one reverb node for performance reasons
-const reverbNode: ConvolverNode = audioContext.createConvolver();
-reverbNode.connect(audioContext.destination);
-const reverbLength = 8; // how long the reverb is, in seconds
+/**
+ * Will be used as an object containing properties
+ * defining a "normal" note. Used in generateSound().
+ */
+const normalNote:Note = {
+    type: "sine",
+    frequency: getCurrentBaseNote(),
+    time: 0,
+    volume: getCurrentMasterVolume(),
+    attack: 0,
+    decay: 0,
+    sustain: 1,
+    //release: getRange(1.2, 2.5),
+    release: 0,
+    delay: 0,
+    instrument: maybe("piano")
+};
 
 /**
  * Contains many methods for operating and

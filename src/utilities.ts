@@ -14,7 +14,7 @@
  * @param weight 0 to 100. how likely it is
  * the first condition should happen, in percentage.
  */
-const maybe = (condition: any, defaultCondition: any = null, weight = 50) => {
+function maybe(condition: any, defaultCondition: any = null, weight = 50) {
     if(Math.random() < weight / 100) {
         return condition;
     }
@@ -22,44 +22,52 @@ const maybe = (condition: any, defaultCondition: any = null, weight = 50) => {
         return defaultCondition;
     }
     return null;
-};
+}
 
 /**
  * Gives back a random array item, provided
  * the array.
  * @param array
  */
-const getRandomArrayItem = (array:any[]) => array[Math.round(getRange(0, array.length - 1))];
+function getRandomArrayItem(array:any[]) {
+    return array[Math.round(getRange(0, array.length - 1))];
+}
 
 /**
  * Gives back a number in the range provided.
  * @param min
  * @param max
  */
-const getRange = (min: number, max: number) => Math.random() * (max - min) + min;
+function getRange(min: number, max: number) {
+    return Math.random() * (max - min) + min;
+}
 /**
  * Will return a suitable value for seconds
  * until the next musical phrase.
  * To be called by generateSound().
  */
-const getSecondsUntilNextPhrase = () => maybe(
-    noteTimings[0], // whole note
-    noteTimings[0] * 2 // 2 bars
-);
+function getSecondsUntilNextPhrase() {
+    return maybe(
+        noteTimings[0], // whole note
+        noteTimings[0] * 2 // 2 bars
+    );
+} 
 
 /**
  * Will return, in seconds, how long a "short note"
  * should sound. Won't use whole or half notes.
  */
-const getShortNoteDuration = () =>
-    noteTimings[Math.floor(getRange(2, noteTimings.length - 1))];
+function getShortNoteDuration() {
+    return noteTimings[Math.floor(getRange(2, noteTimings.length - 1))];
+}
 
 /**
  * Will return, in seconds, how long a "melody note"
  * should sound. Won't use extremely long or short notes.
  */
-const getMelodyNoteDuration = () =>
-    noteTimings[Math.floor(getRange(2, noteTimings.length - 2))];
+function getMelodyNoteDuration() {
+    return noteTimings[Math.floor(getRange(2, noteTimings.length - 2))];
+}
 
 // Pure Functions
 /**
@@ -69,7 +77,7 @@ const getMelodyNoteDuration = () =>
  * @param screenGutter how much edge of the screen to give, in px.
  */
 let fakeMouseEvent:MouseEvent;
-const getFakeMouseClick = (screenGutter = 300) => {
+function getFakeMouseClick(screenGutter = 300) {
     if(visualizerElement) {
         const bestGuessX = getRange(screenGutter, visualizerElement.offsetWidth - screenGutter);
         const bestGuessY = getRange(screenGutter, visualizerElement.offsetHeight - screenGutter);
@@ -82,7 +90,7 @@ const getFakeMouseClick = (screenGutter = 300) => {
         });
     }
     return fakeMouseEvent;
-};
+}
 
 /**
  * Takes in a value and will generate another number
@@ -92,16 +100,18 @@ const getFakeMouseClick = (screenGutter = 300) => {
  * @param minResult
  * @param maxResult
  */
-const getRelativeValue = (initialValue = 0, maxInitialValue = 100, minResult: number, maxResult: number) =>
-    ((initialValue / maxInitialValue) * maxResult) + minResult;
+function getRelativeValue(initialValue = 0, maxInitialValue = 100, minResult: number, maxResult: number) {
+    return ((initialValue / maxInitialValue) * maxResult) + minResult;
+}
 
 /**
  * Will tell you the frequency of an interval in half
  * steps from the current base note. Used originally
  * for building melodies.
  */
-const getFrequencyOfInterval = (interval: number) =>
-    getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval) - getCurrentBaseNote();
+function getFrequencyOfInterval(interval: number) {
+    return getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval) - getCurrentBaseNote();
+}
 
 /**
  * Will generate a chord, returned as an array filled with
@@ -109,7 +119,7 @@ const getFrequencyOfInterval = (interval: number) =>
  * tone to ensure we aren't returning two of the same note.
  * @param tones how many notes you want in the chord
  */
-const getChord = (baseTone: Note, tones = 3) => {
+function getChord(baseTone: Note, tones = 3) {
     let chordTones:number[] = [
         baseTone.frequency // we already have 1 tone in the chord
     ];
@@ -124,7 +134,7 @@ const getChord = (baseTone: Note, tones = 3) => {
         chordTones.push(attemptedFrequency);
     }
     return chordTones;
-};
+}
 
 /**
  * Will assemble an array of numbers that will
@@ -132,7 +142,7 @@ const getChord = (baseTone: Note, tones = 3) => {
  * @param baseTone
  * @param tones 
  */
-const getMelody = (baseTone: Note, tones = 3) => {
+function getMelody(baseTone: Note, tones = 3) {
     let chordTones:number[] = [];
     let attemptedFrequency: number;
     let previousNote = baseTone;
@@ -147,7 +157,7 @@ const getMelody = (baseTone: Note, tones = 3) => {
         chordTones.push(attemptedFrequency);
     }
     return chordTones;
-};
+}
 
 /**
  * Will generate a frequency based on a scale.
@@ -156,19 +166,20 @@ const getMelody = (baseTone: Note, tones = 3) => {
  * by default.
  * @param interval how far away from baseTone the note is
  */
-const getHarmonicNoteFrequency = (interval = 0) =>
-    getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval);
+function getHarmonicNoteFrequency(interval = 0) {
+    return getCurrentBaseNote() * Math.pow(twelfthRootOfTwo, interval);
+}
 
 /**
  * Will prevent the last wave from being turned off.
  * @param attemptedValue 
  */
-const ensureLastWaveStaysOn = (attemptedValue: string) => {
+function ensureLastWaveStaysOn(attemptedValue: string) {
     if(getActiveWaveTypes().length !== 0) {
         return attemptedValue;
     }
     return "1";
-};
+}
 
 /**
  * Will take care of ensuring at least one wave is turned on.
@@ -177,7 +188,7 @@ const ensureLastWaveStaysOn = (attemptedValue: string) => {
  * @param inputKey 
  * @param attemptedValue 
  */
-const ensureOneWaveIsOn = (inputKey: string, attemptedValue: string) => {
+function ensureOneWaveIsOn(inputKey: string, attemptedValue: string) {
     let returnValue = attemptedValue;
     if(inputKey === "triangle" ||
     inputKey === "sine" ||
@@ -189,7 +200,7 @@ const ensureOneWaveIsOn = (inputKey: string, attemptedValue: string) => {
         returnValue = ensureLastWaveStaysOn(attemptedValue); // counts on the HTMLInput already being toggled
     }
     return returnValue;
-};
+}
 
 /**
  * Will return a note's frequency given a MouseEvent.
@@ -197,14 +208,14 @@ const ensureOneWaveIsOn = (inputKey: string, attemptedValue: string) => {
  * @param note
  * @param event 
  */
-const setNoteFrequencyFromClick = (note: Note, event: MouseEvent) => {
+function setNoteFrequencyFromClick(note: Note, event: MouseEvent) {
     if(visualizerElement) {
         // "snap" our targetFrequency to currentScale
         const intervalGuess = Math.floor((event.clientX / visualizerElement.clientWidth) * getCurrentScale().length);
         note.frequency = getHarmonicNoteFrequency(getCurrentScale()[intervalGuess]);
     }
     return note.frequency;
-};
+}
 
 /**
  * Will set a click's X position given a frequency based on
@@ -213,7 +224,7 @@ const setNoteFrequencyFromClick = (note: Note, event: MouseEvent) => {
  * @param note 
  * @param event 
  */
-const setClickPositionFromNoteFrequency = (note: Note, event: MouseEvent) => {
+function setClickPositionFromNoteFrequency(note: Note, event: MouseEvent) {
     let clickXPosition = 0;
     if(visualizerElement) {
         clickXPosition = getRelativeValue(
@@ -224,7 +235,7 @@ const setClickPositionFromNoteFrequency = (note: Note, event: MouseEvent) => {
         );
     }
     return clickXPosition;
-};
+}
 
 /**
  * Will get an x & y position given a click event.
@@ -232,7 +243,7 @@ const setClickPositionFromNoteFrequency = (note: Note, event: MouseEvent) => {
  * event or visualizer is given, will return {x:0, y:0}.
  * @param event
  */
-const getNotePosition = (event: CustomMouseEvent) => {
+function getNotePosition(event: CustomMouseEvent) {
     let xPosition = 0;
     let yPosition = 0;
     if(event.event) {
@@ -243,4 +254,58 @@ const getNotePosition = (event: CustomMouseEvent) => {
         x: event.event ? xPosition : 0,
         y: event.event ? yPosition : 0
     };
-};
+}
+
+/* Control Panel Utilities */
+function getCurrentLFORate() {
+    return +controls.lfoRate.htmlInput.value;
+}
+function getCurrentLFODepth() {
+    return +controls.lfoDepth.htmlInput.value;
+}
+function getCurrentMasterVolume() {
+    return +controls.volume.htmlInput.value;
+}
+function getCurrentBaseNote() {
+    return +controls.baseNote.htmlInput.value;
+}
+function getCurrentSoftness() {
+    return +controls.softness.htmlInput.value / 10;
+}
+function getCurrentTempo() {
+    return +controls.tempo.htmlInput.value;
+}
+function getCurrentScale() {
+    return scales[+controls.mood.htmlInput.value];
+}
+function isAutoplay() {
+    return +controls.autoplay.htmlInput.value === 0 ? false : true;
+}
+function isEvolve() {
+    return +controls.evolve.htmlInput.value === 0 ? false : true;
+}
+function getActiveWaveTypes() {
+    let activeWaveTypes:string[] = [];
+    if(+controls.sine.htmlInput.value === 1) {
+        activeWaveTypes.push("sine");
+    }
+    if(+controls.sawtooth.htmlInput.value === 1) {
+        activeWaveTypes.push("sawtooth");
+    }
+    if(+controls.triangle.htmlInput.value === 1) {
+        activeWaveTypes.push("triangle");
+    }
+    if(+controls.square.htmlInput.value === 1) {
+        activeWaveTypes.push("square");
+    }
+    if(+controls.whiteNoise.htmlInput.value === 1) {
+        activeWaveTypes.push("whiteNoise");
+    }
+    if(+controls.pinkNoise.htmlInput.value === 1) {
+        activeWaveTypes.push("pinkNoise");
+    }
+    if(+controls.brownNoise.htmlInput.value === 1) {
+        activeWaveTypes.push("brownNoise");
+    }
+    return activeWaveTypes;
+}

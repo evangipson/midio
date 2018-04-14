@@ -48,7 +48,7 @@ function evolveSound(nextInput = getRandomArrayItem(Object.keys(controls)), sing
     if (DEBUG) console.info("COMPOSER evolving " + nextInput + " paramater");
     if(nextInput && controls[nextInput]) {
         let newValue;
-        const nextHTMLInput = controls[nextInput].htmlInput;
+        let nextHTMLInput = controls[nextInput].htmlInput;
         const oldValue = nextHTMLInput.value;
         const minValue = Math.floor(+nextHTMLInput.value - ((+nextHTMLInput.max - +nextHTMLInput.min) / 3));
         const maxValue = Math.ceil(+nextHTMLInput.value + ((+nextHTMLInput.max - +nextHTMLInput.min) / 3));
@@ -133,15 +133,6 @@ function randomizeControlValues() {
  * for the inputs in the control panel.
  */
 function addInputEventListeners() {
-    const allWaveRanges = [
-        controls.triangle.htmlInput,
-        controls.sine.htmlInput,
-        controls.square.htmlInput,
-        controls.sawtooth.htmlInput,
-        controls.whiteNoise.htmlInput,
-        controls.pinkNoise.htmlInput,
-        controls.brownNoise.htmlInput
-    ];
     /* using "change" so this only runs on mouse up.
      * NOTE: can't just fire over and over again by clicking
      * max value on the toggle because this is a "change" event,
@@ -173,8 +164,8 @@ function addInputEventListeners() {
  * all inputs.
  */
 function addButtonEventListeners() {
-    const showControlsButton = document.getElementById("ShowControls");
-    const randomizeControlsButton = document.getElementById("RandomizeControls");
+    let showControlsButton = document.getElementById("ShowControls");
+    let randomizeControlsButton = document.getElementById("RandomizeControls");
     if(randomizeControlsButton) {
         randomizeControlsButton.addEventListener("click", function() {
             randomizeControlValues();
@@ -182,7 +173,7 @@ function addButtonEventListeners() {
     }
     if(showControlsButton) {
         showControlsButton.addEventListener("click", function() {
-            const controlList = document.getElementById("ControlList");
+            let controlList = document.getElementById("ControlList");
             // relies on the max height being set on the content
             if(controlList && this.classList.contains("active")) {
                 this.classList.remove("active");
