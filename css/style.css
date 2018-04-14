@@ -125,17 +125,18 @@ button {
         align-items: center;
     }
     .controls {
-        height: 12rem;
-        margin-bottom: -15rem;
+        height: 14rem;
+        margin-bottom: -17rem;
         overflow-y: hidden; /* where we're rendering... we won't need a scrollbar. */
     }
     .controls.active {
-        transform: translateY(-15rem);
+        transform: translateY(-17rem);
     }
     .controls .panel {
         display: flex;
         flex-direction: row;
         height: 50%;
+        padding-bottom: 1rem;
     }
     .controls label {
         margin-top: 1rem;
