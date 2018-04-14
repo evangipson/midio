@@ -1,7 +1,16 @@
-# midio
-midio is a web-based generative synthesizer "radio" which uses the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and [TypeScript](https://www.typescriptlang.org/) to create tones of varying lengths and intervals based on some user input (which lives in a control panel) and internal logic, defined in the source code.
+# [midio: generative synthesizer radio](http://evangipson.com/midio)
+midio is a web-based generative synthesizer "radio" which uses the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and [TypeScript](https://www.typescriptlang.org/) to create intertwining, evolving musical phrases on the fly.
 
-The user can either load up the page and just listen while midio generates an ever-evolving song for them, or turn autoplay off and click the colorful area that takes up most of the screen and experiment with the inputs to have some fun.
+It utilizes 4 basic oscillator waves (sine, sawtooth, square, and triangle), 3 noise waves (white, pink, and brown), filters (bandpass, lowpass, and highpass), delay, reverb (via convolution), and gain to create all of it's sounds. It features the ability to:
+- Create musical phrases (melodies, chords, and arpeggios) with no user input
+- Remember and play back those musical phrases (to increase the user's tonal familiarity with the song)
+- Give the user an idea of the frequency of any note that is playing by hooking it's frequency to the x axis, then drawing a quick animation
+- Have it's paramaters (oscillator waves, noise waves, LFO, etc.) modified in a control panel by the user
+- "Evolve the song" by adjusting the control panel values regularly within a range of their current value
+
+It can be used in the following ways:
+- Load midio, sit back and listen while midio generates an ever-evolving song without any input
+- Load midio, turn autoplay off, and click the colorful area that takes up most of the screen and experiment with the inputs to have some fun
 
 midio started as a randomly generated sequence of MIDI notes based on a scale, then it was moved forward by my curiosity toward [functional programming](https://en.wikipedia.org/wiki/Functional_programming) and the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API).
 
@@ -34,12 +43,12 @@ To compile the TypeScript in the project:
 * When in Visual Studio Code, type **control + shift + B** to bring up your list of tasks.
 * Start the ```tsc-watch``` task.
 * Save any file, and you will now have a **src/main.js**, which is referenced by the main **index.html** file.
-    * Note: This is due to the [tsconfig.json](https://github.com/evangipson/midio/blob/master/tsconfig.json) file.
+    * Note: This is due to the [tsconfig.json](tsconfig.json) file.
 
 # Contributing
-Thank you so much for your interest in contributing to midio! You should read and follow the [contribution guidelines](https://github.com/evangipson/midio/blob/master/CONTRIBUTING.md).
+Thank you so much for your interest in contributing to midio! You should read and follow the [code of conduct](CODE_OF_CONDUCT.md) and [contribution guidelines](CONTRIBUTING.md).
 
 If you find a bug - then check out any [open issues](https://github.com/evangipson/midio/issues) to see if your bug is already reported. If not, [create a new issue](https://github.com/evangipson/midio/issues/new), please!
 
 # License
-midio is licensed under [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html). If you are interested, [take a look at midio's license](https://github.com/evangipson/midio/blob/master/LICENSE).
+midio is licensed under [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html). If you are interested, [take a look at midio's license](LICENSE).
