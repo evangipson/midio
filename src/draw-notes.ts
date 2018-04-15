@@ -9,16 +9,12 @@ function drawNoteOnVisualizer(event: CustomMouseEvent, delay: number) {
     const coords = getNotePosition(event);
     if(delay) {
         circleActiveEventLoop = window.setTimeout(function() {
-            requestAnimationFrame(function(){
-                animateNextActiveNote(coords.x, coords.y);
-            });
+            animateNextActiveNote(coords.x, coords.y);
         }, delay * 1000);
     }
     else {
-        // "turn on" the animation in a sec, when the browser is ready
-        requestAnimationFrame(function() {
-            animateNextActiveNote(coords.x, coords.y);
-        });
+        // "turn on" the animation
+        animateNextActiveNote(coords.x, coords.y);
     }
 }
 

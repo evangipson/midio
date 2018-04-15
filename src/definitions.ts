@@ -247,7 +247,7 @@ const controls:HTMLControlList = {
     "tempo": {
         htmlInput: (<HTMLInputElement>document.getElementById("Tempo")),
         min: 20,
-        max: 180
+        max: 100
     },
     // "Toggles"
     "autoplay": {

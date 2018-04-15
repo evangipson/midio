@@ -137,7 +137,7 @@ function buildMelodyFromNote(note: Note, event: MouseEvent) {
     // play the initial tone first...
     playAndShowNote(note, {event} as CustomMouseEvent);
     // for every frequency in our melody...
-    const melodyToneArray = getChord(note, additionalMelodyTones);
+    const melodyToneArray = getMelody(note, additionalMelodyTones);
     for(let i = 0; i < melodyToneArray.length; i++) {
         // get a new note length
         let currentNoteLength = getMelodyNoteDuration();
