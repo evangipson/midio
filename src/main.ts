@@ -3,7 +3,7 @@ function setUpFrontEnd() {
         initControlMenu(); // starts autoplay & evolve
         visualizerElement.addEventListener("mousedown", function() {
             noteTimingEventHandler = setInterval(function(){
-                clickedNoteLength = clickedNoteLength + 0.01;
+                clickedNoteLength = clickedNoteLength + 0.5;
             }, 100);
         });
         visualizerElement.addEventListener("click", function(event) {
