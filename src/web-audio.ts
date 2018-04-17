@@ -177,6 +177,7 @@ function generateSound(event:any = null) {
     note.attack = getRange(getCurrentSoftness() * 0.5, getCurrentSoftness() * 1.2);
     note.decay = getRange(0.1, 0.5);
     note.sustain = getRange(0.35, 0.8);
+    note.delay = 0; // base delay should be none
     note.instrument = maybe("piano");
     // we'll assume autoplay is firing this note unless told otherwise
     let userNote = false;
