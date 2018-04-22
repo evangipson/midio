@@ -21,7 +21,7 @@ function setUpFrontEnd() {
  */
 (function initReverbAndMidio() {
     let impulseResponseFileRead = new XMLHttpRequest();
-    impulseResponseFileRead.open('GET', './audio/1st_baptist_nashville_far_wide.wav', true);
+    impulseResponseFileRead.open('GET', './audio/1st_baptist_nashville_far_wide.mp3', true);
     impulseResponseFileRead.responseType = 'arraybuffer';
     impulseResponseFileRead.onload = () => {
         let audioData = impulseResponseFileRead.response;
